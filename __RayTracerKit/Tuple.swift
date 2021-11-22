@@ -24,6 +24,19 @@ struct Tuple {
     var magnitude: Double {
         return sqrt(_tuple.x.pow(2) + _tuple.y.pow(2) + _tuple.z.pow(2) + _tuple.w.pow(2))
     }
+
+    func normalized() -> Self {
+        return Tuple(simd_normalize(_tuple))
+    }
+
+    func dotProduct(with tuple: Self) -> Double {
+        return simd_dot(_tuple, tuple._tuple)
+    }
+
+    func crossProduct(with tuple: Self) -> Self {
+        let xyz = simd_cross(_tuple.xyz, tuple._tuple.xyz)
+        return Tuple(SIMD4(xyz, 0))
+    }
 }
 
 extension Tuple {
@@ -128,6 +141,31 @@ final class TupleTests: XCTestCase {
         XCTAssertEqual(v3.magnitude, 1)
         XCTAssertEqual(v4.magnitude, 14.squareRoot())
         XCTAssertEqual(v5.magnitude, 14.squareRoot())
+    }
+
+    func test_normalized() {
+        let vector = Tuple.vector(4, 0, 0)
+        XCTAssertEqual(vector.normalized(), .vector(1, 0, 0))
+    }
+
+    func test_magnitude_normalizedVector() {
+        let vector = Tuple.vector(1, 2, 3)
+        XCTAssertEqual(vector.normalized().magnitude, 1)
+    }
+
+    func test_dotProduct() {
+        let v1 = Tuple.vector(1, 2, 3)
+        let v2 = Tuple.vector(2, 3, 4)
+
+        XCTAssertEqual(v1.dotProduct(with: v2), 20)
+    }
+
+    func test_crossProduct() {
+        let v1 = Tuple.vector(1, 2, 3)
+        let v2 = Tuple.vector(2, 3, 4)
+
+        XCTAssertEqual(v1.crossProduct(with: v2), .vector(-1, 2, -1))
+        XCTAssertEqual(v2.crossProduct(with: v1), .vector(1, -2, 1))
     }
 }
 #endif
