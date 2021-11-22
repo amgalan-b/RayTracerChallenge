@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "8F7365BE-E4C1-4B7F-96DF-2A84B85F9112",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:__RayTracerChallenge.xcodeproj",
+        "identifier" : "6A52C6A5274B993800B7E3BB",
+        "name" : "__RayTracerKitTests"
+      }
+    }
+  ],
+  "version" : 1
+}
