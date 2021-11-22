@@ -28,6 +28,9 @@ extension Color: Equatable {
 
 extension Color {
 
+    static let white = Color(red: 1, green: 1, blue: 1)
+    static let black = Color(red: 0, green: 0, blue: 0)
+
     static func rgb(_ red: Double, _ green: Double, _ blue: Double) -> Self {
         return Color(red: red, green: green, blue: blue)
     }

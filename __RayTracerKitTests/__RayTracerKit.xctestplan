@@ -9,10 +9,13 @@
     }
   ],
   "defaultOptions" : {
-    "codeCoverage" : false
+
   },
   "testTargets" : [
     {
+      "skippedTests" : [
+        "CanvasTests\/test_ppmPerformance()"
+      ],
       "target" : {
         "containerPath" : "container:__RayTracerChallenge.xcodeproj",
         "identifier" : "6A52C6A5274B993800B7E3BB",
