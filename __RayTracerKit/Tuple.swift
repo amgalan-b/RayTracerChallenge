@@ -3,39 +3,39 @@ import simd
 
 struct Tuple {
 
-    private let _tuple: SIMD4<Double>
+    private let _xyzw: SIMD4<Double>
 
-    init(_ tuple: SIMD4<Double>) {
-        _tuple = tuple
+    init(xyzw: SIMD4<Double>) {
+        _xyzw = xyzw
     }
 
     init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {
-        _tuple = [x, y, z, w]
+        _xyzw = [x, y, z, w]
     }
 
     var isPoint: Bool {
-        return _tuple.w > 0
+        return _xyzw.w > 0
     }
 
     var isVector: Bool {
-        return _tuple.w == 0
+        return _xyzw.w == 0
     }
 
     var magnitude: Double {
-        return sqrt(_tuple.x.pow(2) + _tuple.y.pow(2) + _tuple.z.pow(2) + _tuple.w.pow(2))
+        return sqrt(_xyzw.x.pow(2) + _xyzw.y.pow(2) + _xyzw.z.pow(2) + _xyzw.w.pow(2))
     }
 
     func normalized() -> Self {
-        return Tuple(simd_normalize(_tuple))
+        return Tuple(xyzw: simd_normalize(_xyzw))
     }
 
     func dotProduct(with tuple: Self) -> Double {
-        return simd_dot(_tuple, tuple._tuple)
+        return simd_dot(_xyzw, tuple._xyzw)
     }
 
     func crossProduct(with tuple: Self) -> Self {
-        let xyz = simd_cross(_tuple.xyz, tuple._tuple.xyz)
-        return Tuple(SIMD4(xyz, 0))
+        let xyz = simd_cross(_xyzw.xyz, tuple._xyzw.xyz)
+        return Tuple(xyzw: SIMD4(xyz, 0))
     }
 }
 
@@ -56,23 +56,23 @@ extension Tuple: Equatable {
 extension Tuple {
 
     static func + (lhs: Self, rhs: Self) -> Self {
-        return Tuple(lhs._tuple + rhs._tuple)
+        return Tuple(xyzw: lhs._xyzw + rhs._xyzw)
     }
 
     static func - (lhs: Self, rhs: Self) -> Self {
-        return Tuple(lhs._tuple - rhs._tuple)
+        return Tuple(xyzw: lhs._xyzw - rhs._xyzw)
     }
 
     static func * (lhs: Self, rhs: Double) -> Self {
-        return Tuple(lhs._tuple * rhs)
+        return Tuple(xyzw: lhs._xyzw * rhs)
     }
 
     static func / (lhs: Self, rhs: Double) -> Self {
-        return Tuple(lhs._tuple / rhs)
+        return Tuple(xyzw: lhs._xyzw / rhs)
     }
 
     static prefix func - (lhs: Self) -> Self {
-        return Tuple(-lhs._tuple)
+        return Tuple(xyzw: -lhs._xyzw)
     }
 }
 
