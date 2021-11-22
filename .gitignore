@@ -1,0 +1,20 @@
+.DS_Store
+
+# Use `xcodegen generate` to generate .xcodeproj file.
+*.xcodeproj
+xcuserdata/
+.swiftpm
+
+# Ignore zip files.
+*.zip
+
+# Ignore IDE related files.
+.idea
+
+# Ignore dependencies and builds.
+.build
+Carthage
+
+# Ignore artifacts even though they might be useful for larger teams.
+Cartfile.resolved
+Package.resolved
