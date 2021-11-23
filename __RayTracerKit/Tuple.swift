@@ -44,6 +44,13 @@ struct Tuple {
 }
 
 extension Tuple: Equatable {
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.xyzw.x.isAlmostEqual(to: rhs.xyzw.x)
+            && lhs.xyzw.y.isAlmostEqual(to: rhs.xyzw.y)
+            && lhs.xyzw.z.isAlmostEqual(to: rhs.xyzw.z)
+            && lhs.xyzw.w.isAlmostEqual(to: rhs.xyzw.w)
+    }
 }
 
 extension Tuple {
