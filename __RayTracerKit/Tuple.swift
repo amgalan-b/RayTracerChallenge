@@ -41,15 +41,19 @@ struct Tuple {
         let xyz = simd_cross(_xyzw.xyz, tuple._xyzw.xyz)
         return Tuple(xyzw: SIMD4(xyz, 0))
     }
+
+    func reflected(on normal: Self) -> Self {
+        return self - normal * 2 * dotProduct(with: normal)
+    }
 }
 
 extension Tuple: Equatable {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.xyzw.x.isAlmostEqual(to: rhs.xyzw.x)
-            && lhs.xyzw.y.isAlmostEqual(to: rhs.xyzw.y)
-            && lhs.xyzw.z.isAlmostEqual(to: rhs.xyzw.z)
-            && lhs.xyzw.w.isAlmostEqual(to: rhs.xyzw.w)
+        return lhs.xyzw.x.isAlmostEqual(to: rhs.xyzw.x, tolerance: .tolerance)
+            && lhs.xyzw.y.isAlmostEqual(to: rhs.xyzw.y, tolerance: .tolerance)
+            && lhs.xyzw.z.isAlmostEqual(to: rhs.xyzw.z, tolerance: .tolerance)
+            && lhs.xyzw.w.isAlmostEqual(to: rhs.xyzw.w, tolerance: .tolerance)
     }
 }
 
@@ -106,6 +110,20 @@ final class TupleTests: XCTestCase {
 
         XCTAssertEqual(v1.crossProduct(with: v2), .vector(-1, 2, -1))
         XCTAssertEqual(v2.crossProduct(with: v1), .vector(1, -2, 1))
+    }
+
+    func test_reflected_45Degrees() {
+        let reflection = Tuple.vector(1, -1, 0)
+            .reflected(on: .vector(0, 1, 0))
+
+        XCTAssertEqual(reflection, .vector(1, 1, 0))
+    }
+
+    func test_reflected_slanted() {
+        let reflection = Tuple.vector(0, -1, 0)
+            .reflected(on: .vector(sqrt(2) / 2, sqrt(2) / 2, 0))
+
+        XCTAssertEqual(reflection, .vector(1, 0, 0))
     }
 }
 #endif
