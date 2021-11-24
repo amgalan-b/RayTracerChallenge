@@ -2,9 +2,10 @@ import Foundation
 
 final class Sphere {
 
-    var transform = Matrix.identity
+    var transform: Matrix
 
-    init() {
+    init(transform: Matrix = .identity) {
+        self.transform = transform
     }
 
     func intersect(with ray: Ray) -> [Intersection] {
@@ -91,9 +92,7 @@ final class SphereTests: XCTestCase {
     }
 
     func test_intersect_scaledSphere() {
-        let sphere = Sphere()
-        sphere.transform = .scaling(2, 2, 2)
-
+        let sphere = Sphere(transform: .scaling(2, 2, 2))
         let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
         let times = sphere.intersect(with: ray)
             .map { $0.time }
@@ -102,9 +101,8 @@ final class SphereTests: XCTestCase {
     }
 
     func test_intersect_translatedSphere() {
+        let sphere = Sphere(transform: .translation(5, 0, 0))
         let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let sphere = Sphere()
-        sphere.transform = .translation(5, 0, 0)
 
         XCTAssertEqual(sphere.intersect(with: ray), [])
     }
