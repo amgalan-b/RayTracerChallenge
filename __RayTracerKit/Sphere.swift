@@ -2,13 +2,16 @@ import Foundation
 
 final class Sphere {
 
+    var transform = Matrix.identity
+
     init() {
     }
 
     func intersect(with ray: Ray) -> [Intersection] {
-        let distance = ray.origin - .point(0, 0, 0)
-        let a = ray.direction.dotProduct(with: ray.direction)
-        let b = 2 * ray.direction.dotProduct(with: distance)
+        let transformedRay = ray.transformed(with: transform.inverted())
+        let distance = transformedRay.origin - .point(0, 0, 0)
+        let a = transformedRay.direction.dotProduct(with: transformedRay.direction)
+        let b = 2 * transformedRay.direction.dotProduct(with: distance)
         let c = distance.dotProduct(with: distance) - 1
 
         let discriminant = b * b - 4 * a * c
@@ -85,6 +88,25 @@ final class SphereTests: XCTestCase {
             .map { $0.object }
 
         XCTAssertEqual(result, [sphere, sphere])
+    }
+
+    func test_intersect_scaledSphere() {
+        let sphere = Sphere()
+        sphere.transform = .scaling(2, 2, 2)
+
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let times = sphere.intersect(with: ray)
+            .map { $0.time }
+
+        XCTAssertEqual(times, [3, 7])
+    }
+
+    func test_intersect_translatedSphere() {
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let sphere = Sphere()
+        sphere.transform = .translation(5, 0, 0)
+
+        XCTAssertEqual(sphere.intersect(with: ray), [])
     }
 }
 #endif
