@@ -2,9 +2,11 @@ import Foundation
 
 final class Sphere {
 
+    var material: Material
     var transform: Matrix
 
-    init(transform: Matrix = .identity) {
+    init(material: Material = .default, transform: Matrix = .identity) {
+        self.material = material
         self.transform = transform
     }
 
