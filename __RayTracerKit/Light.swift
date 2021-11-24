@@ -13,7 +13,7 @@ struct Light {
 
 extension Light {
 
-    static func point(position: Tuple, intensity: Color) -> Light {
+    static func pointLight(at position: Tuple, intensity: Color) -> Light {
         return Light(position: position, intensity: intensity)
     }
 }

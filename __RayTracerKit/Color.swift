@@ -20,9 +20,9 @@ struct Color {
 extension Color: Equatable {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.rgb.x.isAlmostEqual(to: rhs.rgb.x)
-            && lhs.rgb.y.isAlmostEqual(to: rhs.rgb.y)
-            && lhs.rgb.z.isAlmostEqual(to: rhs.rgb.z)
+        return lhs.rgb.x.isAlmostEqual(to: rhs.rgb.x, tolerance: .tolerance)
+            && lhs.rgb.y.isAlmostEqual(to: rhs.rgb.y, tolerance: .tolerance)
+            && lhs.rgb.z.isAlmostEqual(to: rhs.rgb.z, tolerance: .tolerance)
     }
 }
 
