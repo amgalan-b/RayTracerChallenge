@@ -13,6 +13,22 @@ struct Tuple {
         _xyzw = [x, y, z, w]
     }
 
+    var x: Double {
+        return _xyzw.x
+    }
+
+    var y: Double {
+        return _xyzw.y
+    }
+
+    var z: Double {
+        return _xyzw.z
+    }
+
+    var w: Double {
+        return _xyzw.w
+    }
+
     var xyzw: SIMD4<Double> {
         return _xyzw
     }
