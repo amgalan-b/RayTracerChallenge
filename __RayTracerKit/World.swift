@@ -2,12 +2,21 @@ import Foundation
 
 final class World {
 
-    let objects: [Sphere]
-    let light: Light?
+    var objects: [Sphere]
+    var light: Light?
 
     init(objects: [Sphere] = [], light: Light? = nil) {
         self.objects = objects
         self.light = light
+    }
+
+    func color(for ray: Ray) -> Color {
+        let intersections = intersect(with: ray)
+        guard let hit = intersections.hit() else {
+            return .black
+        }
+
+        return hit.shade(for: ray, light: light!)
     }
 
     func intersect(with ray: Ray) -> [Intersection] {
@@ -42,6 +51,20 @@ final class WorldTests: XCTestCase {
             .map { $0.time }
 
         XCTAssertEqual(times, [4, 4.5, 5.5, 6])
+    }
+
+    func test_color_rayMiss() {
+        let world = World.makeDefault()
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 1, 0))
+
+        XCTAssertEqual(world.color(for: ray), .black)
+    }
+
+    func test_color_rayHit() {
+        let world = World.makeDefault()
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+
+        XCTAssertEqual(world.color(for: ray), .rgb(0.38066, 0.47583, 0.2855))
     }
 }
 #endif
