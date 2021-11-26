@@ -16,12 +16,39 @@ public final class World {
             return .black
         }
 
-        return hit.shade(for: ray, light: light!)
+        let computations = Computations(intersection: hit, ray: ray)
+        let isShadowed = _isShadowed(at: computations.overPoint)
+
+        return computations.object.material.lighting(
+            at: computations.overPoint,
+            light: light!,
+            eyeVector: computations.eyeVector,
+            normal: computations.normalVector,
+            isShadowed: isShadowed
+        )
     }
 
     fileprivate func _intersect(with ray: Ray) -> [Intersection] {
         return objects.flatMap { $0.intersect(with: ray) }
             .sorted(by: \.time)
+    }
+
+    fileprivate func _isShadowed(at point: Tuple) -> Bool {
+        guard let light = light else {
+            return true
+        }
+
+        let lightVector = light.position - point
+        let distance = lightVector.magnitude
+        let direction = lightVector.normalized()
+        let ray = Ray(origin: point, direction: direction)
+        let intersections = _intersect(with: ray)
+
+        guard let hit = intersections.hit() else {
+            return false
+        }
+
+        return hit.time < distance
     }
 }
 
@@ -46,8 +73,8 @@ final class WorldTests: XCTestCase {
 
     func test_intersect() {
         let world = World.makeDefault()
-        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let times = world._intersect(with: _ray)
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let times = world._intersect(with: ray)
             .map { $0.time }
 
         XCTAssertEqual(times, [4, 4.5, 5.5, 6])
@@ -55,16 +82,36 @@ final class WorldTests: XCTestCase {
 
     func test_color_rayMiss() {
         let world = World.makeDefault()
-        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 1, 0))
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 1, 0))
 
-        XCTAssertEqual(world.color(for: _ray), .black)
+        XCTAssertEqual(world.color(for: ray), .black)
     }
 
     func test_color_rayHit() {
         let world = World.makeDefault()
-        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
 
-        XCTAssertEqual(world.color(for: _ray), .rgb(0.38066, 0.47583, 0.2855))
+        XCTAssertEqual(world.color(for: ray), .rgb(0.38066, 0.47583, 0.2855))
+    }
+
+    func test_isShadowed_nothingBetweenLightAndPoint() {
+        let world = World.makeDefault()
+        XCTAssertFalse(world._isShadowed(at: .point(0, 10, 0)))
+    }
+
+    func test_isShadowed_objectIsBetweenLightAndPoint() {
+        let world = World.makeDefault()
+        XCTAssert(world._isShadowed(at: .point(10, -10, 10)))
+    }
+
+    func test_isShadowed_lightIsBetweenObjectAndPoint() {
+        let world = World.makeDefault()
+        XCTAssertFalse(world._isShadowed(at: .point(-20, 20, -20)))
+    }
+
+    func test_isShadowed_pointIsBetweenLightAndObject() {
+        let world = World.makeDefault()
+        XCTAssertFalse(world._isShadowed(at: .point(-2, 2, -2)))
     }
 }
 #endif

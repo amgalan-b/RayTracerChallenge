@@ -16,9 +16,19 @@ public struct Material {
         self.shininess = shininess
     }
 
-    func lighting(at position: Tuple, light: Light, eyeVector: Tuple, normal normalVector: Tuple) -> Color {
+    func lighting(
+        at position: Tuple,
+        light: Light,
+        eyeVector: Tuple,
+        normal normalVector: Tuple,
+        isShadowed: Bool = false
+    ) -> Color {
         let effectiveColor = color * light.intensity
         let ambientColor = effectiveColor * ambient
+
+        guard !isShadowed else {
+            return ambientColor
+        }
 
         let lightVector = (light.position - position).normalized()
         let lightDotNormal = lightVector.dotProduct(with: normalVector)
@@ -116,6 +126,18 @@ final class MaterialTests: XCTestCase {
         )
 
         XCTAssertEqual(color, .rgb(0.7364, 0.7364, 0.7364))
+    }
+
+    func test_lighting_shadowed() {
+        let color = Material.default.lighting(
+            at: .point(0, 0, 0),
+            light: .pointLight(at: .point(0, 10, -10), intensity: .white),
+            eyeVector: .vector(0, 0, -1),
+            normal: .vector(0, 0, -1),
+            isShadowed: true
+        )
+
+        XCTAssertEqual(color, .rgb(0.1, 0.1, 0.1))
     }
 }
 #endif
