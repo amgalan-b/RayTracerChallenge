@@ -8,8 +8,9 @@ struct Computations {
     let eyeVector: Tuple
     let normalVector: Tuple
 
+    /// Position slightly adjusted in normal direction to avoid self-intersection and shadow-acne.
+    let normalAdjustedPosition: Tuple
     let isInside: Bool
-    let overPoint: Tuple
 
     init(intersection: Intersection, ray: Ray) {
         self.time = intersection.time
@@ -18,16 +19,15 @@ struct Computations {
         self.eyeVector = -ray.direction
 
         let normalVector = object.normal(at: position)
-        guard normalVector.dotProduct(with: eyeVector) >= 0 else {
+        if normalVector.dotProduct(with: eyeVector) < 0 {
             self.isInside = true
             self.normalVector = -normalVector
-            self.overPoint = self.position + self.normalVector * .tolerance
-            return
+        } else {
+            self.isInside = false
+            self.normalVector = normalVector
         }
 
-        self.isInside = false
-        self.normalVector = normalVector
-        self.overPoint = self.position + self.normalVector * .tolerance
+        self.normalAdjustedPosition = self.position + self.normalVector * .tolerance
     }
 }
 
@@ -36,7 +36,7 @@ import XCTest
 
 final class ComputationTests: XCTestCase {
 
-    func test_computations_intersectionOutside() {
+    func test_isInside_intersectionOutside() {
         let sphere = Sphere()
         let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
         let intersection = Intersection(time: 4, object: sphere)
@@ -45,7 +45,7 @@ final class ComputationTests: XCTestCase {
         XCTAssertFalse(computations.isInside)
     }
 
-    func test_computations_intersectionInside() {
+    func test_isInside_intersectionInside() {
         let sphere = Sphere()
         let ray = Ray(origin: .point(0, 0, 0), direction: .vector(0, 0, 1))
         let intersection = Intersection(time: 1, object: sphere)
@@ -55,6 +55,16 @@ final class ComputationTests: XCTestCase {
         XCTAssertEqual(computations.position, .point(0, 0, 1))
         XCTAssertEqual(computations.eyeVector, .vector(0, 0, -1))
         XCTAssertEqual(computations.normalVector, .vector(0, 0, -1))
+    }
+
+    func test_normalAdjustedPosition() {
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let shape = Sphere(transform: .translation(0, 0, 1))
+        let intersection = Intersection(time: 5, object: shape)
+        let computations = Computations(intersection: intersection, ray: ray)
+
+        XCTAssert(computations.normalAdjustedPosition.z < -.tolerance / 2)
+        XCTAssert(computations.position.z > computations.normalAdjustedPosition.z)
     }
 }
 #endif

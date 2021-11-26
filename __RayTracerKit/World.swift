@@ -17,10 +17,10 @@ public final class World {
         }
 
         let computations = Computations(intersection: hit, ray: ray)
-        let isShadowed = _isShadowed(at: computations.overPoint)
+        let isShadowed = _isShadowed(at: computations.normalAdjustedPosition)
 
         return computations.object.material.lighting(
-            at: computations.overPoint,
+            at: computations.normalAdjustedPosition,
             light: light!,
             eyeVector: computations.eyeVector,
             normal: computations.normalVector,
