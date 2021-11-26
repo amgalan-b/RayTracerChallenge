@@ -24,12 +24,6 @@ public final class Sphere: Shape {
     }
 }
 
-extension Sphere: Equatable {
-
-    public static func == (lhs: Sphere, rhs: Sphere) -> Bool {
-        return lhs === rhs
-    }
-}
 
 #if TEST
 import XCTest

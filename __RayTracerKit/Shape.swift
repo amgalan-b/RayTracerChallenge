@@ -32,6 +32,13 @@ public class Shape {
     }
 }
 
+extension Shape: Equatable {
+
+    public static func == (lhs: Shape, rhs: Shape) -> Bool {
+        return lhs === rhs
+    }
+}
+
 private final class _TestShape: Shape {
 
     fileprivate var _ray: Ray?

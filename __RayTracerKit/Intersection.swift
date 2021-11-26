@@ -3,7 +3,7 @@ import Foundation
 struct Intersection {
 
     let time: Double
-    let object: Sphere
+    let object: Shape
 }
 
 extension Intersection: Equatable {

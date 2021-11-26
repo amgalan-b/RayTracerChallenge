@@ -2,10 +2,10 @@ import Foundation
 
 public final class World {
 
-    var objects: [Sphere]
+    var objects: [Shape]
     var light: Light?
 
-    public init(objects: [Sphere] = [], light: Light? = nil) {
+    public init(objects: [Shape] = [], light: Light? = nil) {
         self.objects = objects
         self.light = light
     }

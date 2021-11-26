@@ -3,7 +3,7 @@ import Foundation
 struct Computations {
 
     let time: Double
-    let object: Sphere
+    let object: Shape
     let position: Tuple
     let eyeVector: Tuple
     let normalVector: Tuple
