@@ -1,20 +1,11 @@
 import Foundation
 
-public final class Sphere {
+public final class Sphere: Shape {
 
-    public var material: Material
-    public var transform: Matrix
-
-    public init(material: Material = .default, transform: Matrix = .identity) {
-        self.material = material
-        self.transform = transform
-    }
-
-    func intersect(with ray: Ray) -> [Intersection] {
-        let transformedRay = ray.transformed(with: transform.inversed())
-        let distance = transformedRay.origin - .point(0, 0, 0)
-        let a = transformedRay.direction.dotProduct(with: transformedRay.direction)
-        let b = 2 * transformedRay.direction.dotProduct(with: distance)
+    override func intersectLocal(with ray: Ray) -> [Intersection] {
+        let distance = ray.origin - .point(0, 0, 0)
+        let a = ray.direction.dotProduct(with: ray.direction)
+        let b = 2 * ray.direction.dotProduct(with: distance)
         let c = distance.dotProduct(with: distance) - 1
 
         let discriminant = b * b - 4 * a * c
@@ -26,6 +17,10 @@ public final class Sphere {
         let t2 = (-b + discriminant.squareRoot()) / (2 * a)
 
         return [Intersection(time: t1, object: self), Intersection(time: t2, object: self)]
+    }
+
+    override func normalLocal(at point: Tuple) -> Tuple {
+        return point - .point(0, 0, 0)
     }
 }
 
@@ -93,20 +88,41 @@ final class SphereTests: XCTestCase {
         XCTAssertEqual(result, [sphere, sphere])
     }
 
-    func test_intersect_scaledSphere() {
-        let sphere = Sphere(transform: .scaling(2, 2, 2))
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let times = sphere.intersect(with: ray)
-            .map { $0.time }
+    func test_normal_xAxis() {
+        let normal = Sphere()
+            .normal(at: .point(1, 0, 0))
 
-        XCTAssertEqual(times, [3, 7])
+        XCTAssertEqual(normal, .vector(1, 0, 0))
     }
 
-    func test_intersect_translatedSphere() {
-        let sphere = Sphere(transform: .translation(5, 0, 0))
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+    func test_normal_yAxis() {
+        let normal = Sphere()
+            .normal(at: .point(0, 1, 0))
 
-        XCTAssertEqual(sphere.intersect(with: ray), [])
+        XCTAssertEqual(normal, .vector(0, 1, 0))
+    }
+
+    func test_normal_zAxis() {
+        let normal = Sphere()
+            .normal(at: .point(0, 0, 1))
+
+        XCTAssertEqual(normal, .vector(0, 0, 1))
+    }
+
+    func test_normal_point() {
+        let value = sqrt(3) / 3
+        let normal = Sphere()
+            .normal(at: .point(value, value, value))
+
+        XCTAssertEqual(normal, .vector(value, value, value))
+    }
+
+    func test_normal_isNormalized() {
+        let value = sqrt(3) / 3
+        let normal = Sphere()
+            .normal(at: .point(value, value, value))
+
+        XCTAssertEqual(normal, normal.normalized())
     }
 }
 #endif
