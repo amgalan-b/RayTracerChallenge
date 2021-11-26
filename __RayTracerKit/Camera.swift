@@ -54,8 +54,8 @@ public struct Camera {
         let worldX = halfWidth - offsetX
         let worldY = halfHeight - offsetY
 
-        let pixel = transform.inverted() * .point(worldX, worldY, -1)
-        let origin = transform.inverted() * .point(0, 0, 0)
+        let pixel = transform.inversed() * .point(worldX, worldY, -1)
+        let origin = transform.inversed() * .point(0, 0, 0)
         let direction = (pixel - origin).normalized()
 
         return Ray(origin: origin, direction: direction)

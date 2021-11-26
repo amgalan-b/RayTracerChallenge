@@ -23,7 +23,7 @@ public struct Matrix {
         return Matrix(matrix: simd_transpose(_matrix))
     }
 
-    func inverted() -> Matrix {
+    func inversed() -> Matrix {
         return Matrix(matrix: simd_inverse(_matrix))
     }
 }
@@ -123,7 +123,7 @@ final class MatrixTests: XCTestCase {
             [-0.69231, -0.69231, -0.76923, -1.92308]
         )
 
-        XCTAssertEqual(matrix.inverted(), expected)
+        XCTAssertEqual(matrix.inversed(), expected)
     }
 
     func test_inversed_2() {
@@ -135,15 +135,15 @@ final class MatrixTests: XCTestCase {
             [0.17778, 0.06667, -0.26667, 0.33333]
         )
 
-        XCTAssertEqual(matrix.inverted(), expected)
+        XCTAssertEqual(matrix.inversed(), expected)
     }
 
     func test_multiply_productWithInverse() {
         let m1 = Matrix([3, -9, 7, 3], [3, -8, 2, -9], [-4, 4, 4, 1], [-6, 5, -1, 1])
         let m2 = Matrix([8, 2, 2, 2], [3, -1, 7, 0], [7, 0, 5, 4], [6, -2, 0, 5])
 
-        XCTAssertEqual((m1 * m2) * m2.inverted(), m1)
-        XCTAssertEqual((m2 * m1) * m1.inverted(), m2)
+        XCTAssertEqual((m1 * m2) * m2.inversed(), m1)
+        XCTAssertEqual((m2 * m1) * m1.inversed(), m2)
     }
 }
 #endif

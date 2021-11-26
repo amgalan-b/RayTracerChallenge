@@ -3,11 +3,11 @@ import Foundation
 extension Sphere {
 
     func normal(at worldPoint: Tuple) -> Tuple {
-        let objectPoint = transform.inverted() * worldPoint
+        let objectPoint = transform.inversed() * worldPoint
         let objectNormal = objectPoint - .point(0, 0, 0)
-        let worldNormal = transform.inverted().transposed() * objectNormal
+        let worldNormal = transform.inversed().transposed() * objectNormal
 
-        return Tuple(worldNormal.xyzw.x, worldNormal.xyzw.y, worldNormal.xyzw.z, 0).normalized()
+        return Tuple(worldNormal.x, worldNormal.y, worldNormal.z, 0).normalized()
     }
 }
 

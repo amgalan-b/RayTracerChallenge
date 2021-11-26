@@ -11,7 +11,7 @@ public final class Sphere {
     }
 
     func intersect(with ray: Ray) -> [Intersection] {
-        let transformedRay = ray.transformed(with: transform.inverted())
+        let transformedRay = ray.transformed(with: transform.inversed())
         let distance = transformedRay.origin - .point(0, 0, 0)
         let a = transformedRay.direction.dotProduct(with: transformedRay.direction)
         let b = 2 * transformedRay.direction.dotProduct(with: distance)

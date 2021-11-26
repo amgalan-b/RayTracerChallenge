@@ -31,7 +31,7 @@ extension Canvas {
 extension Color {
 
     fileprivate func _encoded() -> String {
-        return "\(rgb[0]._string()) \(rgb[1]._string()) \(rgb[2]._string())"
+        return "\(red._string()) \(green._string()) \(blue._string())"
     }
 }
 

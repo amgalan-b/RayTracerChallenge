@@ -70,7 +70,7 @@ extension MatrixTests {
 
     func test_translation_multiplyPointWithInverseTranslation() {
         let transform = Matrix.translation(5, -3, 2)
-            .inverted()
+            .inversed()
         XCTAssertEqual(transform * .point(-3, 4, 5), .point(-8, 7, 3))
     }
 
@@ -91,7 +91,7 @@ extension MatrixTests {
 
     func test_scaling_multiplyVectorWithInverseScaling() {
         let transform = Matrix.scaling(2, 3, 4)
-            .inverted()
+            .inversed()
         XCTAssertEqual(transform * .vector(-4, 6, 8), .vector(-2, 2, 2))
     }
 
@@ -110,7 +110,7 @@ extension MatrixTests {
 
     func test_rotationX_inverse() {
         let transform = Matrix.rotationX(.pi / 4)
-            .inverted()
+            .inversed()
 
         XCTAssertEqual(transform * .point(0, 1, 0), .point(0, sqrt(2) / 2, -sqrt(2) / 2))
     }

@@ -12,17 +12,25 @@ public struct Color {
         _rgb = [red, green, blue]
     }
 
-    var rgb: SIMD3<Double> {
-        return _rgb
+    var red: Double {
+        return _rgb[0]
+    }
+
+    var green: Double {
+        return _rgb[1]
+    }
+
+    var blue: Double {
+        return _rgb[2]
     }
 }
 
 extension Color: Equatable {
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.rgb.x.isAlmostEqual(to: rhs.rgb.x, tolerance: .tolerance)
-            && lhs.rgb.y.isAlmostEqual(to: rhs.rgb.y, tolerance: .tolerance)
-            && lhs.rgb.z.isAlmostEqual(to: rhs.rgb.z, tolerance: .tolerance)
+        return lhs._rgb.x.isAlmostEqual(to: rhs._rgb.x, tolerance: .tolerance)
+            && lhs._rgb.y.isAlmostEqual(to: rhs._rgb.y, tolerance: .tolerance)
+            && lhs._rgb.z.isAlmostEqual(to: rhs._rgb.z, tolerance: .tolerance)
     }
 }
 
@@ -39,19 +47,19 @@ extension Color {
 extension Color {
 
     static func + (lhs: Self, rhs: Self) -> Self {
-        return Color(rgb: lhs.rgb + rhs.rgb)
+        return Color(rgb: lhs._rgb + rhs._rgb)
     }
 
     static func - (lhs: Self, rhs: Self) -> Self {
-        return Color(rgb: lhs.rgb - rhs.rgb)
+        return Color(rgb: lhs._rgb - rhs._rgb)
     }
 
     static func * (lhs: Self, scalar: Double) -> Self {
-        return Color(rgb: lhs.rgb * scalar)
+        return Color(rgb: lhs._rgb * scalar)
     }
 
     static func * (lhs: Self, rhs: Self) -> Self {
-        return Color(rgb: lhs.rgb * rhs.rgb)
+        return Color(rgb: lhs._rgb * rhs._rgb)
     }
 }
 

@@ -24,10 +24,6 @@ public struct Canvas {
         self.height = grid[0].count
     }
 
-    var colorGrid: [[Color]] {
-        return _colorGrid
-    }
-
     subscript(_ x: Int, _ y: Int) -> Color {
         get { _colorGrid[x][y] }
         set { _setColor(newValue, atX: x, y: y) }
