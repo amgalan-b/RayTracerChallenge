@@ -1,6 +1,6 @@
 import Foundation
 
-struct Material {
+public struct Material {
 
     var color: Color
     var ambient: Double
@@ -44,7 +44,7 @@ struct Material {
 
 extension Material {
 
-    static let `default` = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0.9, shininess: 200)
+    public static let `default` = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0.9, shininess: 200)
 }
 
 #if TEST

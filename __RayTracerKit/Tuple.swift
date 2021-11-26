@@ -1,7 +1,7 @@
 import Babbage
 import simd
 
-struct Tuple {
+public struct Tuple {
 
     private let _xyzw: SIMD4<Double>
 
@@ -65,7 +65,7 @@ struct Tuple {
 
 extension Tuple: Equatable {
 
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.xyzw.x.isAlmostEqual(to: rhs.xyzw.x, tolerance: .tolerance)
             && lhs.xyzw.y.isAlmostEqual(to: rhs.xyzw.y, tolerance: .tolerance)
             && lhs.xyzw.z.isAlmostEqual(to: rhs.xyzw.z, tolerance: .tolerance)
@@ -75,11 +75,11 @@ extension Tuple: Equatable {
 
 extension Tuple {
 
-    static func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple {
+    public static func point(_ x: Double, _ y: Double, _ z: Double) -> Tuple {
         return Tuple(x, y, z, 1)
     }
 
-    static func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple {
+    public static func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple {
         return Tuple(x, y, z, 0)
     }
 }

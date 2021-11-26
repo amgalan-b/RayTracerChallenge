@@ -16,10 +16,15 @@ extension Canvas {
     }
 
     fileprivate func _ppmBody() -> String {
-        return colorGrid
-            .flatMap { $0 }
-            .map { $0._encoded() }
-            .reduce1 { $0 += " \($1)" }!
+        var result = ""
+        for y in 0 ..< height {
+            for x in 0 ..< width {
+                result += self[x, y]._encoded() + " "
+            }
+        }
+
+        result.removeLast()
+        return result
     }
 }
 

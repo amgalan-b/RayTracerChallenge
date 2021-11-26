@@ -1,6 +1,6 @@
 import Foundation
 
-struct Light {
+public struct Light {
 
     let position: Tuple
     let intensity: Color
@@ -13,7 +13,7 @@ struct Light {
 
 extension Light {
 
-    static func pointLight(at position: Tuple, intensity: Color) -> Light {
+    public static func pointLight(at position: Tuple, intensity: Color) -> Light {
         return Light(position: position, intensity: intensity)
     }
 }

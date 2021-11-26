@@ -1,11 +1,11 @@
 import Foundation
 
-final class Sphere {
+public final class Sphere {
 
-    var material: Material
-    var transform: Matrix
+    public var material: Material
+    public var transform: Matrix
 
-    init(material: Material = .default, transform: Matrix = .identity) {
+    public init(material: Material = .default, transform: Matrix = .identity) {
         self.material = material
         self.transform = transform
     }
@@ -31,7 +31,7 @@ final class Sphere {
 
 extension Sphere: Equatable {
 
-    static func == (lhs: Sphere, rhs: Sphere) -> Bool {
+    public static func == (lhs: Sphere, rhs: Sphere) -> Bool {
         return lhs === rhs
     }
 }

@@ -3,7 +3,7 @@ import simd
 
 typealias Double4 = SIMD4<Double>
 
-struct Matrix {
+public struct Matrix {
 
     private let _matrix: matrix_double4x4
 
@@ -30,25 +30,25 @@ struct Matrix {
 
 extension Matrix: Equatable {
 
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         return simd_almost_equal_elements(lhs._matrix, rhs._matrix, 0.00001)
     }
 }
 
 extension Matrix {
 
-    static func * (lhs: Self, rhs: Self) -> Self {
+    public static func * (lhs: Self, rhs: Self) -> Self {
         return Matrix(matrix: lhs._matrix * rhs._matrix)
     }
 
-    static func * (lhs: Self, rhs: Tuple) -> Tuple {
+    public static func * (lhs: Self, rhs: Tuple) -> Tuple {
         return Tuple(xyzw: lhs._matrix * rhs.xyzw)
     }
 }
 
 extension Matrix {
 
-    static let identity = Matrix([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1])
+    public static let identity = Matrix([1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1])
 }
 
 #if TEST

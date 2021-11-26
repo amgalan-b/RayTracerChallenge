@@ -1,7 +1,7 @@
 import Foundation
 
 /// Canvas is always 1-unit away from the camera.
-struct Camera {
+public struct Camera {
 
     let width: Int
     let height: Int
@@ -12,7 +12,7 @@ struct Camera {
     let halfHeight: Double
     let pixelSize: Double
 
-    init(width: Int, height: Int, fieldOfView: Double, transform: Matrix = .identity) {
+    public init(width: Int, height: Int, fieldOfView: Double, transform: Matrix = .identity) {
         self.width = width
         self.height = height
         self.fieldOfView = fieldOfView
@@ -32,12 +32,12 @@ struct Camera {
         self.pixelSize = (self.halfWidth * 2) / Double(self.width)
     }
 
-    func render(world: World) -> Canvas {
+    public func render(world: World) -> Canvas {
         var canvas = Canvas(width: width, height: height)
 
         for x in 0 ..< width {
             for y in 0 ..< height {
-                let ray = ray(forPixelAtX: x, y: y)
+                let ray = _ray(forPixelAtX: x, y: y)
                 let color = world.color(for: ray)
 
                 canvas[x, y] = color
@@ -47,7 +47,7 @@ struct Camera {
         return canvas
     }
 
-    func ray(forPixelAtX x: Int, y: Int) -> Ray {
+    fileprivate func _ray(forPixelAtX x: Int, y: Int) -> Ray {
         let offsetX = (Double(x) + 0.5) * pixelSize
         let offsetY = (Double(y) + 0.5) * pixelSize
 
@@ -79,7 +79,7 @@ final class CameraTests: XCTestCase {
 
     func test_ray_canvasCenter() {
         let camera = Camera(width: 201, height: 101, fieldOfView: .pi / 2)
-        let ray = camera.ray(forPixelAtX: 100, y: 50)
+        let ray = camera._ray(forPixelAtX: 100, y: 50)
         let expected = Ray(origin: .point(0, 0, 0), direction: .vector(0, 0, -1))
 
         XCTAssertEqual(ray, expected)
@@ -87,7 +87,7 @@ final class CameraTests: XCTestCase {
 
     func test_ray_canvasCorner() {
         let camera = Camera(width: 201, height: 101, fieldOfView: .pi / 2)
-        let ray = camera.ray(forPixelAtX: 0, y: 0)
+        let ray = camera._ray(forPixelAtX: 0, y: 0)
         let expected = Ray(origin: .point(0, 0, 0), direction: .vector(0.66519, 0.33259, -0.66851))
 
         XCTAssertEqual(ray, expected)
@@ -101,7 +101,7 @@ final class CameraTests: XCTestCase {
             transform: .rotationY(.pi / 4) * .translation(0, -2, 5)
         )
 
-        let ray = camera.ray(forPixelAtX: 100, y: 50)
+        let ray = camera._ray(forPixelAtX: 100, y: 50)
         let expected = Ray(origin: .point(0, 2, -5), direction: .vector(sqrt(2) / 2, 0, -sqrt(2) / 2))
 
         XCTAssertEqual(ray, expected)

@@ -3,7 +3,7 @@ import simd
 
 extension Matrix {
 
-    static func translation(_ deltaX: Double, _ deltaY: Double, _ deltaZ: Double) -> Self {
+    public static func translation(_ deltaX: Double, _ deltaY: Double, _ deltaZ: Double) -> Self {
         return Matrix(
             [1, 0, 0, deltaX],
             [0, 1, 0, deltaY],
@@ -12,7 +12,7 @@ extension Matrix {
         )
     }
 
-    static func scaling(_ factorX: Double, _ factorY: Double, _ factorZ: Double) -> Self {
+    public static func scaling(_ factorX: Double, _ factorY: Double, _ factorZ: Double) -> Self {
         return Matrix(
             [factorX, 0, 0, 0],
             [0, factorY, 0, 0],
@@ -21,7 +21,7 @@ extension Matrix {
         )
     }
 
-    static func rotationX(_ radians: Double) -> Self {
+    public static func rotationX(_ radians: Double) -> Self {
         return Matrix(
             [1, 0, 0, 0],
             [0, cos(radians), -sin(radians), 0],
@@ -30,7 +30,7 @@ extension Matrix {
         )
     }
 
-    static func rotationY(_ radians: Double) -> Self {
+    public static func rotationY(_ radians: Double) -> Self {
         return Matrix(
             [cos(radians), 0, sin(radians), 0],
             [0, 1, 0, 0],
@@ -39,7 +39,7 @@ extension Matrix {
         )
     }
 
-    static func rotationZ(_ radians: Double) -> Self {
+    public static func rotationZ(_ radians: Double) -> Self {
         return Matrix(
             [cos(radians), -sin(radians), 0, 0],
             [sin(radians), cos(radians), 0, 0],
@@ -48,7 +48,7 @@ extension Matrix {
         )
     }
 
-    static func shearing(_ xy: Double, _ xz: Double, yx: Double, yz: Double, zx: Double, zy: Double) -> Self {
+    public static func shearing(_ xy: Double, _ xz: Double, yx: Double, yz: Double, zx: Double, zy: Double) -> Self {
         return Matrix(
             [1, xy, xz, 0],
             [yx, 1, yz, 0],

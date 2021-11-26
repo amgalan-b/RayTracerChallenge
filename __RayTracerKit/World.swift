@@ -1,17 +1,17 @@
 import Foundation
 
-final class World {
+public final class World {
 
     var objects: [Sphere]
     var light: Light?
 
-    init(objects: [Sphere] = [], light: Light? = nil) {
+    public init(objects: [Sphere] = [], light: Light? = nil) {
         self.objects = objects
         self.light = light
     }
 
     func color(for ray: Ray) -> Color {
-        let intersections = intersect(with: ray)
+        let intersections = _intersect(with: ray)
         guard let hit = intersections.hit() else {
             return .black
         }
@@ -19,7 +19,7 @@ final class World {
         return hit.shade(for: ray, light: light!)
     }
 
-    func intersect(with ray: Ray) -> [Intersection] {
+    fileprivate func _intersect(with ray: Ray) -> [Intersection] {
         return objects.flatMap { $0.intersect(with: ray) }
             .sorted(by: \.time)
     }
@@ -46,8 +46,8 @@ final class WorldTests: XCTestCase {
 
     func test_intersect() {
         let world = World.makeDefault()
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let times = world.intersect(with: ray)
+        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let times = world._intersect(with: _ray)
             .map { $0.time }
 
         XCTAssertEqual(times, [4, 4.5, 5.5, 6])
@@ -55,16 +55,16 @@ final class WorldTests: XCTestCase {
 
     func test_color_rayMiss() {
         let world = World.makeDefault()
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 1, 0))
+        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 1, 0))
 
-        XCTAssertEqual(world.color(for: ray), .black)
+        XCTAssertEqual(world.color(for: _ray), .black)
     }
 
     func test_color_rayHit() {
         let world = World.makeDefault()
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let _ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
 
-        XCTAssertEqual(world.color(for: ray), .rgb(0.38066, 0.47583, 0.2855))
+        XCTAssertEqual(world.color(for: _ray), .rgb(0.38066, 0.47583, 0.2855))
     }
 }
 #endif
