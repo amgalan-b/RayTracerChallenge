@@ -21,12 +21,12 @@ public struct Material {
         light: Light,
         eyeVector: Tuple,
         normal normalVector: Tuple,
-        isShadowed: Bool = false
+        intensity: Double = 1.0
     ) -> Color {
         let effectiveColor = color * light.intensity
         let ambientColor = effectiveColor * ambient
 
-        guard !isShadowed else {
+        guard intensity > 0 else {
             return ambientColor
         }
 
@@ -37,7 +37,7 @@ public struct Material {
             return ambientColor
         }
 
-        let diffuseColor = effectiveColor * diffuse * lightDotNormal
+        let diffuseColor = effectiveColor * diffuse * lightDotNormal * intensity
         let reflectionVector = -lightVector.reflected(on: normalVector)
         let reflectionDotEye = reflectionVector.dotProduct(with: eyeVector)
 
@@ -46,7 +46,7 @@ public struct Material {
         }
 
         let factor = reflectionDotEye.pow(shininess)
-        let specularColor = light.intensity * specular * factor
+        let specularColor = light.intensity * specular * factor * intensity
 
         return ambientColor + diffuseColor + specularColor
     }
@@ -137,10 +137,27 @@ final class MaterialTests: XCTestCase {
             light: .pointLight(at: .point(0, 10, -10), intensity: .white),
             eyeVector: .vector(0, 0, -1),
             normal: .vector(0, 0, -1),
-            isShadowed: true
+            intensity: 0.0
         )
 
         XCTAssertEqual(color, .rgb(0.1, 0.1, 0.1))
+    }
+
+    func test_lighting_intensity() {
+        let material = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0, shininess: 200)
+        let light = Light.pointLight(at: .point(0, 0, -10), intensity: .white)
+
+        let point = Tuple.point(0, 0, -1)
+        let eyeVector = Tuple.vector(0, 0, -1)
+        let normalVector = Tuple.vector(0, 0, -1)
+
+        let r1 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 1.0)
+        let r2 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 0.5)
+        let r3 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 0)
+
+        XCTAssertEqual(r1, .white)
+        XCTAssertEqual(r2, .rgb(0.55, 0.55, 0.55))
+        XCTAssertEqual(r3, .rgb(0.1, 0.1, 0.1))
     }
 }
 #endif

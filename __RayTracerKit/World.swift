@@ -17,14 +17,13 @@ public final class World {
         }
 
         let computations = Computations(intersection: hit, ray: ray)
-        let isShadowed = _isShadowed(at: computations.normalAdjustedPosition)
 
         return computations.object.material.lighting(
             at: computations.normalAdjustedPosition,
             light: light!,
             eyeVector: computations.eyeVector,
             normal: computations.normalVector,
-            isShadowed: isShadowed
+            intensity: _lightIntensity(for: light!, at: computations.normalAdjustedPosition)
         )
     }
 
@@ -33,12 +32,16 @@ public final class World {
             .sorted(by: \.time)
     }
 
-    fileprivate func _isShadowed(at point: Tuple) -> Bool {
-        guard let light = light else {
-            return true
+    fileprivate func _lightIntensity(for light: Light, at point: Tuple) -> Double {
+        if _isShadowed(at: point, lightPosition: light.position) {
+            return 0.0
         }
 
-        let lightVector = light.position - point
+        return 1.0
+    }
+
+    fileprivate func _isShadowed(at point: Tuple, lightPosition: Tuple) -> Bool {
+        let lightVector = lightPosition - point
         let distance = lightVector.magnitude
         let direction = lightVector.normalized()
         let ray = Ray(origin: point, direction: direction)
@@ -94,24 +97,27 @@ final class WorldTests: XCTestCase {
         XCTAssertEqual(world.color(for: ray), .rgb(0.38066, 0.47583, 0.2855))
     }
 
-    func test_isShadowed_nothingBetweenLightAndPoint() {
+    func test_isShadowed() {
         let world = World.makeDefault()
-        XCTAssertFalse(world._isShadowed(at: .point(0, 10, 0)))
+        let lightPosition = Tuple.point(-10, -10, -10)
+
+        XCTAssertFalse(world._isShadowed(at: .point(-10, -10, 10), lightPosition: lightPosition))
+        XCTAssert(world._isShadowed(at: .point(10, 10, 10), lightPosition: lightPosition))
+        XCTAssertFalse(world._isShadowed(at: .point(-20, -20, -20), lightPosition: lightPosition))
+        XCTAssertFalse(world._isShadowed(at: .point(-5, -5, -5), lightPosition: lightPosition))
     }
 
-    func test_isShadowed_objectIsBetweenLightAndPoint() {
+    func test_lightIntensity() {
         let world = World.makeDefault()
-        XCTAssert(world._isShadowed(at: .point(10, -10, 10)))
-    }
+        let light = world.light!
 
-    func test_isShadowed_lightIsBetweenObjectAndPoint() {
-        let world = World.makeDefault()
-        XCTAssertFalse(world._isShadowed(at: .point(-20, 20, -20)))
-    }
-
-    func test_isShadowed_pointIsBetweenLightAndObject() {
-        let world = World.makeDefault()
-        XCTAssertFalse(world._isShadowed(at: .point(-2, 2, -2)))
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 1.0001, 0)), 1)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(-1.0001, 0, 0)), 1)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, -1.0001)), 1)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 1.0001)), 0)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(1.0001, 0, 0)), 0)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, -1.0001, 0)), 0)
+        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 0)), 0)
     }
 }
 #endif
