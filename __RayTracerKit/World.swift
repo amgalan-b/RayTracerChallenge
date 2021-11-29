@@ -23,21 +23,13 @@ public final class World {
             light: light!,
             eyeVector: computations.eyeVector,
             normal: computations.normalVector,
-            intensity: _lightIntensity(for: light!, at: computations.normalAdjustedPosition)
+            intensity: light!.intensity(at: computations.normalAdjustedPosition, isShadowed: _isShadowed(at:lightPosition:))
         )
     }
 
     fileprivate func _intersect(with ray: Ray) -> [Intersection] {
         return objects.flatMap { $0.intersect(with: ray) }
             .sorted(by: \.time)
-    }
-
-    fileprivate func _lightIntensity(for light: Light, at point: Tuple) -> Double {
-        if _isShadowed(at: point, lightPosition: light.position) {
-            return 0.0
-        }
-
-        return 1.0
     }
 
     fileprivate func _isShadowed(at point: Tuple, lightPosition: Tuple) -> Bool {
@@ -107,17 +99,17 @@ final class WorldTests: XCTestCase {
         XCTAssertFalse(world._isShadowed(at: .point(-5, -5, -5), lightPosition: lightPosition))
     }
 
-    func test_lightIntensity() {
-        let world = World.makeDefault()
-        let light = world.light!
-
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 1.0001, 0)), 1)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(-1.0001, 0, 0)), 1)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, -1.0001)), 1)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 1.0001)), 0)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(1.0001, 0, 0)), 0)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, -1.0001, 0)), 0)
-        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 0)), 0)
-    }
+//    func test_lightIntensity() {
+//        let world = World.makeDefault()
+//        let light = world.light!
+//
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 1.0001, 0)), 1)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(-1.0001, 0, 0)), 1)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, -1.0001)), 1)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 1.0001)), 0)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(1.0001, 0, 0)), 0)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, -1.0001, 0)), 0)
+//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 0)), 0)
+//    }
 }
 #endif
