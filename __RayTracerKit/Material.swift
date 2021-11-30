@@ -21,12 +21,12 @@ public struct Material {
         light: Light,
         eyeVector: Tuple,
         normal normalVector: Tuple,
-        intensity: Double = 1.0
+        shadowIntensity: Double = 0.0
     ) -> Color {
         let effectiveColor = color * light.intensity
         let ambientColor = effectiveColor * ambient
 
-        guard intensity > 0 else {
+        guard shadowIntensity < 1 else {
             return ambientColor
         }
 
@@ -42,7 +42,7 @@ public struct Material {
             )
         }
 
-        return ambientColor + totalDiffuseSpecular / Double(light.samples.count) * intensity
+        return ambientColor + totalDiffuseSpecular / Double(light.samples.count) * (1 - shadowIntensity)
     }
 
     fileprivate func _diffuseAndSpecular(
@@ -160,7 +160,7 @@ final class MaterialTests: XCTestCase {
             light: .pointLight(at: .point(0, 10, -10), intensity: .white),
             eyeVector: .vector(0, 0, -1),
             normal: .vector(0, 0, -1),
-            intensity: 0.0
+            shadowIntensity: 1.0
         )
 
         XCTAssertEqual(color, .rgb(0.1, 0.1, 0.1))
@@ -174,9 +174,27 @@ final class MaterialTests: XCTestCase {
         let eyeVector = Tuple.vector(0, 0, -1)
         let normalVector = Tuple.vector(0, 0, -1)
 
-        let r1 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 1.0)
-        let r2 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 0.5)
-        let r3 = material.lighting(at: point, light: light, eyeVector: eyeVector, normal: normalVector, intensity: 0)
+        let r1 = material.lighting(
+            at: point,
+            light: light,
+            eyeVector: eyeVector,
+            normal: normalVector,
+            shadowIntensity: 0
+        )
+        let r2 = material.lighting(
+            at: point,
+            light: light,
+            eyeVector: eyeVector,
+            normal: normalVector,
+            shadowIntensity: 0.5
+        )
+        let r3 = material.lighting(
+            at: point,
+            light: light,
+            eyeVector: eyeVector,
+            normal: normalVector,
+            shadowIntensity: 1
+        )
 
         XCTAssertEqual(r1, .white)
         XCTAssertEqual(r2, .rgb(0.55, 0.55, 0.55))
@@ -192,16 +210,14 @@ final class MaterialTests: XCTestCase {
             at: .point(0, 0, -1),
             light: light,
             eyeVector: .vector(0, 0, -1),
-            normal: .vector(0, 0, -1),
-            intensity: 1.0
+            normal: .vector(0, 0, -1)
         )
 
         let c2 = sphere.material.lighting(
             at: .point(0, 0.7071, -0.7071),
             light: light,
             eyeVector: .vector(0, 0.7071, -4.2929).normalized(),
-            normal: .vector(0, 0.7071, -0.7071),
-            intensity: 1.0
+            normal: .vector(0, 0.7071, -0.7071)
         )
 
         XCTAssertEqual(c1, .rgb(0.9965, 0.9965, 0.9965))

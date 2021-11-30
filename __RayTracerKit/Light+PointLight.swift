@@ -14,11 +14,11 @@ private struct _PointLight: _Light {
     let intensity: Color
     let samples: [Tuple]
 
-    func intensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
+    func shadowIntensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
         if isShadowed(point, position) {
-            return 0.0
+            return 1.0
         }
 
-        return 1.0
+        return 0.0
     }
 }

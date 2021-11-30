@@ -45,7 +45,7 @@ private struct _AreaLight: _Light {
         self.samples = Self._samples(origin: origin, uvector: uvector, usteps: usteps, vvector: vvector, vsteps: vsteps)
     }
 
-    func intensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
+    func shadowIntensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
         var total = 0.0
 
         for v in 0 ..< vsteps {
@@ -59,7 +59,7 @@ private struct _AreaLight: _Light {
             }
         }
 
-        return total / Double(sampleCount)
+        return 1.0 - total / Double(sampleCount)
     }
 
     fileprivate func _randomSampleInCell(u: Int, v: Int, staticRandom: Double? = nil) -> Tuple {
@@ -149,8 +149,11 @@ extension LightTests {
             intensity: .white
         )
 
-        XCTAssertEqual(light.intensity(at: .point(0, 0, 2), isShadowed: { _, _ in true }), 0)
-        XCTAssertEqual(light.intensity(at: .point(0, 0, 2), isShadowed: { _, _ in false }), 1)
+        let c1 = light.shadowIntensity(at: .point(0, 0, 2)) { _, _ in true }
+        let c2 = light.shadowIntensity(at: .point(0, 0, 2)) { _, _ in false }
+
+        XCTAssertEqual(c1, 1)
+        XCTAssertEqual(c2, 0)
     }
 }
 #endif

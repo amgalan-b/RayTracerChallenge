@@ -16,8 +16,8 @@ public struct Light {
         return _light.samples
     }
 
-    func intensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double {
-        return _light.intensity(at: point, isShadowed: isShadowed)
+    func shadowIntensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double {
+        return _light.shadowIntensity(at: point, isShadowed: isShadowed)
     }
 }
 
@@ -26,7 +26,7 @@ protocol _Light {
     var intensity: Color { get }
     var samples: [Tuple] { get }
 
-    func intensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double
+    func shadowIntensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double
 }
 
 #if TEST

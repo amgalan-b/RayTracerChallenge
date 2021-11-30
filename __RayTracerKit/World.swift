@@ -11,6 +11,10 @@ public final class World {
     }
 
     func color(for ray: Ray) -> Color {
+        guard let light = light else {
+            return .black
+        }
+
         let intersections = _intersect(with: ray)
         guard let hit = intersections.hit() else {
             return .black
@@ -20,10 +24,13 @@ public final class World {
 
         return computations.object.material.lighting(
             at: computations.normalAdjustedPosition,
-            light: light!,
+            light: light,
             eyeVector: computations.eyeVector,
             normal: computations.normalVector,
-            intensity: light!.intensity(at: computations.normalAdjustedPosition, isShadowed: _isShadowed(at:lightPosition:))
+            shadowIntensity: light.shadowIntensity(
+                at: computations.normalAdjustedPosition,
+                isShadowed: _isShadowed(at:lightPosition:)
+            )
         )
     }
 
@@ -98,18 +105,5 @@ final class WorldTests: XCTestCase {
         XCTAssertFalse(world._isShadowed(at: .point(-20, -20, -20), lightPosition: lightPosition))
         XCTAssertFalse(world._isShadowed(at: .point(-5, -5, -5), lightPosition: lightPosition))
     }
-
-//    func test_lightIntensity() {
-//        let world = World.makeDefault()
-//        let light = world.light!
-//
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 1.0001, 0)), 1)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(-1.0001, 0, 0)), 1)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, -1.0001)), 1)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 1.0001)), 0)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(1.0001, 0, 0)), 0)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, -1.0001, 0)), 0)
-//        XCTAssertEqual(world._lightIntensity(for: light, at: .point(0, 0, 0)), 0)
-//    }
 }
 #endif
