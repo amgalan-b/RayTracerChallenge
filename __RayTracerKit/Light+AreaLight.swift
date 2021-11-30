@@ -54,7 +54,7 @@ private struct _AreaLight: _Light {
 
         for v in 0 ..< vsteps {
             for u in 0 ..< usteps {
-                let center = _cellCenter(u: u, v: v)
+                let center = _cellSample(u: u, v: v)
                 guard !isShadowed(point, center) else {
                     continue
                 }
@@ -66,9 +66,12 @@ private struct _AreaLight: _Light {
         return total / Double(samples)
     }
 
-    fileprivate func _cellCenter(u: Int, v: Int) -> Tuple {
-        let uOffset = uvec * Double(u) + uvec * 0.5
-        let vOffset = vvec * Double(v) + vvec * 0.5
+    fileprivate func _cellSample(u: Int, v: Int, offset: Double? = nil) -> Tuple {
+        let u = Double(u) + (offset ?? .random(in: 0 ... 1))
+        let v = Double(v) + (offset ?? .random(in: 0 ... 1))
+
+        let uOffset = uvec * u
+        let vOffset = vvec * v
 
         return corner + uOffset + vOffset
     }
@@ -108,11 +111,11 @@ extension LightTests {
             intensity: .white
         )
 
-        XCTAssertEqual(light._cellCenter(u: 0, v: 0), .point(0.25, 0, 0.25))
-        XCTAssertEqual(light._cellCenter(u: 1, v: 0), .point(0.75, 0, 0.25))
-        XCTAssertEqual(light._cellCenter(u: 0, v: 1), .point(0.25, 0, 0.75))
-        XCTAssertEqual(light._cellCenter(u: 2, v: 0), .point(1.25, 0, 0.25))
-        XCTAssertEqual(light._cellCenter(u: 3, v: 1), .point(1.75, 0, 0.75))
+        XCTAssertEqual(light._cellSample(u: 0, v: 0, offset: 0.5), .point(0.25, 0, 0.25))
+        XCTAssertEqual(light._cellSample(u: 1, v: 0, offset: 0.5), .point(0.75, 0, 0.25))
+        XCTAssertEqual(light._cellSample(u: 0, v: 1, offset: 0.5), .point(0.25, 0, 0.75))
+        XCTAssertEqual(light._cellSample(u: 2, v: 0, offset: 0.5), .point(1.25, 0, 0.25))
+        XCTAssertEqual(light._cellSample(u: 3, v: 1, offset: 0.5), .point(1.75, 0, 0.75))
     }
 
     func test_areaLight_intensity() {
