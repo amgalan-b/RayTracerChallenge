@@ -61,6 +61,10 @@ extension Color {
     static func * (lhs: Self, rhs: Self) -> Self {
         return Color(rgb: lhs._rgb * rhs._rgb)
     }
+
+    static func / (lhs: Self, scalar: Double) -> Self {
+        return Color(rgb: lhs._rgb / scalar)
+    }
 }
 
 #if TEST
@@ -92,6 +96,11 @@ final class ColorTests: XCTestCase {
         let c2 = Color(red: 0.9, green: 1, blue: 0.1)
 
         XCTAssertEqual(c1 * c2, .rgb(0.9, 0.2, 0.04))
+    }
+
+    func test_divide_scalar() {
+        let color = Color(red: 1, green: 1, blue: 0.5)
+        XCTAssertEqual(color / 2, .rgb(0.5, 0.5, 0.25))
     }
 }
 #endif
