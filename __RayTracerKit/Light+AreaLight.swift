@@ -3,19 +3,19 @@ import Foundation
 extension Light {
 
     public static func areaLight(
-        corner: Tuple,
-        fullUvec: Tuple,
-        usteps: Int,
-        fullVvec: Tuple,
-        vsteps: Int,
-        intensity: Color
+        origin: Tuple,
+        width: Double,
+        height: Double,
+        density: Int,
+        intensity: Color,
+        transform: Matrix = .identity
     ) -> Light {
         let areaLight = _AreaLight(
-            corner: corner,
-            fullUvec: fullUvec,
-            usteps: usteps,
-            fullVvec: fullVvec,
-            vsteps: vsteps,
+            origin: origin,
+            fullUvec: transform * .vector(width, 0, 0),
+            usteps: density,
+            fullVvec: transform * .vector(0, height, 0),
+            vsteps: density,
             intensity: intensity
         )
 
@@ -25,28 +25,24 @@ extension Light {
 
 private struct _AreaLight: _Light {
 
-    let corner: Tuple
-    let uvec: Tuple
+    let origin: Tuple
+    let uvector: Tuple
     let usteps: Int
-    let vvec: Tuple
+    let vvector: Tuple
     let vsteps: Int
-    let samples: Int
-    let centerPosition: Tuple
+    let sampleCount: Int
     let intensity: Color
+    let samples: [Tuple]
 
-    init(corner: Tuple, fullUvec: Tuple, usteps: Int, fullVvec: Tuple, vsteps: Int, intensity: Color) {
-        self.corner = corner
-        self.uvec = fullUvec / Double(usteps)
+    init(origin: Tuple, fullUvec: Tuple, usteps: Int, fullVvec: Tuple, vsteps: Int, intensity: Color) {
+        self.origin = origin
+        self.uvector = fullUvec / Double(usteps)
         self.usteps = usteps
-        self.vvec = fullVvec / Double(vsteps)
+        self.vvector = fullVvec / Double(vsteps)
         self.vsteps = vsteps
-        self.samples = usteps * vsteps
+        self.sampleCount = usteps * vsteps
         self.intensity = intensity
-        self.centerPosition = corner + uvec * (Double(usteps) / 2) + vvec * (Double(vsteps) / 2)
-    }
-
-    var position: Tuple {
-        return centerPosition
+        self.samples = Self._samples(origin: origin, uvector: uvector, usteps: usteps, vvector: vvector, vsteps: vsteps)
     }
 
     func intensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
@@ -54,8 +50,8 @@ private struct _AreaLight: _Light {
 
         for v in 0 ..< vsteps {
             for u in 0 ..< usteps {
-                let center = _cellSample(u: u, v: v)
-                guard !isShadowed(point, center) else {
+                let sample = _randomSampleInCell(u: u, v: v)
+                guard !isShadowed(point, sample) else {
                     continue
                 }
 
@@ -63,17 +59,43 @@ private struct _AreaLight: _Light {
             }
         }
 
-        return total / Double(samples)
+        return total / Double(sampleCount)
     }
 
-    fileprivate func _cellSample(u: Int, v: Int, offset: Double? = nil) -> Tuple {
-        let u = Double(u) + (offset ?? .random(in: 0 ... 1))
-        let v = Double(v) + (offset ?? .random(in: 0 ... 1))
+    fileprivate func _randomSampleInCell(u: Int, v: Int, staticRandom: Double? = nil) -> Tuple {
+        let u = Double(u) + (staticRandom ?? .random(in: 0 ... 1))
+        let v = Double(v) + (staticRandom ?? .random(in: 0 ... 1))
 
-        let uOffset = uvec * u
-        let vOffset = vvec * v
+        let uOffset = uvector * u
+        let vOffset = vvector * v
 
-        return corner + uOffset + vOffset
+        return origin + uOffset + vOffset
+    }
+}
+
+extension _AreaLight {
+
+    fileprivate static func _samples(
+        origin: Tuple,
+        uvector: Tuple,
+        usteps: Int,
+        vvector: Tuple,
+        vsteps: Int
+    ) -> [Tuple] {
+        var samples = [Tuple]()
+        for v in 0 ..< vsteps {
+            for u in 0 ..< usteps {
+                let u = Double(u) + 0.5
+                let v = Double(v) + 0.5
+
+                let uOffset = uvector * u
+                let vOffset = vvector * v
+
+                samples.append(origin + uOffset + vOffset)
+            }
+        }
+
+        return samples
     }
 }
 
@@ -84,7 +106,7 @@ extension LightTests {
 
     func test_areaLight() {
         let light = _AreaLight(
-            corner: .point(0, 0, 0),
+            origin: .point(0, 0, 0),
             fullUvec: .vector(2, 0, 0),
             usteps: 4,
             fullVvec: .vector(0, 0, 1),
@@ -92,18 +114,17 @@ extension LightTests {
             intensity: .white
         )
 
-        XCTAssertEqual(light.corner, .point(0, 0, 0))
-        XCTAssertEqual(light.uvec, .vector(0.5, 0, 0))
+        XCTAssertEqual(light.origin, .point(0, 0, 0))
+        XCTAssertEqual(light.uvector, .vector(0.5, 0, 0))
         XCTAssertEqual(light.usteps, 4)
-        XCTAssertEqual(light.vvec, .vector(0, 0, 0.5))
+        XCTAssertEqual(light.vvector, .vector(0, 0, 0.5))
         XCTAssertEqual(light.vsteps, 2)
-        XCTAssertEqual(light.samples, 8)
-        XCTAssertEqual(light.centerPosition, .point(1, 0, 0.5))
+        XCTAssertEqual(light.sampleCount, 8)
     }
 
     func test_areaLight_point() {
         let light = _AreaLight(
-            corner: .point(0, 0, 0),
+            origin: .point(0, 0, 0),
             fullUvec: .vector(2, 0, 0),
             usteps: 4,
             fullVvec: .vector(0, 0, 1),
@@ -111,16 +132,16 @@ extension LightTests {
             intensity: .white
         )
 
-        XCTAssertEqual(light._cellSample(u: 0, v: 0, offset: 0.5), .point(0.25, 0, 0.25))
-        XCTAssertEqual(light._cellSample(u: 1, v: 0, offset: 0.5), .point(0.75, 0, 0.25))
-        XCTAssertEqual(light._cellSample(u: 0, v: 1, offset: 0.5), .point(0.25, 0, 0.75))
-        XCTAssertEqual(light._cellSample(u: 2, v: 0, offset: 0.5), .point(1.25, 0, 0.25))
-        XCTAssertEqual(light._cellSample(u: 3, v: 1, offset: 0.5), .point(1.75, 0, 0.75))
+        XCTAssertEqual(light._randomSampleInCell(u: 0, v: 0, staticRandom: 0.5), .point(0.25, 0, 0.25))
+        XCTAssertEqual(light._randomSampleInCell(u: 1, v: 0, staticRandom: 0.5), .point(0.75, 0, 0.25))
+        XCTAssertEqual(light._randomSampleInCell(u: 0, v: 1, staticRandom: 0.5), .point(0.25, 0, 0.75))
+        XCTAssertEqual(light._randomSampleInCell(u: 2, v: 0, staticRandom: 0.5), .point(1.25, 0, 0.25))
+        XCTAssertEqual(light._randomSampleInCell(u: 3, v: 1, staticRandom: 0.5), .point(1.75, 0, 0.75))
     }
 
     func test_areaLight_intensity() {
         let light = _AreaLight(
-            corner: .point(-0.5, -0.5, -5),
+            origin: .point(-0.5, -0.5, -5),
             fullUvec: .vector(1, 0, 0),
             usteps: 2,
             fullVvec: .vector(0, 1, 0),

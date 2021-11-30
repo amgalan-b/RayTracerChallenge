@@ -8,12 +8,12 @@ public struct Light {
         _light = light
     }
 
-    var position: Tuple {
-        return _light.position
-    }
-
     var intensity: Color {
         return _light.intensity
+    }
+
+    var samples: [Tuple] {
+        return _light.samples
     }
 
     func intensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double {
@@ -23,8 +23,8 @@ public struct Light {
 
 protocol _Light {
 
-    var position: Tuple { get }
     var intensity: Color { get }
+    var samples: [Tuple] { get }
 
     func intensity(at point: Tuple, isShadowed: (_ point: Tuple, _ lightPosition: Tuple) -> Bool) -> Double
 }

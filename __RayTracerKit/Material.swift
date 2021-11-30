@@ -30,25 +30,48 @@ public struct Material {
             return ambientColor
         }
 
-        let lightVector = (light.position - position).normalized()
+        var totalDiffuseSpecular = Color.black
+        for sample in light.samples {
+            totalDiffuseSpecular = totalDiffuseSpecular + _diffuseAndSpecular(
+                for: sample,
+                position: position,
+                eyeVector: eyeVector,
+                normalVector: normalVector,
+                lightIntensity: light.intensity,
+                effectiveColor: effectiveColor
+            )
+        }
+
+        return ambientColor + totalDiffuseSpecular / Double(light.samples.count) * intensity
+    }
+
+    fileprivate func _diffuseAndSpecular(
+        for lightSample: Tuple,
+        position: Tuple,
+        eyeVector: Tuple,
+        normalVector: Tuple,
+        lightIntensity: Color,
+        effectiveColor: Color
+    ) -> Color {
+        let lightVector = (lightSample - position).normalized()
         let lightDotNormal = lightVector.dotProduct(with: normalVector)
 
         guard lightDotNormal >= 0 else {
-            return ambientColor
+            return .black
         }
 
-        let diffuseColor = effectiveColor * diffuse * lightDotNormal * intensity
+        let diffuseColor = effectiveColor * diffuse * lightDotNormal
         let reflectionVector = -lightVector.reflected(on: normalVector)
         let reflectionDotEye = reflectionVector.dotProduct(with: eyeVector)
 
         guard reflectionDotEye > 0 else {
-            return ambientColor + diffuseColor
+            return diffuseColor
         }
 
         let factor = reflectionDotEye.pow(shininess)
-        let specularColor = light.intensity * specular * factor * intensity
+        let specularColor = lightIntensity * specular * factor
 
-        return ambientColor + diffuseColor + specularColor
+        return diffuseColor + specularColor
     }
 }
 
@@ -158,6 +181,31 @@ final class MaterialTests: XCTestCase {
         XCTAssertEqual(r1, .white)
         XCTAssertEqual(r2, .rgb(0.55, 0.55, 0.55))
         XCTAssertEqual(r3, .rgb(0.1, 0.1, 0.1))
+    }
+
+    func test_lighting_areaLight() {
+        let light = Light.areaLight(origin: .point(-0.5, -0.5, -5), width: 1, height: 1, density: 2, intensity: .white)
+        let sphere = Sphere()
+        sphere.material.specular = 0
+
+        let c1 = sphere.material.lighting(
+            at: .point(0, 0, -1),
+            light: light,
+            eyeVector: .vector(0, 0, -1),
+            normal: .vector(0, 0, -1),
+            intensity: 1.0
+        )
+
+        let c2 = sphere.material.lighting(
+            at: .point(0, 0.7071, -0.7071),
+            light: light,
+            eyeVector: .vector(0, 0.7071, -4.2929).normalized(),
+            normal: .vector(0, 0.7071, -0.7071),
+            intensity: 1.0
+        )
+
+        XCTAssertEqual(c1, .rgb(0.9965, 0.9965, 0.9965))
+        XCTAssertEqual(c2, .rgb(0.62318, 0.62318, 0.62318))
     }
 }
 #endif
