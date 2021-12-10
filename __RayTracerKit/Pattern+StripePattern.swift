@@ -10,22 +10,22 @@ extension Pattern {
 
 private struct _StripePattern: _Pattern {
 
-    let a: Color
-    let b: Color
+    let left: Color
+    let right: Color
     let transform: Matrix
 
-    init(_ a: Color, _ b: Color, transform: Matrix = .identity) {
-        self.a = a
-        self.b = b
+    init(_ left: Color, _ right: Color, transform: Matrix) {
+        self.left = left
+        self.right = right
         self.transform = transform
     }
 
     func color(at localPoint: Tuple) -> Color {
         if localPoint.x.floor().truncatingRemainder(dividingBy: 2) == 0 {
-            return a
+            return left
         }
 
-        return b
+        return right
     }
 }
 
@@ -35,7 +35,7 @@ import XCTest
 extension PatternTests {
 
     func test_color_constantInY() {
-        let pattern = _StripePattern(.white, .black)
+        let pattern = Pattern.stripe(.white, .black)
 
         XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
         XCTAssertEqual(pattern.color(at: .point(0, 1, 0)), .white)
@@ -43,7 +43,7 @@ extension PatternTests {
     }
 
     func test_color_constantInZ() {
-        let pattern = _StripePattern(.white, .black)
+        let pattern = Pattern.stripe(.white, .black)
 
         XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
         XCTAssertEqual(pattern.color(at: .point(0, 0, 1)), .white)
@@ -51,7 +51,7 @@ extension PatternTests {
     }
 
     func test_color_alternatesInX() {
-        let pattern = _StripePattern(.white, .black)
+        let pattern = Pattern.stripe(.white, .black)
 
         XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
         XCTAssertEqual(pattern.color(at: .point(0.9, 0, 0)), .white)
