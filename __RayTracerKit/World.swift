@@ -27,6 +27,7 @@ public final class World {
             light: light,
             eyeVector: computations.eyeVector,
             normal: computations.normalVector,
+            objectTransform: computations.object.transform,
             shadowIntensity: light.shadowIntensity(
                 at: computations.normalAdjustedPosition,
                 isShadowed: _isShadowed(at:lightPosition:)

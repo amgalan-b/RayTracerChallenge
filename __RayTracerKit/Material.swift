@@ -2,14 +2,14 @@ import Foundation
 
 public struct Material {
 
-    var color: Color
-    var ambient: Double
-    var diffuse: Double
-    var specular: Double
-    var shininess: Double
-    var pattern: StripedPattern?
+    public var color: Color
+    public var ambient: Double
+    public var diffuse: Double
+    public var specular: Double
+    public var shininess: Double
+    public var pattern: StripedPattern?
 
-    init(
+    public init(
         color: Color,
         ambient: Double,
         diffuse: Double,
@@ -30,9 +30,14 @@ public struct Material {
         light: Light,
         eyeVector: Tuple,
         normal normalVector: Tuple,
+        objectTransform: Matrix = .identity,
         shadowIntensity: Double = 0.0
     ) -> Color {
-        let effectiveColor = _effectiveColor(at: position, lightIntensity: light.intensity)
+        let effectiveColor = _effectiveColor(
+            at: position,
+            lightIntensity: light.intensity,
+            objectTransform: objectTransform
+        )
         let ambientColor = effectiveColor * ambient
 
         guard shadowIntensity < 1 else {
@@ -54,12 +59,12 @@ public struct Material {
         return ambientColor + totalDiffuseSpecular / Double(light.samples.count) * (1 - shadowIntensity)
     }
 
-    fileprivate func _effectiveColor(at point: Tuple, lightIntensity: Color) -> Color {
+    fileprivate func _effectiveColor(at point: Tuple, lightIntensity: Color, objectTransform: Matrix) -> Color {
         guard let pattern = pattern else {
             return color * lightIntensity
         }
 
-        return pattern.color(at: point) * lightIntensity
+        return pattern.color(at: point, objectTransform: objectTransform) * lightIntensity
     }
 
     fileprivate func _diffuseAndSpecular(
