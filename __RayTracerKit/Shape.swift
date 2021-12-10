@@ -60,7 +60,6 @@ final class ShapeTests: XCTestCase {
 
     func test_defaults() {
         let shape = _TestShape()
-        XCTAssertEqual(shape.material, .default)
         XCTAssertEqual(shape.transform, .identity)
     }
 

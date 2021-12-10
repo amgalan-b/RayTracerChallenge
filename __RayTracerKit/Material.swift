@@ -7,7 +7,7 @@ public struct Material {
     public var diffuse: Double
     public var specular: Double
     public var shininess: Double
-    public var pattern: StripedPattern?
+    public var pattern: Pattern?
 
     public init(
         color: Color,
@@ -15,7 +15,7 @@ public struct Material {
         diffuse: Double,
         specular: Double,
         shininess: Double,
-        pattern: StripedPattern? = nil
+        pattern: Pattern? = nil
     ) {
         self.color = color
         self.ambient = ambient
@@ -95,9 +95,6 @@ public struct Material {
 
         return diffuseColor + specularColor
     }
-}
-
-extension Material: Equatable {
 }
 
 extension Material {
@@ -251,7 +248,7 @@ final class MaterialTests: XCTestCase {
         material.ambient = 1
         material.diffuse = 0
         material.specular = 0
-        material.pattern = StripedPattern(.white, .black)
+        material.pattern = .stripe(.white, .black)
 
         let c1 = material.lighting(
             at: .point(0.9, 0, 0),
