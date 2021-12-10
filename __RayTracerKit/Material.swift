@@ -7,13 +7,22 @@ public struct Material {
     var diffuse: Double
     var specular: Double
     var shininess: Double
+    var pattern: StripedPattern?
 
-    init(color: Color, ambient: Double, diffuse: Double, specular: Double, shininess: Double) {
+    init(
+        color: Color,
+        ambient: Double,
+        diffuse: Double,
+        specular: Double,
+        shininess: Double,
+        pattern: StripedPattern? = nil
+    ) {
         self.color = color
         self.ambient = ambient
         self.diffuse = diffuse
         self.specular = specular
         self.shininess = shininess
+        self.pattern = pattern
     }
 
     func lighting(
@@ -23,7 +32,7 @@ public struct Material {
         normal normalVector: Tuple,
         shadowIntensity: Double = 0.0
     ) -> Color {
-        let effectiveColor = color * light.intensity
+        let effectiveColor = _effectiveColor(at: position, lightIntensity: light.intensity)
         let ambientColor = effectiveColor * ambient
 
         guard shadowIntensity < 1 else {
@@ -43,6 +52,14 @@ public struct Material {
         }
 
         return ambientColor + totalDiffuseSpecular / Double(light.samples.count) * (1 - shadowIntensity)
+    }
+
+    fileprivate func _effectiveColor(at point: Tuple, lightIntensity: Color) -> Color {
+        guard let pattern = pattern else {
+            return color * lightIntensity
+        }
+
+        return pattern.color(at: point) * lightIntensity
     }
 
     fileprivate func _diffuseAndSpecular(
@@ -222,6 +239,30 @@ final class MaterialTests: XCTestCase {
 
         XCTAssertEqual(c1, .rgb(0.9965, 0.9965, 0.9965))
         XCTAssertEqual(c2, .rgb(0.62318, 0.62318, 0.62318))
+    }
+
+    func test_lighting_pattern() {
+        var material = Material.default
+        material.ambient = 1
+        material.diffuse = 0
+        material.specular = 0
+        material.pattern = StripedPattern(.white, .black)
+
+        let c1 = material.lighting(
+            at: .point(0.9, 0, 0),
+            light: .pointLight(at: .point(0, 0, -10), intensity: .white),
+            eyeVector: .vector(0, 0, -1),
+            normal: .vector(0, 0, -1)
+        )
+        let c2 = material.lighting(
+            at: .point(1.1, 0, 0),
+            light: .pointLight(at: .point(0, 0, -10), intensity: .white),
+            eyeVector: .vector(0, 0, -1),
+            normal: .vector(0, 0, -1)
+        )
+
+        XCTAssertEqual(c1, .white)
+        XCTAssertEqual(c2, .black)
     }
 }
 #endif

@@ -1,6 +1,6 @@
 import Foundation
 
-final class StripedPattern {
+struct StripedPattern {
 
     let a: Color
     let b: Color
@@ -17,6 +17,9 @@ final class StripedPattern {
 
         return b
     }
+}
+
+extension StripedPattern: Equatable {
 }
 
 #if TEST
