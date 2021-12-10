@@ -36,6 +36,7 @@ public struct Camera {
         var canvas = Canvas(width: width, height: height)
 
         for x in 0 ..< width {
+            print("Column: \(x)")
             for y in 0 ..< height {
                 let ray = _ray(forPixelAtX: x, y: y)
                 let color = world.color(for: ray)
