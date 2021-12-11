@@ -8,6 +8,8 @@ public struct Material {
     public var specular: Double
     public var shininess: Double
     public var reflective: Double
+    public var transparency: Double
+    public var refractiveIndex: Double
     public var pattern: Pattern?
 
     public init(
@@ -17,6 +19,8 @@ public struct Material {
         specular: Double,
         shininess: Double,
         reflective: Double,
+        transparency: Double,
+        refractiveIndex: Double,
         pattern: Pattern? = nil
     ) {
         self.color = color
@@ -25,6 +29,8 @@ public struct Material {
         self.specular = specular
         self.shininess = shininess
         self.reflective = reflective
+        self.transparency = transparency
+        self.refractiveIndex = refractiveIndex
         self.pattern = pattern
     }
 
@@ -108,7 +114,9 @@ extension Material {
         diffuse: 0.9,
         specular: 0.9,
         shininess: 200,
-        reflective: 0
+        reflective: 0,
+        transparency: 0,
+        refractiveIndex: 1
     )
 }
 
@@ -196,7 +204,9 @@ final class MaterialTests: XCTestCase {
     }
 
     func test_lighting_intensity() {
-        let material = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0, shininess: 200, reflective: 0)
+        var material = Material.default
+        material.specular = 0
+
         let light = Light.pointLight(at: .point(0, 0, -10), intensity: .white)
 
         let point = Tuple.point(0, 0, -1)
