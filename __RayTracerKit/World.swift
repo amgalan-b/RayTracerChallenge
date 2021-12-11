@@ -10,7 +10,7 @@ public final class World {
         self.light = light
     }
 
-    func color(for ray: Ray) -> Color {
+    func color(for ray: Ray, recursionLimit: Int = Constants.reflectionRecursionDepth) -> Color {
         guard let light = light else {
             return .black
         }
@@ -22,7 +22,7 @@ public final class World {
 
         let computations = Computations(intersection: hit, ray: ray)
 
-        return computations.object.material.lighting(
+        let surfaceColor = computations.object.material.lighting(
             at: computations.normalAdjustedPosition,
             light: light,
             eyeVector: computations.eyeVector,
@@ -33,6 +33,15 @@ public final class World {
                 isShadowed: _isShadowed(at:lightPosition:)
             )
         )
+
+        let reflectedColor = _reflectedColor(
+            on: computations.object.material,
+            at: computations.normalAdjustedPosition,
+            reflectionVector: computations.reflectionVector,
+            recursionLimit: recursionLimit
+        )
+
+        return surfaceColor + reflectedColor
     }
 
     fileprivate func _intersect(with ray: Ray) -> [Intersection] {
@@ -52,6 +61,26 @@ public final class World {
         }
 
         return hit.time < distance
+    }
+
+    fileprivate func _reflectedColor(
+        on material: Material,
+        at position: Tuple,
+        reflectionVector: Tuple,
+        recursionLimit: Int
+    ) -> Color {
+        guard recursionLimit > 0 else {
+            return .black
+        }
+
+        guard material.reflective > 0 else {
+            return .black
+        }
+
+        let reflectedRay = Ray(origin: position, direction: reflectionVector)
+        let color = color(for: reflectedRay, recursionLimit: recursionLimit - 1)
+
+        return color * material.reflective
     }
 }
 

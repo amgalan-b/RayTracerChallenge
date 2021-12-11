@@ -7,6 +7,7 @@ public struct Material {
     public var diffuse: Double
     public var specular: Double
     public var shininess: Double
+    public var reflective: Double
     public var pattern: Pattern?
 
     public init(
@@ -15,6 +16,7 @@ public struct Material {
         diffuse: Double,
         specular: Double,
         shininess: Double,
+        reflective: Double,
         pattern: Pattern? = nil
     ) {
         self.color = color
@@ -22,6 +24,7 @@ public struct Material {
         self.diffuse = diffuse
         self.specular = specular
         self.shininess = shininess
+        self.reflective = reflective
         self.pattern = pattern
     }
 
@@ -99,7 +102,14 @@ public struct Material {
 
 extension Material {
 
-    public static let `default` = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0.9, shininess: 200)
+    public static let `default` = Material(
+        color: .white,
+        ambient: 0.1,
+        diffuse: 0.9,
+        specular: 0.9,
+        shininess: 200,
+        reflective: 0
+    )
 }
 
 #if TEST
@@ -186,7 +196,7 @@ final class MaterialTests: XCTestCase {
     }
 
     func test_lighting_intensity() {
-        let material = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0, shininess: 200)
+        let material = Material(color: .white, ambient: 0.1, diffuse: 0.9, specular: 0, shininess: 200, reflective: 0)
         let light = Light.pointLight(at: .point(0, 0, -10), intensity: .white)
 
         let point = Tuple.point(0, 0, -1)

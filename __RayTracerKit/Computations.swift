@@ -7,6 +7,7 @@ struct Computations {
     let position: Tuple
     let eyeVector: Tuple
     let normalVector: Tuple
+    let reflectionVector: Tuple
 
     /// Position slightly adjusted in normal direction to avoid self-intersection and shadow-acne.
     let normalAdjustedPosition: Tuple
@@ -28,6 +29,7 @@ struct Computations {
         }
 
         self.normalAdjustedPosition = self.position + self.normalVector * .tolerance
+        self.reflectionVector = ray.direction.reflected(on: self.normalVector)
     }
 }
 
@@ -65,6 +67,15 @@ final class ComputationTests: XCTestCase {
 
         XCTAssert(computations.normalAdjustedPosition.z < -.tolerance / 2)
         XCTAssert(computations.position.z > computations.normalAdjustedPosition.z)
+    }
+
+    func test_reflection() {
+        let ray = Ray(origin: .point(0, 1, -1), direction: .vector(0, -sqrt(2) / 2, sqrt(2) / 2))
+        let shape = Plane()
+        let intersection = Intersection(time: sqrt(2), object: shape)
+        let computations = Computations(intersection: intersection, ray: ray)
+
+        XCTAssertEqual(computations.reflectionVector, .vector(0, sqrt(2) / 2, sqrt(2) / 2))
     }
 }
 #endif
