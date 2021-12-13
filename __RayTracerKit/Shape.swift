@@ -39,6 +39,13 @@ extension Shape: Equatable {
     }
 }
 
+extension Shape: Hashable {
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
+    }
+}
+
 private final class _TestShape: Shape {
 
     fileprivate var _ray: Ray?

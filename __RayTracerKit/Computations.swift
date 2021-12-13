@@ -13,7 +13,12 @@ struct Computations {
     let normalAdjustedPosition: Tuple
     let isInside: Bool
 
-    init(intersection: Intersection, ray: Ray) {
+    /// Refractive index of the material that is the ray passing from.
+    let n1: Double
+    /// Refractive index of the material that is the ray passing through.
+    let n2: Double
+
+    init(intersection: Intersection, ray: Ray, refractiveIndices: (Double, Double) = (1, 1)) {
         self.time = intersection.time
         self.object = intersection.object
         self.position = ray.position(at: time)
@@ -30,6 +35,8 @@ struct Computations {
 
         self.normalAdjustedPosition = self.position + self.normalVector * .tolerance
         self.reflectionVector = ray.direction.reflected(on: self.normalVector)
+        self.n1 = refractiveIndices.0
+        self.n2 = refractiveIndices.1
     }
 }
 

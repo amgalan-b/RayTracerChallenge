@@ -20,7 +20,11 @@ public final class World {
             return .black
         }
 
-        let computations = Computations(intersection: hit, ray: ray)
+        let computations = Computations(
+            intersection: hit,
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: hit)
+        )
 
         let surfaceColor = computations.object.material.lighting(
             at: computations.normalAdjustedPosition,
