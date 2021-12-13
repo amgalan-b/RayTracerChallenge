@@ -74,18 +74,9 @@ final class IntersectionArrayTests: XCTestCase {
     }
 
     func test_refractiveIndices() {
-        var m1 = Material.default
-        m1.refractiveIndex = 1.5
-
-        var m2 = Material.default
-        m2.refractiveIndex = 2
-
-        var m3 = Material.default
-        m3.refractiveIndex = 2.5
-
-        let s1 = Sphere(material: m1, transform: .scaling(2, 2, 2))
-        let s2 = Sphere(material: m2, transform: .translation(0, 0, -0.25))
-        let s3 = Sphere(material: m3, transform: .translation(0, 0, 0.25))
+        let s1 = Sphere(material: .default(refractiveIndex: 1.5), transform: .scaling(2, 2, 2))
+        let s2 = Sphere(material: .default(refractiveIndex: 2), transform: .translation(0, 0, -0.25))
+        let s3 = Sphere(material: .default(refractiveIndex: 2.5), transform: .translation(0, 0, 0.25))
 
         let intersections = [
             Intersection(time: 2, object: s1),

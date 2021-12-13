@@ -118,6 +118,30 @@ extension Material {
         transparency: 0,
         refractiveIndex: 1
     )
+
+    public static func `default`(
+        color: Color = .white,
+        ambient: Double = 0.1,
+        diffuse: Double = 0.9,
+        specular: Double = 0.9,
+        shininess: Double = 200,
+        reflective: Double = 0,
+        transparency: Double = 0,
+        refractiveIndex: Double = 1,
+        pattern: Pattern? = nil
+    ) -> Material {
+        return Material(
+            color: color,
+            ambient: ambient,
+            diffuse: diffuse,
+            specular: specular,
+            shininess: shininess,
+            reflective: reflective,
+            transparency: transparency,
+            refractiveIndex: refractiveIndex,
+            pattern: pattern
+        )
+    }
 }
 
 #if TEST
@@ -204,9 +228,7 @@ final class MaterialTests: XCTestCase {
     }
 
     func test_lighting_intensity() {
-        var material = Material.default
-        material.specular = 0
-
+        let material = Material.default(specular: 0)
         let light = Light.pointLight(at: .point(0, 0, -10), intensity: .white)
 
         let point = Tuple.point(0, 0, -1)
@@ -264,11 +286,7 @@ final class MaterialTests: XCTestCase {
     }
 
     func test_lighting_pattern() {
-        var material = Material.default
-        material.ambient = 1
-        material.diffuse = 0
-        material.specular = 0
-        material.pattern = .stripe(.white, .black)
+        let material = Material.default(ambient: 1, diffuse: 0, specular: 0, pattern: .stripe(.white, .black))
 
         let c1 = material.lighting(
             at: .point(0.9, 0, 0),

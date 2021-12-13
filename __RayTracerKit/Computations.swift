@@ -11,6 +11,8 @@ struct Computations {
 
     /// Position slightly adjusted in normal direction to avoid self-intersection and shadow-acne.
     let normalAdjustedPosition: Tuple
+    /// Position slightly adjusted in the opposite normal direction.
+    let normalOppositeAdjustedPosition: Tuple
     let isInside: Bool
 
     /// Refractive index of the material that is the ray passing from.
@@ -34,6 +36,7 @@ struct Computations {
         }
 
         self.normalAdjustedPosition = self.position + self.normalVector * .tolerance
+        self.normalOppositeAdjustedPosition = self.position - self.normalVector * .tolerance
         self.reflectionVector = ray.direction.reflected(on: self.normalVector)
         self.n1 = refractiveIndices.0
         self.n2 = refractiveIndices.1
@@ -83,6 +86,16 @@ final class ComputationTests: XCTestCase {
         let computations = Computations(intersection: intersection, ray: ray)
 
         XCTAssertEqual(computations.reflectionVector, .vector(0, sqrt(2) / 2, sqrt(2) / 2))
+    }
+
+    func test_underPoint() {
+        let shape = Sphere(material: .default(transparency: 1, refractiveIndex: 1.5), transform: .translation(0, 0, 1))
+        let intersection = Intersection(time: 5, object: shape)
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let computations = Computations(intersection: intersection, ray: ray, refractiveIndices: (1.5, 1.5))
+
+        XCTAssertGreaterThan(computations.normalOppositeAdjustedPosition.z, .tolerance / 2)
+        XCTAssertGreaterThan(computations.normalOppositeAdjustedPosition.z, computations.position.z)
     }
 }
 #endif
