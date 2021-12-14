@@ -39,8 +39,8 @@ public final class World {
         )
 
         let reflectedColor = _reflectedColor(
-            on: computations.object.material,
             at: computations.normalAdjustedPosition,
+            reflective: computations.object.material.reflective,
             reflectionVector: computations.reflectionVector,
             recursionLimit: recursionLimit
         )
@@ -80,26 +80,6 @@ public final class World {
         }
 
         return hit.time < distance
-    }
-
-    fileprivate func _reflectedColor(
-        on material: Material,
-        at position: Tuple,
-        reflectionVector: Tuple,
-        recursionLimit: Int
-    ) -> Color {
-        guard recursionLimit > 0 else {
-            return .black
-        }
-
-        guard material.reflective > 0 else {
-            return .black
-        }
-
-        let reflectedRay = Ray(origin: position, direction: reflectionVector)
-        let color = color(for: reflectedRay, recursionLimit: recursionLimit - 1)
-
-        return color * material.reflective
     }
 }
 
