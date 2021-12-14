@@ -264,8 +264,7 @@ final class MaterialTests: XCTestCase {
 
     func test_lighting_areaLight() {
         let light = Light.areaLight(origin: .point(-0.5, -0.5, -5), width: 1, height: 1, density: 2, intensity: .white)
-        let sphere = Sphere()
-        sphere.material.specular = 0
+        let sphere = Sphere(material: .default(specular: 0))
 
         let c1 = sphere.material.lighting(
             at: .point(0, 0, -1),
