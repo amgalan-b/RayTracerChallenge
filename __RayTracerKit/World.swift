@@ -45,7 +45,22 @@ public final class World {
             recursionLimit: recursionLimit
         )
 
-        return surfaceColor + reflectedColor
+        let refractedColor = _refractedColor(
+            n1: computations.n1,
+            n2: computations.n2,
+            transparency: computations.object.material.transparency,
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector,
+            position: computations.normalOppositeAdjustedPosition,
+            recursionLimit: recursionLimit
+        )
+
+        guard computations.object.material.reflective > 0, computations.object.material.transparency > 0 else {
+            return surfaceColor + reflectedColor + refractedColor
+        }
+
+        let reflectance = computations.reflectanceSchlickApproximation()
+        return surfaceColor + reflectedColor * reflectance + refractedColor * (1 - reflectance)
     }
 
     fileprivate func _intersect(with ray: Ray) -> [Intersection] {
@@ -86,16 +101,46 @@ public final class World {
 
         return color * material.reflective
     }
+
+    /// - Seealso: Snell's Law
+    fileprivate func _refractedColor(
+        n1: Double,
+        n2: Double,
+        transparency: Double,
+        eyeVector: Tuple,
+        normalVector: Tuple,
+        position: Tuple,
+        recursionLimit: Int
+    ) -> Color {
+        guard recursionLimit > 0 else {
+            return .black
+        }
+
+        guard transparency > 0 else {
+            return .black
+        }
+
+        let nRatio = n1 / n2
+        let cos_i = eyeVector.dotProduct(with: normalVector)
+        let sin2_t = nRatio.pow(2) * (1 - cos_i.pow(2))
+        let isTotalInternalReflection = sin2_t > 1
+
+        guard !isTotalInternalReflection else {
+            return .black
+        }
+
+        let cos_t = sqrt(1 - sin2_t)
+        let direction = normalVector * (nRatio * cos_i - cos_t) - eyeVector * nRatio
+        let refractedRay = Ray(origin: position, direction: direction)
+
+        return color(for: refractedRay, recursionLimit: recursionLimit - 1) * transparency
+    }
 }
 
 extension World {
 
     static func makeDefault() -> World {
-        let s1 = Sphere()
-        s1.material.color = .rgb(0.8, 1, 0.6)
-        s1.material.diffuse = 0.7
-        s1.material.specular = 0.2
-
+        let s1 = Sphere(material: .default(color: .rgb(0.8, 1, 0.6), diffuse: 0.7, specular: 0.2))
         let s2 = Sphere(transform: .scaling(0.5, 0.5, 0.5))
 
         return World(objects: [s1, s2], light: .pointLight(at: .point(-10, 10, -10), intensity: .white))
@@ -138,6 +183,115 @@ final class WorldTests: XCTestCase {
         XCTAssert(world._isShadowed(at: .point(10, 10, 10), lightPosition: lightPosition))
         XCTAssertFalse(world._isShadowed(at: .point(-20, -20, -20), lightPosition: lightPosition))
         XCTAssertFalse(world._isShadowed(at: .point(-5, -5, -5), lightPosition: lightPosition))
+    }
+
+    func test_refractedColor() {
+        let world = World.makeDefault()
+        let shape = world.objects[0]
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let intersections = [Intersection(time: 4, object: shape), Intersection(time: 6, object: shape)]
+        let computations = Computations(
+            intersection: intersections[0],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[0])
+        )
+
+        let result = world._refractedColor(
+            n1: computations.n1,
+            n2: computations.n2,
+            transparency: computations.object.material.transparency,
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector,
+            position: computations.normalOppositeAdjustedPosition,
+            recursionLimit: 5
+        )
+
+        XCTAssertEqual(result, .black)
+    }
+
+    func test_refractedColor_totalInternalReflection() {
+        let world = World.makeDefault()
+        let shape = world.objects[0]
+        shape.material = .default(transparency: 1, refractiveIndex: 1.5)
+
+        let ray = Ray(origin: .point(0, 0, sqrt(2) / 2), direction: .vector(0, 1, 0))
+        let intersections = [
+            Intersection(time: -sqrt(2) / 2, object: shape),
+            Intersection(time: sqrt(2) / 2, object: shape),
+        ]
+
+        let computations = Computations(
+            intersection: intersections[1],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[1])
+        )
+
+        let result = world._refractedColor(
+            n1: computations.n1,
+            n2: computations.n2,
+            transparency: computations.object.material.transparency,
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector,
+            position: computations.normalOppositeAdjustedPosition,
+            recursionLimit: 5
+        )
+
+        XCTAssertEqual(result, .black)
+    }
+
+    func test_refractedColor_refractedRay() {
+        let world = World.makeDefault()
+        let s1 = world.objects[0]
+        s1.material = .default(ambient: 1, pattern: .test())
+
+        let s2 = world.objects[1]
+        s2.material = .default(transparency: 1, refractiveIndex: 1.5)
+
+        let ray = Ray(origin: .point(0, 0, 0.1), direction: .vector(0, 1, 0))
+        let intersections = [
+            Intersection(time: -0.9899, object: s1),
+            Intersection(time: -0.4899, object: s2),
+            Intersection(time: 0.4899, object: s2),
+            Intersection(time: 0.9899, object: s1),
+        ]
+
+        let computations = Computations(
+            intersection: intersections[2],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[2])
+        )
+
+        let result = world._refractedColor(
+            n1: computations.n1,
+            n2: computations.n2,
+            transparency: computations.object.material.transparency,
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector,
+            position: computations.normalOppositeAdjustedPosition,
+            recursionLimit: 5
+        )
+
+        XCTAssertEqual(result, .rgb(0, 0.99887, 0.04722))
+    }
+
+    func test_color_refraction() {
+        let world = World.makeDefault()
+        let floor = Plane(
+            material: .default(transparency: 0.5, refractiveIndex: 1.5),
+            transform: .translation(0, -1, 0)
+        )
+        let ball = Sphere(
+            material: .default(color: .rgb(1, 0, 0), ambient: 0.5),
+            transform: .translation(0, -3.5, -0.5)
+        )
+
+        world.objects.append(floor)
+        world.objects.append(ball)
+
+        let ray = Ray(origin: .point(0, 0, -3), direction: .vector(0, -sqrt(2) / 2, sqrt(2) / 2))
+        let result = world.color(for: ray)
+
+        XCTAssertEqual(result, .rgb(0.93642, 0.68642, 0.68642))
     }
 }
 #endif

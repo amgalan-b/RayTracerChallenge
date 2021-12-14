@@ -41,6 +41,26 @@ struct Computations {
         self.n1 = refractiveIndices.0
         self.n2 = refractiveIndices.1
     }
+
+    func reflectanceSchlickApproximation() -> Double {
+        let cos = eyeVector.dotProduct(with: normalVector)
+        let r0 = ((n1 - n2) / (n1 + n2)).pow(2)
+
+        guard n1 > n2 else {
+            return r0 + (1 - r0) * (1 - cos).pow(5)
+        }
+
+        let n = n1 / n2
+        let sin2_t = n.pow(2) * (1 - cos.pow(2))
+
+        if sin2_t > 1 {
+            return 1
+        }
+
+        let cos_t = sqrt(1 - sin2_t)
+
+        return r0 + (1 - r0) * (1 - cos_t).pow(5)
+    }
 }
 
 #if TEST
@@ -88,7 +108,7 @@ final class ComputationTests: XCTestCase {
         XCTAssertEqual(computations.reflectionVector, .vector(0, sqrt(2) / 2, sqrt(2) / 2))
     }
 
-    func test_underPoint() {
+    func test_normalOppositeAdjustedPosition() {
         let shape = Sphere(material: .default(transparency: 1, refractiveIndex: 1.5), transform: .translation(0, 0, 1))
         let intersection = Intersection(time: 5, object: shape)
         let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
@@ -96,6 +116,49 @@ final class ComputationTests: XCTestCase {
 
         XCTAssertGreaterThan(computations.normalOppositeAdjustedPosition.z, .tolerance / 2)
         XCTAssertGreaterThan(computations.normalOppositeAdjustedPosition.z, computations.position.z)
+    }
+
+    func test_reflectance() {
+        let shape = Sphere(material: .default(transparency: 0.5, refractiveIndex: 1.5))
+        let ray = Ray(origin: .point(0, 0, sqrt(2) / 2), direction: .vector(0, 1, 0))
+        let intersections = [
+            Intersection(time: -sqrt(2) / 2, object: shape),
+            Intersection(time: sqrt(2) / 2, object: shape),
+        ]
+
+        let computations = Computations(
+            intersection: intersections[1],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[1])
+        )
+
+        XCTAssertEqual(computations.reflectanceSchlickApproximation(), 1)
+    }
+
+    func test_reflectance_perpendicularViewingAngle() {
+        let shape = Sphere(material: .default(transparency: 0.5, refractiveIndex: 1.5))
+        let ray = Ray(origin: .point(0, 0, 0), direction: .vector(0, 1, 0))
+        let intersections = [Intersection(time: -1, object: shape), Intersection(time: 1, object: shape)]
+        let computations = Computations(
+            intersection: intersections[1],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[1])
+        )
+
+        XCTAssertEqual(computations.reflectanceSchlickApproximation(), 0.04, accuracy: .tolerance)
+    }
+
+    func test_reflectance_smallAngle() {
+        let shape = Sphere(material: .default(transparency: 0.5, refractiveIndex: 1.5))
+        let ray = Ray(origin: .point(0, 0.99, -2), direction: .vector(0, 0, 1))
+        let intersections = [Intersection(time: 1.8589, object: shape)]
+        let computations = Computations(
+            intersection: intersections[0],
+            ray: ray,
+            refractiveIndices: intersections.refractiveIndices(hit: intersections[0])
+        )
+
+        XCTAssertEqual(computations.reflectanceSchlickApproximation(), 0.48873, accuracy: .tolerance)
     }
 }
 #endif
