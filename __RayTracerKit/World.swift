@@ -82,7 +82,7 @@ public final class World {
         }
 
         let reflectedRay = Ray.reflectionRay(
-            position: computations.position,
+            position: computations.normalAdjustedPosition,
             directionVector: ray.direction,
             normalVector: computations.normalVector
         )
@@ -103,7 +103,7 @@ public final class World {
             refractiveIndices: refractiveIndices,
             eyeVector: computations.eyeVector,
             normalVector: computations.normalVector,
-            position: computations.position
+            position: computations.normalOppositeAdjustedPosition
         ) else {
             return .black
         }
