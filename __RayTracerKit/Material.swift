@@ -164,7 +164,7 @@ final class MaterialTests: XCTestCase {
         let color = Material.default.lighting(
             at: .point(0, 0, 0),
             light: .pointLight(at: .point(0, 0, -10), intensity: .white),
-            eyeVector: .vector(0, sqrt(2) / 2, -sqrt(2) / 2),
+            eyeVector: .vector(0, 1, 1).normalized(),
             normal: .vector(0, 0, -1)
         )
 
@@ -186,7 +186,7 @@ final class MaterialTests: XCTestCase {
         let color = Material.default.lighting(
             at: .point(0, 0, 0),
             light: .pointLight(at: .point(0, 10, -10), intensity: .white),
-            eyeVector: .vector(0, -sqrt(2) / 2, -sqrt(2) / 2),
+            eyeVector: .vector(0, -1, -1).normalized(),
             normal: .vector(0, 0, -1)
         )
 

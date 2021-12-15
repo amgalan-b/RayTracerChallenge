@@ -104,7 +104,7 @@ extension MatrixTests {
         let r1 = Matrix.rotationX(.pi / 4)
         let r2 = Matrix.rotationX(.pi / 2)
 
-        XCTAssertEqual(r1 * .point(0, 1, 0), .point(0, sqrt(2) / 2, sqrt(2) / 2))
+        XCTAssertEqual(r1 * .point(0, 1, 0), .point(0, 0.7071, 0.7071))
         XCTAssertEqual(r2 * .point(0, 1, 0), .point(0, 0, 1))
     }
 
@@ -112,14 +112,14 @@ extension MatrixTests {
         let transform = Matrix.rotationX(.pi / 4)
             .inversed()
 
-        XCTAssertEqual(transform * .point(0, 1, 0), .point(0, sqrt(2) / 2, -sqrt(2) / 2))
+        XCTAssertEqual(transform * .point(0, 1, 0), .point(0, 0.7071, -0.7071))
     }
 
     func test_rotationY() {
         let r1 = Matrix.rotationY(.pi / 4)
         let r2 = Matrix.rotationY(.pi / 2)
 
-        XCTAssertEqual(r1 * .point(0, 0, 1), .point(sqrt(2) / 2, 0, sqrt(2) / 2))
+        XCTAssertEqual(r1 * .point(0, 0, 1), .point(0.7071, 0, 0.7071))
         XCTAssertEqual(r2 * .point(0, 0, 1), .point(1, 0, 0))
     }
 
@@ -127,7 +127,7 @@ extension MatrixTests {
         let r1 = Matrix.rotationZ(.pi / 4)
         let r2 = Matrix.rotationZ(.pi / 2)
 
-        XCTAssertEqual(r1 * .point(0, 1, 0), .point(-sqrt(2) / 2, sqrt(2) / 2, 0))
+        XCTAssertEqual(r1 * .point(0, 1, 0), .point(-0.7071, 0.7071, 0))
         XCTAssertEqual(r2 * .point(0, 1, 0), .point(-1, 0, 0))
     }
 

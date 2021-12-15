@@ -137,7 +137,7 @@ final class TupleTests: XCTestCase {
 
     func test_reflected_slanted() {
         let reflection = Tuple.vector(0, -1, 0)
-            .reflected(on: .vector(sqrt(2) / 2, sqrt(2) / 2, 0))
+            .reflected(on: .vector(1, 1, 0).normalized())
 
         XCTAssertEqual(reflection, .vector(1, 0, 0))
     }

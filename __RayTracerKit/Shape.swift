@@ -100,7 +100,7 @@ final class ShapeTests: XCTestCase {
 
     func test_normal_arbitraryTransform() {
         let shape = _TestShape(transform: .scaling(1, 0.5, 1) * .rotationZ(.pi / 5))
-        let normal = shape.normal(at: .point(0, sqrt(2) / 2, -sqrt(2) / 2))
+        let normal = shape.normal(at: .point(0, 0.7071, -0.7071))
 
         XCTAssertEqual(normal, .vector(0, 0.97014, -0.24254))
     }

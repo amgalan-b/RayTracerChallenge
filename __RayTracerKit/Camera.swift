@@ -103,7 +103,7 @@ final class CameraTests: XCTestCase {
         )
 
         let ray = camera._ray(forPixelAtX: 100, y: 50)
-        let expected = Ray(origin: .point(0, 2, -5), direction: .vector(sqrt(2) / 2, 0, -sqrt(2) / 2))
+        let expected = Ray(origin: .point(0, 2, -5), direction: .vector(1, 0, -1).normalized())
 
         XCTAssertEqual(ray, expected)
     }
