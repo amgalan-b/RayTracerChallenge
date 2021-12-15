@@ -10,7 +10,7 @@ public final class World {
         self.light = light
     }
 
-    func color(for ray: Ray, recursionLimit: Int = Constants.reflectionRecursionDepth) -> Color {
+    func color(for ray: Ray, recursionDepth: Int = 0) -> Color {
         guard let light = light else {
             return .black
         }
@@ -20,12 +20,7 @@ public final class World {
             return .black
         }
 
-        let computations = Computations(
-            intersection: hit,
-            ray: ray,
-            refractiveIndices: intersections.refractiveIndices(hit: hit)
-        )
-
+        let computations = Computations(intersection: hit, ray: ray)
         let surfaceColor = computations.object.material.lighting(
             at: computations.normalAdjustedPosition,
             light: light,
@@ -38,28 +33,27 @@ public final class World {
             )
         )
 
-        let reflectedColor = _reflectedColor(
-            at: computations.normalAdjustedPosition,
-            reflective: computations.object.material.reflective,
-            reflectionVector: computations.reflectionVector,
-            recursionLimit: recursionLimit
-        )
+        guard Constants.maxRecursionDepth > recursionDepth else {
+            return surfaceColor
+        }
 
+        let refractiveIndices = intersections.refractiveIndices(hit: hit)
+        let reflectedColor = _reflectedColor(ray: ray, computations: computations, recursionDepth: recursionDepth)
         let refractedColor = _refractedColor(
-            n1: computations.n1,
-            n2: computations.n2,
-            transparency: computations.object.material.transparency,
-            eyeVector: computations.eyeVector,
-            normalVector: computations.normalVector,
-            position: computations.normalOppositeAdjustedPosition,
-            recursionLimit: recursionLimit
+            refractiveIndices: refractiveIndices,
+            computations: computations,
+            recursionDepth: recursionDepth
         )
 
         guard computations.object.material.reflective > 0, computations.object.material.transparency > 0 else {
             return surfaceColor + reflectedColor + refractedColor
         }
 
-        let reflectance = computations.reflectanceSchlickApproximation()
+        let reflectance = refractiveIndices.reflectanceSchlickApproximation(
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector
+        )
+
         return surfaceColor + reflectedColor * reflectance + refractedColor * (1 - reflectance)
     }
 
@@ -80,6 +74,41 @@ public final class World {
         }
 
         return hit.time < distance
+    }
+
+    private func _reflectedColor(ray: Ray, computations: Computations, recursionDepth: Int) -> Color {
+        guard computations.object.material.reflective > 0 else {
+            return .black
+        }
+
+        let reflectedRay = Ray.reflectionRay(
+            position: computations.position,
+            directionVector: ray.direction,
+            normalVector: computations.normalVector
+        )
+
+        return color(for: reflectedRay, recursionDepth: recursionDepth + 1) * computations.object.material.reflective
+    }
+
+    private func _refractedColor(
+        refractiveIndices: RefractiveIndices,
+        computations: Computations,
+        recursionDepth: Int
+    ) -> Color {
+        guard computations.object.material.transparency > 0 else {
+            return .black
+        }
+
+        guard let refractedRay = Ray.refractionRay(
+            refractiveIndices: refractiveIndices,
+            eyeVector: computations.eyeVector,
+            normalVector: computations.normalVector,
+            position: computations.position
+        ) else {
+            return .black
+        }
+
+        return color(for: refractedRay, recursionDepth: recursionDepth + 1) * computations.object.material.transparency
     }
 }
 

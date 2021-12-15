@@ -8,7 +8,7 @@ extension Array where Element == Intersection {
             .first { $0.time >= 0 }
     }
 
-    func refractiveIndices(hit: Intersection) -> (Double, Double) {
+    func refractiveIndices(hit: Intersection) -> RefractiveIndices {
         var n1 = 1.0
         var n2 = 1.0
 
@@ -30,7 +30,7 @@ extension Array where Element == Intersection {
             }
         }
 
-        return (n1, n2)
+        return [n1, n2]
     }
 }
 
@@ -89,7 +89,6 @@ final class IntersectionArrayTests: XCTestCase {
 
         let refractiveIndices = intersections
             .map { intersections.refractiveIndices(hit: $0) }
-            .map { Pair($0.0, $0.1) }
 
         XCTAssertEqual(refractiveIndices, [[1.0, 1.5], [1.5, 2.0], [2.0, 2.5], [2.5, 2.5], [2.5, 1.5], [1.5, 1.0]])
     }
