@@ -29,7 +29,19 @@ import XCTest
 
 extension RayTests {
 
-    func test_refractedColor_totalInternalReflection() {
+    func test_refractionRay() {
+        let ray = Ray.refractionRay(
+            refractiveIndices: [1, 1.5],
+            eyeVector: .vector(0, 0, -1),
+            normalVector: .vector(1, 1, 1).normalized(),
+            position: .point(0, 0, 0)
+        )
+        let expected = Ray(origin: .point(0, 0, 0), direction: .vector(-0.70654, -0.70654, -0.03988))
+
+        XCTAssertEqual(ray, expected)
+    }
+
+    func test_refractionRay_totalInternalReflection() {
         let ray = Ray.refractionRay(
             refractiveIndices: [1.5, 1],
             eyeVector: .vector(0, -1, 0),
