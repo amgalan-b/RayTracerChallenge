@@ -32,6 +32,7 @@ extension MatrixTests {
             target: .point(0, 0, -1),
             orientation: .vector(0, 1, 0)
         )
+
         XCTAssertEqual(transform, .identity)
     }
 
@@ -41,6 +42,7 @@ extension MatrixTests {
             target: .point(0, 0, 0),
             orientation: .vector(0, 1, 0)
         )
+
         XCTAssertEqual(transform, .translation(0, 0, -8))
     }
 
