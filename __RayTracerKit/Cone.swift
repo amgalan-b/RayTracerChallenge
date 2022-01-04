@@ -1,6 +1,6 @@
 import Foundation
 
-final class Cone: Shape {
+public final class Cone: Shape {
 
     public var minimum = -Double.infinity
     public var maximum = Double.infinity
@@ -61,6 +61,15 @@ final class Cone: Shape {
     }
 
     override func normalLocal(at point: Tuple) -> Tuple {
+        let dist = point.x.pow(2) + point.z.pow(2)
+        if dist < 1, point.y >= maximum - .tolerance {
+            return .vector(0, 1, 0)
+        }
+
+        if dist < 1, point.y <= minimum + .tolerance {
+            return .vector(0, -1, 0)
+        }
+
         let y = sqrt(point.x.pow(2) + point.z.pow(2))
         guard point.y <= 0 else {
             return .vector(point.x, -y, point.z)
