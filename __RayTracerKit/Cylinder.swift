@@ -177,12 +177,4 @@ final class CylinderTests: XCTestCase {
         XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0.5)), .vector(0, 1, 0))
     }
 }
-
-extension Cylinder {
-
-    fileprivate func _intersectTimes(origin: Tuple, direction: Tuple) -> [Double] {
-        return intersectLocal(with: Ray(origin: origin, direction: direction.normalized()))
-            .map { $0.time }
-    }
-}
 #endif

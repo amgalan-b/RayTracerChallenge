@@ -105,4 +105,12 @@ final class ShapeTests: XCTestCase {
         XCTAssertEqual(normal, .vector(0, 0.97014, -0.24254))
     }
 }
+
+extension Shape {
+
+    func _intersectTimes(origin: Tuple, direction: Tuple) -> [Double] {
+        return intersectLocal(with: Ray(origin: origin, direction: direction.normalized()))
+            .map { $0.time }
+    }
+}
 #endif
