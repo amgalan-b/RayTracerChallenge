@@ -53,6 +53,15 @@ public final class Cylinder: Shape {
     }
 
     override func normalLocal(at point: Tuple) -> Tuple {
+        let dist = point.x.pow(2) + point.z.pow(2)
+        if dist < 1, point.y >= maximum - .tolerance {
+            return .vector(0, 1, 0)
+        }
+
+        if dist < 1, point.y <= minimum + .tolerance {
+            return .vector(0, -1, 0)
+        }
+
         return .vector(point.x, 0, point.z)
     }
 
@@ -92,7 +101,7 @@ import XCTest
 
 final class CylinderTests: XCTestCase {
 
-    func test_intersectLocal() {
+    func test_intersect() {
         let cylinder = Cylinder()
 
         let xs1 = cylinder._intersectTimes(origin: .point(1, 0, -5), direction: .vector(0, 0, 1))
@@ -104,7 +113,7 @@ final class CylinderTests: XCTestCase {
         XCTAssertEqual(xs3, [6.80798, 7.08872], accuracy: .tolerance)
     }
 
-    func test_intersectLocal_miss() {
+    func test_intersect_miss() {
         let cylinder = Cylinder()
 
         let xs1 = cylinder._intersectTimes(origin: .point(1, 0, 0), direction: .vector(0, 1, 0))
@@ -114,15 +123,6 @@ final class CylinderTests: XCTestCase {
         XCTAssertEqual(xs1, [])
         XCTAssertEqual(xs2, [])
         XCTAssertEqual(xs3, [])
-    }
-
-    func test_normal() {
-        let cylinder = Cylinder()
-
-        XCTAssertEqual(cylinder.normalLocal(at: .point(1, 0, 0)), .vector(1, 0, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 5, -1)), .vector(0, 0, -1))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, -2, 1)), .vector(0, 0, 1))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(-1, 1, 0)), .vector(-1, 0, 0))
     }
 
     func test_intersect_constrained() {
@@ -155,6 +155,26 @@ final class CylinderTests: XCTestCase {
         XCTAssertEqual(xs3.count, 2)
         XCTAssertEqual(xs4.count, 2)
         XCTAssertEqual(xs5.count, 2)
+    }
+
+    func test_normal() {
+        let cylinder = Cylinder()
+
+        XCTAssertEqual(cylinder.normalLocal(at: .point(1, 0, 0)), .vector(1, 0, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 5, -1)), .vector(0, 0, -1))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, -2, 1)), .vector(0, 0, 1))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(-1, 1, 0)), .vector(-1, 0, 0))
+    }
+
+    func test_normal_capped() {
+        let cylinder = Cylinder(minimum: 1, maximum: 2, isCapped: true)
+
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 1, 0)), .vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0.5, 1, 0)), .vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 1, 0.5)), .vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0)), .vector(0, 1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0.5, 2, 0)), .vector(0, 1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0.5)), .vector(0, 1, 0))
     }
 }
 
