@@ -5,6 +5,8 @@ public class Shape {
     public var material: Material
     public var transform: Matrix
 
+    public var parent: Group?
+
     public init(material: Material = .default, transform: Matrix = .identity) {
         self.material = material
         self.transform = transform
