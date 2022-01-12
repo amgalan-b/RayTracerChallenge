@@ -1,10 +1,14 @@
 import Foundation
+import Babbage
 
 final class Parser {
 
     var ignoredLineCount = 0
     var vertices = [Tuple]()
     var triangles = [Triangle]()
+    var groups = DefaultDictionary<String, [Triangle]>(defaultValue: [])
+
+    private var _recentGroup: String?
 
     func parse(_ input: String) {
         let lines = input.split(whereSeparator: \.isNewline)
@@ -15,8 +19,16 @@ final class Parser {
             case let .vertex(x, y, z):
                 vertices.append(.point(x, y, z))
             case let .face(indices):
-                triangles += indices.map { vertices[$0 - 1] }
+                let newTriangles = indices.map { vertices[$0 - 1] }
                     ._triangulate()
+                triangles += newTriangles
+                guard let group = _recentGroup else {
+                    continue
+                }
+
+                groups[group] += newTriangles
+            case let .group(name):
+                _recentGroup = name
             case .ignore:
                 ignoredLineCount += 1
             }
@@ -41,6 +53,7 @@ private enum _Line: Equatable {
 
     case vertex(Double, Double, Double)
     case face(_ indices: [Int])
+    case group(_ name: String)
     case ignore
 
     init(_ line: String) {
@@ -64,6 +77,13 @@ private enum _Line: Equatable {
             }
 
             self = .face(values)
+        case "g":
+            guard parts.count == 1 else {
+                self = .ignore
+                return
+            }
+
+            self = .group(String(parts.first!))
         default:
             self = .ignore
         }
@@ -191,6 +211,35 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(t3.point1, .point(-1, 1, 0))
         XCTAssertEqual(t3.point2, .point(1, 1, 0))
         XCTAssertEqual(t3.point3, .point(0, 2, 0))
+    }
+
+    func test_parse_group() {
+        let input = """
+        v -1 1 0
+        v -1 0 0
+        v 1 0 0
+        v 1 1 0
+        g FirstGroup
+        f 1 2 3
+        g SecondGroup
+        f 1 3 4
+        """
+
+        let parser = Parser()
+        parser.parse(input)
+
+        let g1 = parser.groups["FirstGroup"]
+        let g2 = parser.groups["SecondGroup"]
+
+        let t1 = g1[0]
+        let t2 = g2[0]
+
+        XCTAssertEqual(t1.point1, .point(-1, 1, 0))
+        XCTAssertEqual(t1.point2, .point(-1, 0, 0))
+        XCTAssertEqual(t1.point3, .point(1, 0, 0))
+        XCTAssertEqual(t2.point1, .point(-1, 1, 0))
+        XCTAssertEqual(t2.point2, .point(1, 0, 0))
+        XCTAssertEqual(t2.point3, .point(1, 1, 0))
     }
 }
 
