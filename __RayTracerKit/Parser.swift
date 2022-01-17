@@ -1,7 +1,7 @@
-import Foundation
 import Babbage
+import Foundation
 
-final class Parser {
+public final class Parser {
 
     var ignoredLineCount = 0
     var vertices = [Tuple]()
@@ -10,7 +10,10 @@ final class Parser {
 
     private var _recentGroup: String?
 
-    func parse(_ input: String) {
+    public init() {
+    }
+
+    public func parse(_ input: String) -> Group? {
         let lines = input.split(whereSeparator: \.isNewline)
             .map { String($0) }
 
@@ -21,8 +24,9 @@ final class Parser {
             case let .face(indices):
                 let newTriangles = indices.map { vertices[$0 - 1] }
                     ._triangulate()
-                triangles += newTriangles
+
                 guard let group = _recentGroup else {
+                    triangles += newTriangles
                     continue
                 }
 
@@ -33,6 +37,18 @@ final class Parser {
                 ignoredLineCount += 1
             }
         }
+
+        let result = Group()
+        result.addChildren(triangles)
+
+        for (_, v) in groups.dictionary {
+            let group = Group()
+            group.addChildren(v)
+
+            result.addChild(group)
+        }
+
+        return result
     }
 }
 
@@ -139,7 +155,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        parser.parse(input)
+        _ = parser.parse(input)
 
         XCTAssertEqual(parser.ignoredLineCount, 5)
     }
@@ -153,7 +169,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        parser.parse(input)
+        _ = parser.parse(input)
 
         XCTAssertEqual(parser.vertices[0], .point(-1, 1, 0))
         XCTAssertEqual(parser.vertices[1], .point(-1, 0.5, 0))
@@ -172,7 +188,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        parser.parse(input)
+        _ = parser.parse(input)
 
         let t1 = parser.triangles[0]
         let t2 = parser.triangles[1]
@@ -196,7 +212,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        parser.parse(input)
+        _ = parser.parse(input)
 
         let t1 = parser.triangles[0]
         let t2 = parser.triangles[1]
@@ -226,7 +242,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        parser.parse(input)
+        _ = parser.parse(input)
 
         let g1 = parser.groups["FirstGroup"]
         let g2 = parser.groups["SecondGroup"]
@@ -240,6 +256,24 @@ final class ParserTests: XCTestCase {
         XCTAssertEqual(t2.point1, .point(-1, 1, 0))
         XCTAssertEqual(t2.point2, .point(1, 0, 0))
         XCTAssertEqual(t2.point3, .point(1, 1, 0))
+    }
+
+    func test_parse() {
+        let input = """
+        v -1 1 0
+        v -1 0 0
+        v 1 0 0
+        v 1 1 0
+        g FirstGroup
+        f 1 2 3
+        g SecondGroup
+        f 1 3 4
+        """
+
+        let parser = Parser()
+        let group = parser.parse(input)!
+
+        XCTAssertEqual(group.children.count, 2)
     }
 }
 

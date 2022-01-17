@@ -29,6 +29,12 @@ public final class Group: Shape {
         child.parent = self
         _children.insert(child)
     }
+
+    func addChildren(_ children: [Shape]) {
+        for child in children {
+            addChild(child)
+        }
+    }
 }
 
 #if TEST
