@@ -3,7 +3,7 @@ import simd
 
 public struct Tuple {
 
-    private let _xyzw: SIMD4<Double>
+    private var _xyzw: SIMD4<Double>
 
     init(xyzw: SIMD4<Double>) {
         _xyzw = xyzw
@@ -14,15 +14,18 @@ public struct Tuple {
     }
 
     var x: Double {
-        return _xyzw.x
+        get { _xyzw.x }
+        set { _xyzw.x = newValue }
     }
 
     var y: Double {
-        return _xyzw.y
+        get { _xyzw.y }
+        set { _xyzw.y = newValue }
     }
 
     var z: Double {
-        return _xyzw.z
+        get { _xyzw.z }
+        set { _xyzw.z = newValue }
     }
 
     var w: Double {
@@ -81,6 +84,13 @@ extension Tuple {
 
     public static func vector(_ x: Double, _ y: Double, _ z: Double) -> Tuple {
         return Tuple(x, y, z, 0)
+    }
+}
+
+extension Tuple: CustomDebugStringConvertible {
+
+    public var debugDescription: String {
+        return "[\(x), \(y), \(z), \(w)]"
     }
 }
 
