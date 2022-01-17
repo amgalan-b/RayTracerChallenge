@@ -35,7 +35,7 @@ extension Cone: BoundableShape {
 extension Triangle: BoundableShape {
 
     func boundingBox() -> BoundingBox {
-        let box = BoundingBox()
+        var box = BoundingBox()
         box.addPoint(point1)
         box.addPoint(point2)
         box.addPoint(point3)

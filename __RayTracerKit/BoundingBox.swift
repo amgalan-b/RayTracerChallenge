@@ -1,6 +1,6 @@
 import Foundation
 
-final class BoundingBox {
+struct BoundingBox {
 
     var minimum: Tuple
     var maximum: Tuple
@@ -23,7 +23,7 @@ final class BoundingBox {
         return contains(otherBox.minimum) && contains(otherBox.maximum)
     }
 
-    func addPoint(_ point: Tuple) {
+    mutating func addPoint(_ point: Tuple) {
         minimum.x = min(point.x, minimum.x)
         minimum.y = min(point.y, minimum.y)
         minimum.z = min(point.z, minimum.z)
@@ -33,9 +33,30 @@ final class BoundingBox {
         maximum.z = max(point.z, maximum.z)
     }
 
-    func merge(with otherBox: BoundingBox) {
-        addPoint(otherBox.minimum)
-        addPoint(otherBox.maximum)
+    func merge(with otherBox: BoundingBox) -> BoundingBox {
+        var copy = self
+        copy.addPoint(otherBox.minimum)
+        copy.addPoint(otherBox.maximum)
+
+        return copy
+    }
+
+    func transformed(_ transform: Matrix) -> BoundingBox {
+        let p1 = minimum
+        let p2 = Tuple.point(minimum.x, minimum.y, maximum.z)
+        let p3 = Tuple.point(minimum.x, maximum.y, minimum.z)
+        let p4 = Tuple.point(minimum.x, maximum.y, maximum.z)
+        let p5 = Tuple.point(maximum.x, minimum.y, minimum.z)
+        let p6 = Tuple.point(maximum.x, maximum.y, minimum.z)
+        let p7 = Tuple.point(maximum.x, maximum.y, maximum.z)
+        let p8 = maximum
+
+        var copy = self
+        for point in [p1, p2, p3, p4, p5, p6, p7, p8] {
+            copy.addPoint(transform * point)
+        }
+
+        return copy
     }
 }
 
@@ -50,7 +71,7 @@ import XCTest
 final class BoundingBoxTests: XCTestCase {
 
     func test_addPoint() {
-        let box = BoundingBox()
+        var box = BoundingBox()
         box.addPoint(.point(-5, 2, 0))
         box.addPoint(.point(7, 0, -3))
 
@@ -61,10 +82,10 @@ final class BoundingBoxTests: XCTestCase {
     func test_merge() {
         let b1 = BoundingBox(minimum: .point(-5, -2, 0), maximum: .point(7, 4, 4))
         let b2 = BoundingBox(minimum: .point(8, -7, -2), maximum: .point(14, 2, 8))
-        b1.merge(with: b2)
+        let b3 = b1.merge(with: b2)
 
-        XCTAssertEqual(b1.minimum, .point(-5, -7, -2))
-        XCTAssertEqual(b1.maximum, .point(14, 4, 8))
+        XCTAssertEqual(b3.minimum, .point(-5, -7, -2))
+        XCTAssertEqual(b3.maximum, .point(14, 4, 8))
     }
 
     func test_contains() {
@@ -93,6 +114,14 @@ final class BoundingBoxTests: XCTestCase {
         XCTAssert(b1.contains(b3))
         XCTAssertFalse(b1.contains(b4))
         XCTAssertFalse(b1.contains(b5))
+    }
+
+    func test_transformed() {
+        let b1 = BoundingBox(minimum: .point(-1, -1, -1), maximum: .point(1, 1, 1))
+        let b2 = b1.transformed(.rotationX(.pi / 4) * .rotationY(.pi / 4))
+
+        XCTAssertEqual(b2.minimum, .point(-1.41421, -1.7071, -1.7071))
+        XCTAssertEqual(b2.maximum, .point(1.41421, 1.7071, 1.7071))
     }
 }
 #endif
