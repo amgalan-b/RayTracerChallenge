@@ -24,7 +24,6 @@ public final class Sphere: Shape {
     }
 }
 
-
 #if TEST
 import XCTest
 

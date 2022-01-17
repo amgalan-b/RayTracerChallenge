@@ -6,8 +6,8 @@ final class BoundingBox {
     var maximum: Tuple
 
     init(
-        minimum: Tuple = .point(.infinity, .infinity, .infinity),
-        maximum: Tuple = .point(-.infinity, -.infinity, -.infinity)
+        minimum: Tuple = .point(.greatestFiniteMagnitude, .greatestFiniteMagnitude, .greatestFiniteMagnitude),
+        maximum: Tuple = .point(-.greatestFiniteMagnitude, -.greatestFiniteMagnitude, -.greatestFiniteMagnitude)
     ) {
         self.minimum = minimum
         self.maximum = maximum
@@ -22,6 +22,11 @@ final class BoundingBox {
         maximum.y = max(point.y, maximum.y)
         maximum.z = max(point.z, maximum.z)
     }
+}
+
+protocol BoundableShape {
+
+    func boundingBox() -> BoundingBox
 }
 
 #if TEST

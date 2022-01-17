@@ -2,16 +2,16 @@ import Foundation
 
 public final class Cylinder: Shape {
 
-    public var minimum = -Double.infinity
-    public var maximum = Double.infinity
+    public var minimum = -Double.greatestFiniteMagnitude
+    public var maximum = Double.greatestFiniteMagnitude
 
     public var isCapped = false
 
     public init(
         material: Material = .default,
         transform: Matrix = .identity,
-        minimum: Double = -.infinity,
-        maximum: Double = .infinity,
+        minimum: Double = -.greatestFiniteMagnitude,
+        maximum: Double = .greatestFiniteMagnitude,
         isCapped: Bool = false
     ) {
         self.minimum = minimum
