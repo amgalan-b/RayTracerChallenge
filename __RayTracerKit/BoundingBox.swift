@@ -63,6 +63,41 @@ struct BoundingBox {
         let times = Cube.intersectionTimes(for: ray, minimum: minimum, maximum: maximum)
         return !times.isEmpty
     }
+
+    func split() -> (BoundingBox, BoundingBox) {
+        var x0 = minimum.x
+        var y0 = minimum.y
+        var z0 = minimum.z
+        var x1 = maximum.x
+        var y1 = maximum.y
+        var z1 = maximum.z
+
+        let dx = maximum.x - minimum.x
+        let dy = maximum.y - minimum.y
+        let dz = maximum.z - minimum.z
+
+        switch max(dx, dy, dz) {
+        case dx:
+            x0 = x0 + dx / 2.0
+            x1 = x0
+        case dy:
+            y0 = y0 + dy / 2.0
+            y1 = y0
+        case dz:
+            z0 = z0 + dz / 2.0
+            z1 = z0
+        default:
+            fatalError()
+        }
+
+        let minMid = Tuple.point(x0, y0, z0)
+        let maxMid = Tuple.point(x1, y1, z1)
+
+        let left = BoundingBox(minimum: minimum, maximum: maxMid)
+        let right = BoundingBox(minimum: minMid, maximum: maximum)
+
+        return (left, right)
+    }
 }
 
 #if TEST
@@ -186,6 +221,46 @@ final class BoundingBoxTests: XCTestCase {
         XCTAssertFalse(box.isIntersected(by: r11))
         XCTAssertFalse(box.isIntersected(by: r12))
         XCTAssertFalse(box.isIntersected(by: r13))
+    }
+
+    func test_split() {
+        let box = BoundingBox(minimum: .point(-1, -4, -5), maximum: .point(9, 6, 5))
+        let (left, right) = box.split()
+
+        XCTAssertEqual(left.minimum, .point(-1, -4, -5))
+        XCTAssertEqual(left.maximum, .point(4, 6, 5))
+        XCTAssertEqual(right.minimum, .point(4, -4, -5))
+        XCTAssertEqual(right.maximum, .point(9, 6, 5))
+    }
+
+    func test_split_xWide() {
+        let box = BoundingBox(minimum: .point(-1, -2, -3), maximum: .point(9, 5.5, 3))
+        let (left, right) = box.split()
+
+        XCTAssertEqual(left.minimum, .point(-1, -2, -3))
+        XCTAssertEqual(left.maximum, .point(4, 5.5, 3))
+        XCTAssertEqual(right.minimum, .point(4, -2, -3))
+        XCTAssertEqual(right.maximum, .point(9, 5.5, 3))
+    }
+
+    func test_split_yWide() {
+        let box = BoundingBox(minimum: .point(-1, -2, -3), maximum: .point(5, 8, 3))
+        let (left, right) = box.split()
+
+        XCTAssertEqual(left.minimum, .point(-1, -2, -3))
+        XCTAssertEqual(left.maximum, .point(5, 3, 3))
+        XCTAssertEqual(right.minimum, .point(-1, 3, -3))
+        XCTAssertEqual(right.maximum, .point(5, 8, 3))
+    }
+
+    func test_split_zWide() {
+        let box = BoundingBox(minimum: .point(-1, -2, -3), maximum: .point(5, 3, 7))
+        let (left, right) = box.split()
+
+        XCTAssertEqual(left.minimum, .point(-1, -2, -3))
+        XCTAssertEqual(left.maximum, .point(5, 3, 2))
+        XCTAssertEqual(right.minimum, .point(-1, -2, 2))
+        XCTAssertEqual(right.maximum, .point(5, 3, 7))
     }
 }
 #endif
