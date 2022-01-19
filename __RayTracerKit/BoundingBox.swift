@@ -60,7 +60,7 @@ struct BoundingBox {
     }
 
     func isIntersected(by ray: Ray) -> Bool {
-        let times = Cube.intersectionTimes(for: ray)
+        let times = Cube.intersectionTimes(for: ray, minimum: minimum, maximum: maximum)
         return !times.isEmpty
     }
 }
@@ -153,6 +153,39 @@ final class BoundingBoxTests: XCTestCase {
         XCTAssertFalse(box.isIntersected(by: r10))
         XCTAssertFalse(box.isIntersected(by: r11))
         XCTAssertFalse(box.isIntersected(by: r12))
+    }
+
+    func test_isIntersected_nonCubic() {
+        let box = BoundingBox(minimum: .point(5, -2, 0), maximum: .point(11, 4, 7))
+
+        let r1 = Ray(origin: .point(15, 1, 2), direction: .vector(-1, 0, 0))
+        let r2 = Ray(origin: .point(-5, -1, 4), direction: .vector(1, 0, 0))
+        let r3 = Ray(origin: .point(7, 6, 5), direction: .vector(0, -1, 0))
+        let r4 = Ray(origin: .point(9, -5, 6), direction: .vector(0, 1, 0))
+        let r5 = Ray(origin: .point(8, 2, 12), direction: .vector(0, 0, -1))
+        let r6 = Ray(origin: .point(6, 0, -5), direction: .vector(0, 0, 1))
+        let r7 = Ray(origin: .point(8, 1, 3.5), direction: .vector(0, 0, 1))
+        let r8 = Ray(origin: .point(9, -1, -8), direction: .vector(2, 4, 6))
+        let r9 = Ray(origin: .point(8, 3, -4), direction: .vector(6, 2, 4))
+        let r10 = Ray(origin: .point(9, -1, -2), direction: .vector(4, 6, 2))
+        let r11 = Ray(origin: .point(4, 0, 9), direction: .vector(0, 0, -1))
+        let r12 = Ray(origin: .point(8, 6, -1), direction: .vector(0, -1, 0))
+        let r13 = Ray(origin: .point(12, 5, 4), direction: .vector(-1, 0, 0))
+
+        XCTAssert(box.isIntersected(by: r1))
+        XCTAssert(box.isIntersected(by: r2))
+        XCTAssert(box.isIntersected(by: r3))
+        XCTAssert(box.isIntersected(by: r4))
+        XCTAssert(box.isIntersected(by: r5))
+        XCTAssert(box.isIntersected(by: r6))
+        XCTAssert(box.isIntersected(by: r7))
+
+        XCTAssertFalse(box.isIntersected(by: r8))
+        XCTAssertFalse(box.isIntersected(by: r9))
+        XCTAssertFalse(box.isIntersected(by: r10))
+        XCTAssertFalse(box.isIntersected(by: r11))
+        XCTAssertFalse(box.isIntersected(by: r12))
+        XCTAssertFalse(box.isIntersected(by: r13))
     }
 }
 #endif

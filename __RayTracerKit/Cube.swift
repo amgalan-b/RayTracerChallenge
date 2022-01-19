@@ -3,7 +3,7 @@ import Foundation
 public final class Cube: Shape {
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
-        return Self.intersectionTimes(for: ray)
+        return Self.intersectionTimes(for: ray, minimum: .point(-1, -1, -1), maximum: .point(1, 1, 1))
             .map { Intersection(time: $0, object: self) }
     }
 
@@ -28,10 +28,25 @@ public final class Cube: Shape {
 extension Cube {
 
     /// - Note: Also used for bounding box intersections.
-    static func intersectionTimes(for ray: Ray) -> [Double] {
-        let (xtmin, xtmax) = Self._checkAxis(origin: ray.origin.x, direction: ray.direction.x)
-        let (ytmin, ytmax) = Self._checkAxis(origin: ray.origin.y, direction: ray.direction.y)
-        let (ztmin, ztmax) = Self._checkAxis(origin: ray.origin.z, direction: ray.direction.z)
+    static func intersectionTimes(for ray: Ray, minimum: Tuple, maximum: Tuple) -> [Double] {
+        let (xtmin, xtmax) = Self._checkAxis(
+            origin: ray.origin.x,
+            direction: ray.direction.x,
+            minimum: minimum.x,
+            maximum: maximum.x
+        )
+        let (ytmin, ytmax) = Self._checkAxis(
+            origin: ray.origin.y,
+            direction: ray.direction.y,
+            minimum: minimum.y,
+            maximum: maximum.y
+        )
+        let (ztmin, ztmax) = Self._checkAxis(
+            origin: ray.origin.z,
+            direction: ray.direction.z,
+            minimum: minimum.z,
+            maximum: maximum.z
+        )
 
         let tmin = max(xtmin, ytmin, ztmin)
         let tmax = min(xtmax, ytmax, ztmax)
@@ -43,9 +58,14 @@ extension Cube {
         return [tmin, tmax]
     }
 
-    fileprivate static func _checkAxis(origin: Double, direction: Double) -> (Double, Double) {
-        let tminNumerator = (-1 - origin)
-        let tmaxNumerator = 1 - origin
+    fileprivate static func _checkAxis(
+        origin: Double,
+        direction: Double,
+        minimum: Double,
+        maximum: Double
+    ) -> (Double, Double) {
+        let tminNumerator = (minimum - origin)
+        let tmaxNumerator = maximum - origin
 
         let tmin: Double
         let tmax: Double
