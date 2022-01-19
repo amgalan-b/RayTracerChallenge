@@ -65,6 +65,10 @@ public final class Cylinder: Shape {
         return .vector(point.x, 0, point.z)
     }
 
+    override func boundingBoxLocal() -> BoundingBox {
+        return BoundingBox(minimum: .point(-1, minimum, -1), maximum: .point(1, maximum, 1))
+    }
+
     private func _intersectCaps(ray: Ray) -> [Intersection] {
         if !isCapped || ray.direction.y.isAlmostEqual(to: 0) {
             return []
@@ -175,6 +179,20 @@ final class CylinderTests: XCTestCase {
         XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0)), .vector(0, 1, 0))
         XCTAssertEqual(cylinder.normalLocal(at: .point(0.5, 2, 0)), .vector(0, 1, 0))
         XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0.5)), .vector(0, 1, 0))
+    }
+
+    func test_boundingBox() {
+        let c1 = Cylinder()
+        let b1 = c1.boundingBoxLocal()
+
+        let c2 = Cylinder(minimum: -5, maximum: 3)
+        let b2 = c2.boundingBoxLocal()
+
+        XCTAssertEqual(b1.minimum, .point(-1, -.greatestFiniteMagnitude, -1))
+        XCTAssertEqual(b1.maximum, .point(1, .greatestFiniteMagnitude, 1))
+
+        XCTAssertEqual(b2.minimum, .point(-1, -5, -1))
+        XCTAssertEqual(b2.maximum, .point(1, 3, 1))
     }
 }
 #endif

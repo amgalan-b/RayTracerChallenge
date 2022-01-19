@@ -22,6 +22,10 @@ public final class Sphere: Shape {
     override func normalLocal(at point: Tuple) -> Tuple {
         return point - .point(0, 0, 0)
     }
+
+    override func boundingBoxLocal() -> BoundingBox {
+        return BoundingBox(minimum: .point(-1, -1, -1), maximum: .point(1, 1, 1))
+    }
 }
 
 #if TEST
@@ -116,6 +120,14 @@ final class SphereTests: XCTestCase {
             .normal(at: .point(value, value, value))
 
         XCTAssertEqual(normal, normal.normalized())
+    }
+
+    func test_boundingBox() {
+        let sphere = Sphere()
+        let box = sphere.boundingBoxLocal()
+
+        XCTAssertEqual(box.minimum, .point(-1, -1, -1))
+        XCTAssertEqual(box.maximum, .point(1, 1, 1))
     }
 }
 #endif

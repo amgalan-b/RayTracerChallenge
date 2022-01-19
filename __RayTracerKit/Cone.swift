@@ -78,6 +78,14 @@ public final class Cone: Shape {
         return .vector(point.x, y, point.z)
     }
 
+    override func boundingBoxLocal() -> BoundingBox {
+        let a = minimum.absoluteValue
+        let b = maximum.absoluteValue
+        let limit = max(a, b)
+
+        return BoundingBox(minimum: .point(-limit, minimum, -limit), maximum: .point(limit, maximum, limit))
+    }
+
     private func _intersectCaps(ray: Ray) -> [Intersection] {
         if !isCapped || ray.direction.y.isAlmostEqual(to: 0) {
             return []
@@ -157,6 +165,14 @@ final class ConeTests: XCTestCase {
         XCTAssertEqual(r1, .vector(0, 0, 0))
         XCTAssertEqual(r2, .vector(1, -sqrt(2), 1))
         XCTAssertEqual(r3, .vector(-1, 1, 0))
+    }
+
+    func test_boundingBox() {
+        let cone = Cone(minimum: -5, maximum: 3)
+        let box = cone.boundingBoxLocal()
+
+        XCTAssertEqual(box.minimum, .point(-5, -5, -5))
+        XCTAssertEqual(box.maximum, .point(5, 3, 5))
     }
 }
 #endif

@@ -24,11 +24,19 @@ public class Shape {
         return _convertObjectToWorldSpace(normal: objectNormal)
     }
 
+    final func boundingBox() -> BoundingBox {
+        return boundingBoxLocal().transformed(transform)
+    }
+
     func intersectLocal(with ray: Ray) -> [Intersection] {
         fatalError()
     }
 
     func normalLocal(at point: Tuple) -> Tuple {
+        fatalError()
+    }
+
+    func boundingBoxLocal() -> BoundingBox {
         fatalError()
     }
 

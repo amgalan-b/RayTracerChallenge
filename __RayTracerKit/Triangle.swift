@@ -49,6 +49,15 @@ public final class Triangle: Shape {
     override func normalLocal(at point: Tuple) -> Tuple {
         return normal
     }
+
+    override func boundingBoxLocal() -> BoundingBox {
+        var box = BoundingBox()
+        box.addPoint(point1)
+        box.addPoint(point2)
+        box.addPoint(point3)
+
+        return box
+    }
 }
 
 #if TEST
@@ -113,6 +122,14 @@ final class TriangleTests: XCTestCase {
             .map { $0.time }
 
         XCTAssertEqual(times, [2])
+    }
+
+    func test_boundingBox() {
+        let triangle = Triangle(.point(-3, 7, 2), .point(6, 2, -4), .point(2, -1, -1))
+        let box = triangle.boundingBoxLocal()
+
+        XCTAssertEqual(box.minimum, .point(-3, -1, -4))
+        XCTAssertEqual(box.maximum, .point(6, 7, 2))
     }
 }
 #endif

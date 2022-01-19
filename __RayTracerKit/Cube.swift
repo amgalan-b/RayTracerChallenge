@@ -29,6 +29,10 @@ public final class Cube: Shape {
             fatalError()
         }
     }
+
+    override func boundingBoxLocal() -> BoundingBox {
+        return BoundingBox(minimum: .point(-1, -1, -1), maximum: .point(1, 1, 1))
+    }
 }
 
 extension Cube {
@@ -90,6 +94,14 @@ final class CubeTests: XCTestCase {
         XCTAssertEqual(cube.normalLocal(at: .point(0.4, 0.4, -1)), .vector(0, 0, -1))
         XCTAssertEqual(cube.normalLocal(at: .point(1, 1, 1)), .vector(1, 0, 0))
         XCTAssertEqual(cube.normalLocal(at: .point(-1, -1, -1)), .vector(-1, 0, 0))
+    }
+
+    func test_boundingBox() {
+        let cube = Cube()
+        let box = cube.boundingBoxLocal()
+
+        XCTAssertEqual(box.minimum, .point(-1, -1, -1))
+        XCTAssertEqual(box.maximum, .point(1, 1, 1))
     }
 
     private func _intersectionTimes(origin: Tuple, direction: Tuple) -> [Double] {

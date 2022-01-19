@@ -60,11 +60,6 @@ struct BoundingBox {
     }
 }
 
-protocol BoundableShape {
-
-    func boundingBox() -> BoundingBox
-}
-
 #if TEST
 import XCTest
 

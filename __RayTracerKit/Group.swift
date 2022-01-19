@@ -17,6 +17,17 @@ public final class Group: Shape {
         return .vector(0, 0, 0)
     }
 
+    override func boundingBoxLocal() -> BoundingBox {
+        var box = BoundingBox()
+
+        for child in children {
+            let childBox = child.boundingBox()
+            box = box.merge(with: childBox)
+        }
+
+        return box
+    }
+
     func addChild(_ child: Shape) {
         guard child.parent == nil else {
             fatalError()
@@ -84,6 +95,20 @@ final class GroupTests: XCTestCase {
         let intersections = group.intersect(with: ray)
 
         XCTAssertEqual(intersections.count, 2)
+    }
+
+    func test_boundingBox() {
+        let sphere = Sphere(transform: .translation(2, 5, -3) * .scaling(2, 2, 2))
+        let cylinder = Cylinder(transform: .translation(-4, -1, 4) * .scaling(0.5, 1, 0.5), minimum: -2, maximum: 2)
+
+        let group = Group()
+        group.addChild(sphere)
+        group.addChild(cylinder)
+
+        let box = group.boundingBoxLocal()
+
+        XCTAssertEqual(box.minimum, .point(-4.5, -3, -5))
+        XCTAssertEqual(box.maximum, .point(4, 7, 4.5))
     }
 }
 #endif
