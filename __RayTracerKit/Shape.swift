@@ -34,7 +34,7 @@ public class Shape: Equatable, Hashable {
     }
 
     /// - Note: Need to be overridden by composite shapes.
-    func divide(threshold: Int) {
+    func constructBoundingVolumeHierarchy(threshold: Int) {
     }
 
     func intersectLocal(with ray: Ray) -> [Intersection] {

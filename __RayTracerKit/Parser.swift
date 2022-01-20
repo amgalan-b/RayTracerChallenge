@@ -48,7 +48,7 @@ public final class Parser {
             result.addChild(group)
         }
 
-        result.divide(threshold: 1)
+        result.constructBoundingVolumeHierarchy(threshold: 1)
         return result
     }
 }

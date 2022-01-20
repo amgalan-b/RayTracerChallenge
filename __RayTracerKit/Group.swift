@@ -53,7 +53,7 @@ public final class Group: Shape {
         return children == group.children
     }
 
-    override func divide(threshold: Int) {
+    override func constructBoundingVolumeHierarchy(threshold: Int) {
         if threshold <= children.count {
             let (left, right) = partition()
             if !left.children.isEmpty {
@@ -65,7 +65,7 @@ public final class Group: Shape {
         }
 
         for child in children {
-            child.divide(threshold: threshold)
+            child.constructBoundingVolumeHierarchy(threshold: threshold)
         }
     }
 
@@ -188,13 +188,13 @@ final class GroupTests: XCTestCase {
         XCTAssertEqual(right.children, [s2])
     }
 
-    func test_divide() {
+    func test_constructBVH() {
         let s1 = Sphere(transform: .translation(-2, -2, 0))
         let s2 = Sphere(transform: .translation(-2, 2, 0))
         let s3 = Sphere(transform: .scaling(4, 4, 4))
 
         let group = Group(children: [s1, s2, s3])
-        group.divide(threshold: 1)
+        group.constructBoundingVolumeHierarchy(threshold: 1)
 
         let expected = Group(children: [
             s3,
@@ -207,14 +207,14 @@ final class GroupTests: XCTestCase {
         XCTAssertEqual(group, expected)
     }
 
-    func test_divide_threshold() {
+    func test_constructBVH_threshold() {
         let s1 = Sphere(transform: .translation(-2, 0, 0))
         let s2 = Sphere(transform: .translation(2, 1, 0))
         let s3 = Sphere(transform: .translation(2, -1, 0))
         let s4 = Sphere()
 
         let group = Group(children: [s4, Group(children: [s1, s2, s3])])
-        group.divide(threshold: 3)
+        group.constructBoundingVolumeHierarchy(threshold: 3)
 
         let expected = Group(children: [
             s4,
