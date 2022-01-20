@@ -51,7 +51,7 @@ struct BoundingBox {
         let p7 = Tuple.point(maximum.x, maximum.y, maximum.z)
         let p8 = maximum
 
-        var copy = self
+        var copy = BoundingBox()
         for point in [p1, p2, p3, p4, p5, p6, p7, p8] {
             copy.addPoint(transform * point)
         }
