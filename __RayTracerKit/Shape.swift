@@ -28,6 +28,10 @@ public class Shape {
         return boundingBoxLocal().transformed(transform)
     }
 
+    /// - Note: Need to be overridden by composite shapes.
+    func divide(threshold: Int) {
+    }
+
     func intersectLocal(with ray: Ray) -> [Intersection] {
         fatalError()
     }

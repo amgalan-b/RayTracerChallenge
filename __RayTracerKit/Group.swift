@@ -41,6 +41,22 @@ public final class Group: Shape {
         return box
     }
 
+    override func divide(threshold: Int) {
+        if threshold <= children.count {
+            let (left, right) = partition()
+            if !left.children.isEmpty {
+                addChild(left)
+            }
+            if !right.children.isEmpty {
+                addChild(right)
+            }
+        }
+
+        for child in children {
+            child.divide(threshold: threshold)
+        }
+    }
+
     func addChild(_ child: Shape) {
         guard child.parent == nil else {
             fatalError()
@@ -164,6 +180,23 @@ final class GroupTests: XCTestCase {
         XCTAssertEqual(group.children, [s3])
         XCTAssertEqual(left.children, [s1])
         XCTAssertEqual(right.children, [s2])
+    }
+
+    func test_divide() {
+        let s1 = Sphere(transform: .translation(-2, -2, 0))
+        let s2 = Sphere(transform: .translation(-2, 2, 0))
+        let s3 = Sphere(transform: .scaling(4, 4, 4))
+        let group = Group(children: [s1, s2, s3])
+        group.divide(threshold: 1)
+        XCTAssertEqual(group.children.count, 2)
+
+        let subgroup = group.children.first { $0 is Group } as! Group
+        XCTAssertEqual(subgroup.children.count, 2)
+
+        let g1 = subgroup.children.first as! Group
+        let g2 = subgroup.children.second as! Group
+        XCTAssertEqual(g1.children, [s1])
+        XCTAssertEqual(g2.children, [s2])
     }
 }
 #endif
