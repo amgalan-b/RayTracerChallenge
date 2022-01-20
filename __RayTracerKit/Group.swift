@@ -4,9 +4,9 @@ public final class Group: Shape {
 
     private var _children = Set<Shape>()
 
-    init(children: Set<Shape> = Set<Shape>(), material: Material = .default, transform: Matrix = .identity) {
-        self._children = children
-        super.init(material: material, transform: transform)
+    init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity) {
+        _children = children
+        super.init(material: .default, transform: transform)
 
         for child in children {
             child.parent = self
@@ -15,6 +15,10 @@ public final class Group: Shape {
 
     var children: Set<Shape> {
         return _children
+    }
+
+    public override func hash(into hasher: inout Hasher) {
+        hasher.combine(_children)
     }
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
@@ -39,6 +43,14 @@ public final class Group: Shape {
         }
 
         return box
+    }
+
+    override func isEqual(to shape: Shape) -> Bool {
+        guard let group = shape as? Group else {
+            return false
+        }
+
+        return children == group.children
     }
 
     override func divide(threshold: Int) {
@@ -84,12 +96,6 @@ public final class Group: Shape {
     }
 
     func addChildren(_ children: [Shape]) {
-        for child in children {
-            addChild(child)
-        }
-    }
-
-    func addChildren(_ children: Shape ...) {
         for child in children {
             addChild(child)
         }
@@ -186,17 +192,39 @@ final class GroupTests: XCTestCase {
         let s1 = Sphere(transform: .translation(-2, -2, 0))
         let s2 = Sphere(transform: .translation(-2, 2, 0))
         let s3 = Sphere(transform: .scaling(4, 4, 4))
+
         let group = Group(children: [s1, s2, s3])
         group.divide(threshold: 1)
-        XCTAssertEqual(group.children.count, 2)
 
-        let subgroup = group.children.first { $0 is Group } as! Group
-        XCTAssertEqual(subgroup.children.count, 2)
+        let expected = Group(children: [
+            s3,
+            Group(children: [
+                Group(children: [s1]),
+                Group(children: [s2]),
+            ]),
+        ])
 
-        let g1 = subgroup.children.first as! Group
-        let g2 = subgroup.children.second as! Group
-        XCTAssertEqual(g1.children, [s1])
-        XCTAssertEqual(g2.children, [s2])
+        XCTAssertEqual(group, expected)
+    }
+
+    func test_divide_threshold() {
+        let s1 = Sphere(transform: .translation(-2, 0, 0))
+        let s2 = Sphere(transform: .translation(2, 1, 0))
+        let s3 = Sphere(transform: .translation(2, -1, 0))
+        let s4 = Sphere()
+
+        let group = Group(children: [s4, Group(children: [s1, s2, s3])])
+        group.divide(threshold: 3)
+
+        let expected = Group(children: [
+            s4,
+            Group(children: [
+                Group(children: [s1]),
+                Group(children: [s2, s3]),
+            ]),
+        ])
+
+        XCTAssertEqual(group, expected)
     }
 }
 #endif

@@ -1,6 +1,6 @@
 import Foundation
 
-public class Shape {
+public class Shape: Equatable, Hashable {
 
     public var material: Material
     public var transform: Matrix
@@ -10,6 +10,11 @@ public class Shape {
     public init(material: Material = .default, transform: Matrix = .identity) {
         self.material = material
         self.transform = transform
+    }
+
+    /// - Note: Not declared in an extension, so it can be overridden by a subclass.
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(self))
     }
 
     final func intersect(with ray: Ray) -> [Intersection] {
@@ -44,6 +49,11 @@ public class Shape {
         fatalError()
     }
 
+    /// - Note: Composite shapes should override with their own implementation.
+    func isEqual(to shape: Shape) -> Bool {
+        return self === shape
+    }
+
     fileprivate func _convertWorldToObjectSpace(point worldPoint: Tuple) -> Tuple {
         guard let parent = parent else {
             return transform.inversed() * worldPoint
@@ -65,17 +75,10 @@ public class Shape {
     }
 }
 
-extension Shape: Equatable {
+extension Shape {
 
     public static func == (lhs: Shape, rhs: Shape) -> Bool {
-        return lhs === rhs
-    }
-}
-
-extension Shape: Hashable {
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(self))
+        return lhs.isEqual(to: rhs)
     }
 }
 
