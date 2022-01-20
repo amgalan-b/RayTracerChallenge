@@ -3,6 +3,7 @@ import Foundation
 public final class Group: Shape {
 
     private var _children = Set<Shape>()
+    private var _boundingBoxCache: BoundingBox?
 
     init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity) {
         _children = children
@@ -22,7 +23,11 @@ public final class Group: Shape {
     }
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
-        guard boundingBoxLocal().isIntersected(by: ray) else {
+        if _boundingBoxCache == nil {
+            _boundingBoxCache = boundingBoxLocal()
+        }
+
+        guard _boundingBoxCache!.isIntersected(by: ray) else {
             return []
         }
 
