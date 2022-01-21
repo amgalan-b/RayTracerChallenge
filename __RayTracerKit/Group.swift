@@ -35,7 +35,7 @@ public final class Group: Shape {
             .sorted(by: \.time)
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         return .vector(0, 0, 0)
     }
 

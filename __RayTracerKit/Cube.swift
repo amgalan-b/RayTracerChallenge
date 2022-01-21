@@ -7,7 +7,7 @@ public final class Cube: Shape {
             .map { Intersection(time: $0, object: self) }
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         switch max(point.x.absoluteValue, point.y.absoluteValue, point.z.absoluteValue) {
         case point.x.absoluteValue:
             return .vector(point.x, 0, 0)

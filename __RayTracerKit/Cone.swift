@@ -60,7 +60,7 @@ public final class Cone: Shape {
         return _intersectCaps(ray: ray) + intersections
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         let dist = point.x.pow(2) + point.z.pow(2)
         if dist < 1, point.y >= maximum - .tolerance {
             return .vector(0, 1, 0)

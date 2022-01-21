@@ -2,7 +2,7 @@ import Foundation
 
 public final class Plane: Shape {
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         return .vector(0, 1, 0)
     }
 

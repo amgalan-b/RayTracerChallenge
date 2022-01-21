@@ -46,7 +46,7 @@ public final class Triangle: Shape {
         return [Intersection(time: t, object: self)]
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         return normal
     }
 

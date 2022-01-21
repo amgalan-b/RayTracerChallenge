@@ -19,7 +19,7 @@ public final class Sphere: Shape {
         return [Intersection(time: t1, object: self), Intersection(time: t2, object: self)]
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         return point - .point(0, 0, 0)
     }
 

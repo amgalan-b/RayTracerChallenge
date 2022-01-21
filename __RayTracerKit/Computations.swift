@@ -20,7 +20,7 @@ struct Computations {
         self.position = ray.position(at: time)
         self.eyeVector = -ray.direction
 
-        let normalVector = object.normal(at: position)
+        let normalVector = object.normal(at: position, additionalData: intersection.additionalData)
         if normalVector.dotProduct(with: eyeVector) < 0 {
             self.isInside = true
             self.normalVector = -normalVector

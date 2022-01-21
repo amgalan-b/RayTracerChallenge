@@ -22,9 +22,9 @@ public class Shape: Equatable, Hashable {
         return intersectLocal(with: localRay)
     }
 
-    final func normal(at worldPoint: Tuple) -> Tuple {
+    final func normal(at worldPoint: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         let objectPoint = _convertWorldToObjectSpace(point: worldPoint)
-        let objectNormal = normalLocal(at: objectPoint)
+        let objectNormal = normalLocal(at: objectPoint, additionalData: additionalData)
 
         return _convertObjectToWorldSpace(normal: objectNormal)
     }
@@ -41,7 +41,7 @@ public class Shape: Equatable, Hashable {
         fatalError()
     }
 
-    func normalLocal(at point: Tuple) -> Tuple {
+    func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         fatalError()
     }
 
@@ -91,7 +91,7 @@ private final class _TestShape: Shape {
         return []
     }
 
-    override func normalLocal(at point: Tuple) -> Tuple {
+    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
         return Tuple.vector(point.x, point.y, point.z)
     }
 }
