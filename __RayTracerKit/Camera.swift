@@ -51,6 +51,37 @@ public struct Camera {
         return canvas
     }
 
+    public func renderParallel(world: World) async -> Canvas {
+        let colorGrid = await withTaskGroup(of: (Int, [Color]).self, returning: [[Color]].self) { group in
+            for x in 0 ..< width {
+                group.addTask {
+                    let start = CFAbsoluteTimeGetCurrent()
+                    var column = [Color]()
+                    for y in 0 ..< height {
+                        let ray = _ray(forPixelAtX: x, y: y)
+                        let color = world.color(for: ray)
+
+                        column.append(color)
+                    }
+
+                    let diff = CFAbsoluteTimeGetCurrent() - start
+                    let output = String(format: "%.3f seconds", diff)
+                    print("Column: \(x) \(output)")
+                    return (x, column)
+                }
+            }
+
+            var matrix = [[Color]](repeating: [], count: width)
+            for await element in group {
+                matrix[element.0] = element.1
+            }
+
+            return matrix
+        }
+
+        return Canvas(grid: colorGrid)
+    }
+
     fileprivate func _ray(forPixelAtX x: Int, y: Int) -> Ray {
         let offsetX = (Double(x) + 0.5) * pixelSize
         let offsetY = (Double(y) + 0.5) * pixelSize
