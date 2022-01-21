@@ -52,7 +52,7 @@ public struct Camera {
     }
 
     public func renderParallel(world: World) async -> Canvas {
-        let colorGrid = await withTaskGroup(of: (Int, [Color]).self, returning: [[Color]].self) { group in
+        let colorGrid = await withTaskGroup(of: (column: Int, colors: [Color]).self, returning: [[Color]].self) { group in
             for x in 0 ..< width {
                 group.addTask {
                     let start = CFAbsoluteTimeGetCurrent()
@@ -72,8 +72,8 @@ public struct Camera {
             }
 
             var matrix = [[Color]](repeating: [], count: width)
-            for await element in group {
-                matrix[element.0] = element.1
+            for await taskResult in group {
+                matrix[taskResult.column] = taskResult.colors
             }
 
             return matrix
