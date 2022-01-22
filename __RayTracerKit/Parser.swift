@@ -5,6 +5,7 @@ public final class Parser {
 
     var ignoredLineCount = 0
     var vertices = [Tuple]()
+    var normals = [Tuple]()
     var triangles = [Triangle]()
     var groups = DefaultDictionary<String, [Triangle]>(defaultValue: [])
 
@@ -21,6 +22,8 @@ public final class Parser {
             switch _Line(line) {
             case let .vertex(x, y, z):
                 vertices.append(.point(x, y, z))
+            case let .normal(dx, dy, dz):
+                normals.append(.vector(dx, dy, dz))
             case let .face(indices):
                 let newTriangles = indices.map { vertices[$0 - 1] }
                     ._triangulate()
@@ -69,15 +72,14 @@ extension Array where Element == Tuple {
 private enum _Line: Equatable {
 
     case vertex(Double, Double, Double)
+    case normal(Double, Double, Double)
     case face(_ indices: [Int])
     case group(_ name: String)
     case ignore
 
     init(_ line: String) {
-        let parts = line.split(whereSeparator: \.isWhitespace)
-            .dropFirst()
-
-        switch line.first {
+        var parts = line.split(whereSeparator: \.isWhitespace)
+        switch parts.removeFirst() {
         case "v":
             let values = parts.compactMap { Double($0) }
             guard values.count == 3 else {
@@ -101,6 +103,14 @@ private enum _Line: Equatable {
             }
 
             self = .group(String(parts.first!))
+        case "vn":
+            let values = parts.compactMap { Double($0) }
+            guard values.count == 3 else {
+                self = .ignore
+                return
+            }
+
+            self = .normal(values[0], values[1], values[2])
         default:
             self = .ignore
         }
@@ -141,6 +151,18 @@ final class LineTests: XCTestCase {
         XCTAssertEqual(f2, .face([1, 3, 4]))
         XCTAssertEqual(f3, .face([1, 2, 3, 4, 5]))
         XCTAssertEqual(f4, .ignore)
+    }
+
+    func test_normal() {
+        let n1 = _Line("vn 0 0 1")
+        let n2 = _Line("vn 0.707 0 -0.707")
+        let n3 = _Line("vn")
+        let n4 = _Line("vn 1")
+
+        XCTAssertEqual(n1, .normal(0, 0, 1))
+        XCTAssertEqual(n2, .normal(0.707, 0, -0.707))
+        XCTAssertEqual(n3, .ignore)
+        XCTAssertEqual(n4, .ignore)
     }
 }
 
@@ -276,6 +298,20 @@ final class ParserTests: XCTestCase {
 
         XCTAssertEqual(group.children.count, 2)
     }
-}
 
+    func test_parse_normal() {
+        let input = """
+        vn 0 0 1
+        vn 0.707 0 -0.707
+        vn 1 2 3
+        """
+
+        let parser = Parser()
+        _ = parser.parse(input)
+
+        XCTAssertEqual(parser.normals[0], .vector(0, 0, 1))
+        XCTAssertEqual(parser.normals[1], .vector(0.707, 0, -0.707))
+        XCTAssertEqual(parser.normals[2], .vector(1, 2, 3))
+    }
+}
 #endif
