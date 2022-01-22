@@ -14,7 +14,7 @@ public final class Parser {
     public init() {
     }
 
-    public func parse(_ input: String) -> Group? {
+    public func parse(_ input: String, isBoundingVolumeHierarchyEnabled: Bool = false) -> Group? {
         let lines = input.split(whereSeparator: \.isNewline)
             .map { String($0) }
 
@@ -51,7 +51,10 @@ public final class Parser {
             result.addChild(group)
         }
 
-        result.constructBoundingVolumeHierarchy(threshold: 1)
+        if isBoundingVolumeHierarchyEnabled {
+            result.constructBoundingVolumeHierarchy(threshold: 1)
+        }
+
         return result
     }
 }
