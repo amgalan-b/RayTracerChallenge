@@ -3,11 +3,11 @@ import Foundation
 
 public final class Parser {
 
-    var ignoredLineCount = 0
-    var vertices = [Tuple]()
-    var normals = [Tuple]()
-    var triangles = [Triangle]()
-    var groups = DefaultDictionary<String, [Triangle]>(defaultValue: [])
+    fileprivate var _ignoredLineCount = 0
+    fileprivate var _vertices = [Tuple]()
+    fileprivate var _normals = [Tuple]()
+    fileprivate var _topLevelShapes = [Shape]()
+    fileprivate var _topLevelGroups = DefaultDictionary<String, [Shape]>(defaultValue: [])
 
     private var _recentGroup: String?
 
@@ -21,32 +21,44 @@ public final class Parser {
         for line in lines {
             switch Line(line) {
             case let .vertex(x, y, z):
-                vertices.append(.point(x, y, z))
+                _vertices.append(.point(x, y, z))
             case let .normal(dx, dy, dz):
-                normals.append(.vector(dx, dy, dz))
+                _normals.append(.vector(dx, dy, dz))
             case let .face(indices):
-                let newTriangles = indices.map { vertices[$0 - 1] }
+                let newTriangles = indices.map { _vertices[$0 - 1] }
                     ._triangulate()
 
                 guard let group = _recentGroup else {
-                    triangles += newTriangles
+                    _topLevelShapes += newTriangles
                     continue
                 }
 
-                groups[group] += newTriangles
+                _topLevelGroups[group] += newTriangles
+            case let .smoothFace(vertexIndices, normalIndices):
+                let newTriangles = vertexIndices.map { _vertices[$0 - 1] }
+                    ._smoothTriangulate(normals: normalIndices.map { _normals[$0 - 1] })
+
+                guard let group = _recentGroup else {
+                    _topLevelShapes += newTriangles
+                    continue
+                }
+
+                _topLevelGroups[group] += newTriangles
             case let .group(name):
                 _recentGroup = name
             case .ignore:
-                ignoredLineCount += 1
+                _ignoredLineCount += 1
             }
         }
 
-        let result = Group()
-        result.addChildren(triangles)
+        print("Ignored: \(_ignoredLineCount)")
 
-        for (_, v) in groups.dictionary {
+        let result = Group()
+        result.addChildren(_topLevelShapes)
+
+        for (_, shapes) in _topLevelGroups.dictionary {
             let group = Group()
-            group.addChildren(v)
+            group.addChildren(shapes)
 
             result.addChild(group)
         }
@@ -65,6 +77,16 @@ extension Array where Element == Tuple {
         var triangles = [Triangle]()
         for i in 1 ..< count - 1 {
             let triangle = Triangle(self[0], self[i], self[i + 1])
+            triangles.append(triangle)
+        }
+
+        return triangles
+    }
+
+    fileprivate func _smoothTriangulate(normals: [Tuple]) -> [SmoothTriangle] {
+        var triangles = [SmoothTriangle]()
+        for i in 1 ..< count - 1 {
+            let triangle = SmoothTriangle(self[0], self[i], self[i + 1], normals[0], normals[i], normals[i + 1])
             triangles.append(triangle)
         }
 
@@ -89,7 +111,7 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        XCTAssertEqual(parser.ignoredLineCount, 5)
+        XCTAssertEqual(parser._ignoredLineCount, 5)
     }
 
     func test_parse_vertex() {
@@ -103,10 +125,25 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        XCTAssertEqual(parser.vertices[0], .point(-1, 1, 0))
-        XCTAssertEqual(parser.vertices[1], .point(-1, 0.5, 0))
-        XCTAssertEqual(parser.vertices[2], .point(1, 0, 0))
-        XCTAssertEqual(parser.vertices[3], .point(1, 1, 0))
+        XCTAssertEqual(parser._vertices[0], .point(-1, 1, 0))
+        XCTAssertEqual(parser._vertices[1], .point(-1, 0.5, 0))
+        XCTAssertEqual(parser._vertices[2], .point(1, 0, 0))
+        XCTAssertEqual(parser._vertices[3], .point(1, 1, 0))
+    }
+
+    func test_parse_normal() {
+        let input = """
+        vn 0 0 1
+        vn 0.707 0 -0.707
+        vn 1 2 3
+        """
+
+        let parser = Parser()
+        _ = parser.parse(input)
+
+        XCTAssertEqual(parser._normals[0], .vector(0, 0, 1))
+        XCTAssertEqual(parser._normals[1], .vector(0.707, 0, -0.707))
+        XCTAssertEqual(parser._normals[2], .vector(1, 2, 3))
     }
 
     func test_parse_face() {
@@ -122,8 +159,8 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        let t1 = parser.triangles[0]
-        let t2 = parser.triangles[1]
+        let t1 = parser._topLevelShapes[0] as! Triangle
+        let t2 = parser._topLevelShapes[1] as! Triangle
 
         XCTAssertEqual(t1.point1, .point(-1, 1, 0))
         XCTAssertEqual(t1.point2, .point(-1, 0, 0))
@@ -146,9 +183,9 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        let t1 = parser.triangles[0]
-        let t2 = parser.triangles[1]
-        let t3 = parser.triangles[2]
+        let t1 = parser._topLevelShapes[0] as! Triangle
+        let t2 = parser._topLevelShapes[1] as! Triangle
+        let t3 = parser._topLevelShapes[2] as! Triangle
 
         XCTAssertEqual(t1.point1, .point(-1, 1, 0))
         XCTAssertEqual(t1.point2, .point(-1, 0, 0))
@@ -176,11 +213,11 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        let g1 = parser.groups["FirstGroup"]
-        let g2 = parser.groups["SecondGroup"]
+        let g1 = parser._topLevelGroups["FirstGroup"]
+        let g2 = parser._topLevelGroups["SecondGroup"]
 
-        let t1 = g1[0]
-        let t2 = g2[0]
+        let t1 = g1[0] as! Triangle
+        let t2 = g2[0] as! Triangle
 
         XCTAssertEqual(t1.point1, .point(-1, 1, 0))
         XCTAssertEqual(t1.point2, .point(-1, 0, 0))
@@ -206,21 +243,6 @@ final class ParserTests: XCTestCase {
         let group = parser.parse(input)!
 
         XCTAssertEqual(group.children.count, 2)
-    }
-
-    func test_parse_normal() {
-        let input = """
-        vn 0 0 1
-        vn 0.707 0 -0.707
-        vn 1 2 3
-        """
-
-        let parser = Parser()
-        _ = parser.parse(input)
-
-        XCTAssertEqual(parser.normals[0], .vector(0, 0, 1))
-        XCTAssertEqual(parser.normals[1], .vector(0.707, 0, -0.707))
-        XCTAssertEqual(parser.normals[2], .vector(1, 2, 3))
     }
 }
 #endif

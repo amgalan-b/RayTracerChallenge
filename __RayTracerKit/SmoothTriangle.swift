@@ -70,7 +70,12 @@ final class SmoothTriangle: Shape {
     }
 
     override func boundingBoxLocal() -> BoundingBox {
-        fatalError()
+        var box = BoundingBox()
+        box.addPoint(point1)
+        box.addPoint(point2)
+        box.addPoint(point3)
+
+        return box
     }
 }
 

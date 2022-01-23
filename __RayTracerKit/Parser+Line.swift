@@ -7,6 +7,7 @@ extension Parser {
         case vertex(Double, Double, Double)
         case normal(Double, Double, Double)
         case face(_ indices: [Int])
+        case smoothFace(_ vertexIndices: [Int], _ normalIndices: [Int])
         case group(_ name: String)
         case ignore
 
@@ -14,40 +15,77 @@ extension Parser {
             var parts = line.split(whereSeparator: \.isWhitespace)
             switch parts.removeFirst() {
             case "v":
-                let values = parts.compactMap { Double($0) }
-                guard values.count == 3 else {
-                    self = .ignore
-                    return
-                }
-
-                self = .vertex(values[0], values[1], values[2])
+                self = parts._parseVertex()
             case "vn":
-                let values = parts.compactMap { Double($0) }
-                guard values.count == 3 else {
-                    self = .ignore
-                    return
-                }
-
-                self = .normal(values[0], values[1], values[2])
+                self = parts._parseNormal()
             case "f":
-                let values = parts.compactMap { Int($0) }
-                guard values.count >= 3 else {
-                    self = .ignore
-                    return
-                }
-
-                self = .face(values)
+                self = parts._parseFace()
             case "g":
-                guard parts.count == 1 else {
-                    self = .ignore
-                    return
-                }
-
-                self = .group(String(parts.first!))
+                self = parts._parseGroup()
             default:
                 self = .ignore
             }
         }
+    }
+}
+
+extension Array where Element == Substring {
+
+    fileprivate func _parseVertex() -> Parser.Line {
+        let values = compactMap { Double($0) }
+        guard values.count == 3 else {
+            return .ignore
+        }
+
+        return .vertex(values[0], values[1], values[2])
+    }
+
+    fileprivate func _parseNormal() -> Parser.Line {
+        let values = compactMap { Double($0) }
+        guard values.count == 3 else {
+            return .ignore
+        }
+
+        return .normal(values[0], values[1], values[2])
+    }
+
+    fileprivate func _parseGroup() -> Parser.Line {
+        guard count == 1 else {
+            return .ignore
+        }
+
+        return .group(String(first!))
+    }
+
+    fileprivate func _parseFace() -> Parser.Line {
+        guard let firstPart = first else {
+            return .ignore
+        }
+
+        guard !firstPart.contains("/") else {
+            return _parseSmoothFace()
+        }
+
+        let values = compactMap { Int($0) }
+        guard values.count >= 3 else {
+            return .ignore
+        }
+
+        return .face(values)
+    }
+
+    fileprivate func _parseSmoothFace() -> Parser.Line {
+        let values = map { $0.split(separator: "/", omittingEmptySubsequences: false)
+            .map { Int($0) } }
+
+        guard values.count >= 3 else {
+            return .ignore
+        }
+
+        let vertexIndices = values.compactMap { $0[0] }
+        let normalIndices = values.compactMap { $0[2] }
+
+        return .smoothFace(vertexIndices, normalIndices)
     }
 }
 
@@ -87,6 +125,14 @@ final class LineTests: XCTestCase {
         XCTAssertEqual(f2, .face([1, 3, 4]))
         XCTAssertEqual(f3, .face([1, 2, 3, 4, 5]))
         XCTAssertEqual(f4, .ignore)
+    }
+
+    func test_smoothFace() {
+        let f1 = Line("f 1/2/3 2/3/4 3/4/5")
+        let f2 = Line("f 1//3 2//4 3//5")
+
+        XCTAssertEqual(f1, .smoothFace([1, 2, 3], [3, 4, 5]))
+        XCTAssertEqual(f2, .smoothFace([1, 2, 3], [3, 4, 5]))
     }
 
     func test_normal() {

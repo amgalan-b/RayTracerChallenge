@@ -2,8 +2,8 @@ import Foundation
 
 public class Shape: Equatable, Hashable {
 
-    public let material: Material
-    public let transform: Matrix
+    public var material: Material
+    public var transform: Matrix
 
     public var parent: Group?
 
