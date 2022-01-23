@@ -1,15 +1,10 @@
 import Foundation
 
-final class SmoothTriangle: Shape {
+final class SmoothTriangle: Triangle {
 
-    let point1: Tuple
-    let point2: Tuple
-    let point3: Tuple
     let normal1: Tuple
     let normal2: Tuple
     let normal3: Tuple
-    let edge1: Tuple
-    let edge2: Tuple
 
     init(
         _ point1: Tuple,
@@ -21,46 +16,14 @@ final class SmoothTriangle: Shape {
         material: Material = .default,
         transform: Matrix = .identity
     ) {
-        self.point1 = point1
-        self.point2 = point2
-        self.point3 = point3
         self.normal1 = normal1
         self.normal2 = normal2
         self.normal3 = normal3
-        self.edge1 = point2 - point1
-        self.edge2 = point3 - point1
-        super.init(material: material, transform: transform)
-    }
-
-    override func intersectLocal(with ray: Ray) -> [Intersection] {
-        let directionCrossEdge2 = ray.direction.crossProduct(with: edge2)
-        let determinant = edge1.dotProduct(with: directionCrossEdge2)
-
-        guard !determinant.isAlmostEqual(to: 0) else {
-            return []
-        }
-
-        let f = 1.0 / determinant
-        let point1ToOrigin = ray.origin - point1
-        let u = f * point1ToOrigin.dotProduct(with: directionCrossEdge2)
-
-        guard u >= 0, u <= 1 else {
-            return []
-        }
-
-        let originCrossEdge1 = point1ToOrigin.crossProduct(with: edge1)
-        let v = f * ray.direction.dotProduct(with: originCrossEdge1)
-
-        guard v >= 0, (u + v) <= 1 else {
-            return []
-        }
-
-        let t = f * edge2.dotProduct(with: originCrossEdge1)
-        return [Intersection(time: t, object: self, additionalData: _IntersectionAdditionalData(u: u, v: v))]
+        super.init(point1, point2, point3, material: material, transform: transform)
     }
 
     override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
-        guard let data = additionalData as? _IntersectionAdditionalData else {
+        guard let data = additionalData as? TriangleIntersectionAdditionalData else {
             fatalError()
         }
 
@@ -68,21 +31,6 @@ final class SmoothTriangle: Shape {
             + normal3 * data.v
             + normal1 * (1 - data.u - data.v)
     }
-
-    override func boundingBoxLocal() -> BoundingBox {
-        var box = BoundingBox()
-        box.addPoint(point1)
-        box.addPoint(point2)
-        box.addPoint(point3)
-
-        return box
-    }
-}
-
-private struct _IntersectionAdditionalData: ShapeIntersectionData {
-
-    let u: Double
-    let v: Double
 }
 
 #if TEST
@@ -102,7 +50,7 @@ final class SmoothTriangleTests: XCTestCase {
         let ray = Ray(origin: .point(-0.2, 0.3, -2), direction: .vector(0, 0, 1))
         let intersections = triangle.intersectLocal(with: ray)
 
-        guard let additionalData = intersections[0].additionalData as? _IntersectionAdditionalData else {
+        guard let additionalData = intersections[0].additionalData as? TriangleIntersectionAdditionalData else {
             return XCTFail()
         }
 
@@ -119,7 +67,10 @@ final class SmoothTriangleTests: XCTestCase {
             .vector(-1, 0, 0),
             .vector(1, 0, 0)
         )
-        let normal = triangle.normal(at: .point(0, 0, 0), additionalData: _IntersectionAdditionalData(u: 0.45, v: 0.25))
+        let normal = triangle.normal(
+            at: .point(0, 0, 0),
+            additionalData: TriangleIntersectionAdditionalData(u: 0.45, v: 0.25)
+        )
 
         XCTAssertEqual(normal, .vector(-0.5547, 0.83205, 0))
     }

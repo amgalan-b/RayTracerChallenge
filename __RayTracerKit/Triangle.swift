@@ -1,6 +1,6 @@
 import Foundation
 
-public final class Triangle: Shape {
+public class Triangle: Shape {
 
     let point1: Tuple
     let point2: Tuple
@@ -43,7 +43,7 @@ public final class Triangle: Shape {
         }
 
         let t = f * edge2.dotProduct(with: originCrossEdge1)
-        return [Intersection(time: t, object: self)]
+        return [Intersection(time: t, object: self, additionalData: TriangleIntersectionAdditionalData(u: u, v: v))]
     }
 
     override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
@@ -58,6 +58,12 @@ public final class Triangle: Shape {
 
         return box
     }
+}
+
+struct TriangleIntersectionAdditionalData: ShapeIntersectionData {
+
+    let u: Double
+    let v: Double
 }
 
 #if TEST
