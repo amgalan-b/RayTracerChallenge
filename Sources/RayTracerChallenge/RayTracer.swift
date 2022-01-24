@@ -1,4 +1,5 @@
-import __RayTracerKit
+import RayTracerKit
+import Foundation
 
 @main
 enum RayTracer {
@@ -8,17 +9,17 @@ enum RayTracer {
 
         let world = _makeWorld()
         let camera = Camera(
-            width: 800,
-            height: 800,
+            width: 1600,
+            height: 1600,
             fieldOfView: .pi / 3,
             transform: .viewTransform(
-                origin: .point(0, 1.5, -5),
-                direction: .point(0, 1, 0),
+                origin: .point(0, 4, -7),
+                target: .point(0, 1, 0),
                 orientation: .vector(0, 1, 0)
             )
         )
 
-        camera.render(world: world)
+        await camera.renderParallel(world: world)
             .ppm()
             ._write()
 
@@ -28,13 +29,16 @@ enum RayTracer {
     }
 
     private static func _makeWorld() -> World {
-        let floor = Sphere()
-        floor.transform = .scaling(10, 0.01, 10)
+        let url = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("teapot-2.txt")
+        let input = try! String(contentsOf: url)
+        let parser = Parser()
+        let object = parser.parse(input, isBoundingVolumeHierarchyEnabled: true)!
 
-        let middle = Sphere()
-        middle.transform = .translation(-0.5, 1, 0.5)
-
-        let world = World(objects: [middle, floor], light: .pointLight(at: .point(-10, 10, -10), intensity: .white))
+        let world = World(
+            objects: [object],
+            light: .pointLight(at: .point(0, 10, -10), intensity: .white)
+        )
 
         return world
     }

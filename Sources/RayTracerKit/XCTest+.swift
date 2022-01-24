@@ -1,7 +1,5 @@
+#if TEST
 import XCTest
-
-final class __RayTracerKitTests: XCTestCase {
-}
 
 public func XCTAssertEqual<T>(
     _ left: T,
@@ -18,3 +16,4 @@ public func XCTAssertEqual<T>(
         XCTAssertEqual(left[i], right[i], accuracy: accuracy, file: file, line: line)
     }
 }
+#endif
