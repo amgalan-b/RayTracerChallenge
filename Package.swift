@@ -13,13 +13,14 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "Babbage", path: "~/Projects/Babbage"),
-        .package(
-            url: "https://github.com/apple/swift-collections.git",
-            .upToNextMajor(from: "1.0.0")
-        ),
+        .package(url: "https://github.com/apple/swift-collections", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.0.0")),
     ],
     targets: [
-        .executableTarget(name: "RayTracerChallenge", dependencies: ["RayTracerKit"]),
+        .executableTarget(
+            name: "RayTracerChallenge",
+            dependencies: ["RayTracerKit", .product(name: "ArgumentParser", package: "swift-argument-parser")]
+        ),
         .target(
             name: "RayTracerKit",
             dependencies: ["Babbage", .product(name: "Collections", package: "swift-collections")]
