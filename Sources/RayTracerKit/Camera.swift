@@ -1,3 +1,4 @@
+import Babbage
 import Foundation
 
 /// Canvas is always 1-unit away from the camera.
@@ -45,14 +46,17 @@ public struct Camera {
             }
             let diff = CFAbsoluteTimeGetCurrent() - start
             let output = String(format: "%.3f seconds", diff)
-            print("Column: \(x) \(output)")
+            print("Column: \(x) \(output)", to: &standardError)
         }
 
         return canvas
     }
 
     public func renderParallel(world: World) async -> Canvas {
-        let colorGrid = await withTaskGroup(of: (column: Int, colors: [Color]).self, returning: [[Color]].self) { group in
+        let colorGrid = await withTaskGroup(
+            of: (column: Int, colors: [Color]).self,
+            returning: [[Color]].self
+        ) { group in
             for x in 0 ..< width {
                 group.addTask {
                     let start = CFAbsoluteTimeGetCurrent()
@@ -66,7 +70,7 @@ public struct Camera {
 
                     let diff = CFAbsoluteTimeGetCurrent() - start
                     let output = String(format: "%.3f seconds", diff)
-                    print("Column: \(x) \(output)")
+                    print("Column: \(x) \(output)", to: &standardError)
                     return (x, column)
                 }
             }

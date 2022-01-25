@@ -14,7 +14,7 @@ public final class Parser {
     public init() {
     }
 
-    public func parse(_ input: String, isBoundingVolumeHierarchyEnabled: Bool = false) -> Group? {
+    public func parse(_ input: String, isBoundingVolumeHierarchyEnabled: Bool = false) -> Group {
         let lines = input.split(whereSeparator: \.isNewline)
             .map { String($0) }
 
@@ -51,7 +51,7 @@ public final class Parser {
             }
         }
 
-        print("Ignored: \(_ignoredLineCount)")
+        print("Ignored: \(_ignoredLineCount)", to: &standardError)
 
         let result = Group()
         result.addChildren(_topLevelShapes)
@@ -240,7 +240,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = Parser()
-        let group = parser.parse(input)!
+        let group = parser.parse(input)
 
         XCTAssertEqual(group.children.count, 2)
     }

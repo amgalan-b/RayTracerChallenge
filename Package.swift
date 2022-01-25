@@ -13,8 +13,8 @@ let package = Package(
     ],
     dependencies: [
         .package(name: "Babbage", path: "~/Projects/Babbage"),
-        .package(url: "https://github.com/apple/swift-collections", .upToNextMajor(from: "1.0.0")),
-        .package(url: "https://github.com/apple/swift-argument-parser", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/apple/swift-collections", .exact("1.0.2")),
+        .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.0.2")),
     ],
     targets: [
         .executableTarget(
