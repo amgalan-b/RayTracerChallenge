@@ -12,6 +12,11 @@ final class CSG: Shape {
         self.operation = operation
     }
 
+    override func intersectLocal(with ray: Ray) -> [Intersection] {
+        let intersections = left.intersect(with: ray) + right.intersect(with: ray)
+        return _filter(intersections: intersections.sorted(by: \.time))
+    }
+
     override func includes(_ shape: Shape) -> Bool {
         return left == shape || right == shape
     }
@@ -108,6 +113,25 @@ final class CSGTests: XCTestCase {
         XCTAssertEqual(r1, [intersections[0], intersections[3]])
         XCTAssertEqual(r2, [intersections[1], intersections[2]])
         XCTAssertEqual(r3, [intersections[0], intersections[1]])
+    }
+
+    func test_intersect_miss() {
+        let s1 = Sphere()
+        let s2 = Cube()
+        let csg = CSG(s1, s2, operation: .union)
+        let ray = Ray(origin: .point(0, 2, -5), direction: .vector(0, 0, 1))
+
+        XCTAssertEqual(csg.intersectLocal(with: ray), [])
+    }
+
+    func test_intersect() {
+        let s1 = Sphere()
+        let s2 = Sphere(transform: .translation(0, 0, 0.5))
+        let csg = CSG(s1, s2, operation: .union)
+        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let expected = [Intersection(time: 4, object: s1), Intersection(time: 6.5, object: s2)]
+
+        XCTAssertEqual(csg.intersectLocal(with: ray), expected)
     }
 }
 #endif
