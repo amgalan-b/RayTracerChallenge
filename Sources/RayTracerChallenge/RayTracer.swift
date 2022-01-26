@@ -6,6 +6,7 @@ import RayTracerKit
 @main
 enum Main {
 
+    /// - Note: swift-argument-parser 1.0.2 yet not support async run method.
     static func main() async throws {
         var command = RayTracer.parseOrExit()
         do {

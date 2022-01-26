@@ -70,15 +70,17 @@ public struct Camera {
 
                     let diff = CFAbsoluteTimeGetCurrent() - start
                     let output = String(format: "%.3f seconds", diff)
-                    print("Column: \(x) \(output)", to: &standardError)
+                    print("Column: \(x) \(output)", terminator: "\r", to: &standardError)
                     return (x, column)
                 }
             }
+
 
             var matrix = [[Color]](repeating: [], count: width)
             for await taskResult in group {
                 matrix[taskResult.column] = taskResult.colors
             }
+            print("", to: &standardError)
 
             return matrix
         }
