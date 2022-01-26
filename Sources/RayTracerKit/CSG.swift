@@ -12,13 +12,17 @@ final class CSG: Shape {
         self.operation = operation
     }
 
+    override func includes(_ shape: Shape) -> Bool {
+        return left == shape || right == shape
+    }
+
     fileprivate func _filter(intersections: [Intersection]) -> [Intersection] {
         var isInsideLeft = false
         var isInsideRight = false
         var result = [Intersection]()
 
         for intersection in intersections {
-            let isHitLeft = left == intersection.object
+            let isHitLeft = left.includes(intersection.object)
             if operation.isIntersectionAllowed(isHitLeft, isInsideLeft: isInsideLeft, isInsideRight: isInsideRight) {
                 result.append(intersection)
             }

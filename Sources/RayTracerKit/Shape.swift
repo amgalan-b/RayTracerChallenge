@@ -37,6 +37,11 @@ public class Shape: Equatable, Hashable {
     func constructBoundingVolumeHierarchy(threshold: Int) {
     }
 
+    /// - Note: Shapes contain themselves.
+    func includes(_ shape: Shape) -> Bool {
+        return self == shape
+    }
+
     func intersectLocal(with ray: Ray) -> [Intersection] {
         fatalError()
     }

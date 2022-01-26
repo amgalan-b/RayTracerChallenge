@@ -58,6 +58,16 @@ public final class Group: Shape {
         return children == group.children
     }
 
+    override func includes(_ shape: Shape) -> Bool {
+        for child in children {
+            if child.includes(shape) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     override func constructBoundingVolumeHierarchy(threshold: Int) {
         if threshold <= children.count {
             let (left, right) = partition()
