@@ -4,14 +4,14 @@ struct Computations {
 
     let time: Double
     let object: Shape
-    let position: Tuple
-    let eyeVector: Tuple
-    let normalVector: Tuple
+    let position: Point
+    let eyeVector: Vector
+    let normalVector: Vector
 
     /// Position slightly adjusted in normal direction to avoid self-intersection and shadow-acne.
-    let normalAdjustedPosition: Tuple
+    let normalAdjustedPosition: Point
     /// Position slightly adjusted in the opposite normal direction.
-    let normalOppositeAdjustedPosition: Tuple
+    let normalOppositeAdjustedPosition: Point
     let isInside: Bool
 
     init(intersection: Intersection, ray: Ray) {
@@ -41,7 +41,7 @@ final class ComputationTests: XCTestCase {
 
     func test_isInside_intersectionOutside() {
         let sphere = Sphere()
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let intersection = Intersection(time: 4, object: sphere)
         let computations = Computations(intersection: intersection, ray: ray)
 
@@ -50,18 +50,18 @@ final class ComputationTests: XCTestCase {
 
     func test_isInside_intersectionInside() {
         let sphere = Sphere()
-        let ray = Ray(origin: .point(0, 0, 0), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, 0), direction: Vector(0, 0, 1))
         let intersection = Intersection(time: 1, object: sphere)
         let computations = Computations(intersection: intersection, ray: ray)
 
         XCTAssert(computations.isInside)
-        XCTAssertEqual(computations.position, .point(0, 0, 1))
-        XCTAssertEqual(computations.eyeVector, .vector(0, 0, -1))
-        XCTAssertEqual(computations.normalVector, .vector(0, 0, -1))
+        XCTAssertEqual(computations.position, Point(0, 0, 1))
+        XCTAssertEqual(computations.eyeVector, Vector(0, 0, -1))
+        XCTAssertEqual(computations.normalVector, Vector(0, 0, -1))
     }
 
     func test_normalAdjustedPosition() {
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let shape = Sphere(transform: .translation(0, 0, 1))
         let intersection = Intersection(time: 5, object: shape)
         let computations = Computations(intersection: intersection, ray: ray)
@@ -73,7 +73,7 @@ final class ComputationTests: XCTestCase {
     func test_normalOppositeAdjustedPosition() {
         let shape = Sphere(material: .default(transparency: 1, refractiveIndex: 1.5), transform: .translation(0, 0, 1))
         let intersection = Intersection(time: 5, object: shape)
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let computations = Computations(intersection: intersection, ray: ray)
 
         XCTAssertGreaterThan(computations.normalOppositeAdjustedPosition.z, .tolerance / 2)

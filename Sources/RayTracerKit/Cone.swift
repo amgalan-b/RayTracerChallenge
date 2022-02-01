@@ -60,22 +60,22 @@ public final class Cone: Shape {
         return _intersectCaps(ray: ray) + intersections
     }
 
-    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
+    override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         let dist = point.x.pow(2) + point.z.pow(2)
         if dist < 1, point.y >= maximum - .tolerance {
-            return .vector(0, 1, 0)
+            return Vector(0, 1, 0)
         }
 
         if dist < 1, point.y <= minimum + .tolerance {
-            return .vector(0, -1, 0)
+            return Vector(0, -1, 0)
         }
 
         let y = sqrt(point.x.pow(2) + point.z.pow(2))
         guard point.y <= 0 else {
-            return .vector(point.x, -y, point.z)
+            return Vector(point.x, -y, point.z)
         }
 
-        return .vector(point.x, y, point.z)
+        return Vector(point.x, y, point.z)
     }
 
     override func boundingBoxLocal() -> BoundingBox {
@@ -83,7 +83,7 @@ public final class Cone: Shape {
         let b = maximum.absoluteValue
         let limit = max(a, b)
 
-        return BoundingBox(minimum: .point(-limit, minimum, -limit), maximum: .point(limit, maximum, limit))
+        return BoundingBox(minimum: Point(-limit, minimum, -limit), maximum: Point(limit, maximum, limit))
     }
 
     private func _intersectCaps(ray: Ray) -> [Intersection] {
@@ -125,9 +125,9 @@ final class ConeTests: XCTestCase {
     func test_intersect() {
         let cone = Cone()
 
-        let r1 = cone._intersectTimes(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let r2 = cone._intersectTimes(origin: .point(0, 0, -5), direction: .vector(1, 1, 1))
-        let r3 = cone._intersectTimes(origin: .point(1, 1, -5), direction: .vector(-0.5, -1, 1))
+        let r1 = cone._intersectTimes(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
+        let r2 = cone._intersectTimes(origin: Point(0, 0, -5), direction: Vector(1, 1, 1))
+        let r3 = cone._intersectTimes(origin: Point(1, 1, -5), direction: Vector(-0.5, -1, 1))
 
         XCTAssertEqual(r1, [5, 5])
         XCTAssertEqual(r2, [8.66025, 8.66025], accuracy: .tolerance)
@@ -136,7 +136,7 @@ final class ConeTests: XCTestCase {
 
     func test_intersect_parallel() {
         let cone = Cone()
-        let ray = Ray(origin: .point(0, 0, -1), direction: .vector(0, 1, 1).normalized())
+        let ray = Ray(origin: Point(0, 0, -1), direction: Vector(0, 1, 1).normalized())
         let times = cone.intersectLocal(with: ray)
             .map { $0.time }
 
@@ -146,9 +146,9 @@ final class ConeTests: XCTestCase {
     func test_intersect_capped() {
         let cone = Cone(minimum: -0.5, maximum: 0.5, isCapped: true)
 
-        let r1 = cone._intersectTimes(origin: .point(0, 0, -5), direction: .vector(0, 1, 0).normalized())
-        let r2 = cone._intersectTimes(origin: .point(0, 0, -0.25), direction: .vector(0, 1, 1).normalized())
-        let r3 = cone._intersectTimes(origin: .point(0, 0, -0.25), direction: .vector(0, 1, 0).normalized())
+        let r1 = cone._intersectTimes(origin: Point(0, 0, -5), direction: Vector(0, 1, 0).normalized())
+        let r2 = cone._intersectTimes(origin: Point(0, 0, -0.25), direction: Vector(0, 1, 1).normalized())
+        let r3 = cone._intersectTimes(origin: Point(0, 0, -0.25), direction: Vector(0, 1, 0).normalized())
 
         XCTAssertEqual(r1, [])
         XCTAssertEqual(r2, [0.7071, 0.08838], accuracy: .tolerance)
@@ -158,21 +158,21 @@ final class ConeTests: XCTestCase {
     func test_normal() {
         let cone = Cone()
 
-        let r1 = cone.normalLocal(at: .point(0, 0, 0))
-        let r2 = cone.normalLocal(at: .point(1, 1, 1))
-        let r3 = cone.normalLocal(at: .point(-1, -1, 0))
+        let r1 = cone.normalLocal(at: Point(0, 0, 0))
+        let r2 = cone.normalLocal(at: Point(1, 1, 1))
+        let r3 = cone.normalLocal(at: Point(-1, -1, 0))
 
-        XCTAssertEqual(r1, .vector(0, 0, 0))
-        XCTAssertEqual(r2, .vector(1, -sqrt(2), 1))
-        XCTAssertEqual(r3, .vector(-1, 1, 0))
+        XCTAssertEqual(r1, Vector(0, 0, 0))
+        XCTAssertEqual(r2, Vector(1, -sqrt(2), 1))
+        XCTAssertEqual(r3, Vector(-1, 1, 0))
     }
 
     func test_boundingBox() {
         let cone = Cone(minimum: -5, maximum: 3)
         let box = cone.boundingBoxLocal()
 
-        XCTAssertEqual(box.minimum, .point(-5, -5, -5))
-        XCTAssertEqual(box.maximum, .point(5, 3, 5))
+        XCTAssertEqual(box.minimum, Point(-5, -5, -5))
+        XCTAssertEqual(box.maximum, Point(5, 3, 5))
     }
 }
 #endif

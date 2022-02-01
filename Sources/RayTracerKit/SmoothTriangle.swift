@@ -2,17 +2,17 @@ import Foundation
 
 final class SmoothTriangle: Triangle {
 
-    let normal1: Tuple
-    let normal2: Tuple
-    let normal3: Tuple
+    let normal1: Vector
+    let normal2: Vector
+    let normal3: Vector
 
     init(
-        _ point1: Tuple,
-        _ point2: Tuple,
-        _ point3: Tuple,
-        _ normal1: Tuple,
-        _ normal2: Tuple,
-        _ normal3: Tuple,
+        _ point1: Point,
+        _ point2: Point,
+        _ point3: Point,
+        _ normal1: Vector,
+        _ normal2: Vector,
+        _ normal3: Vector,
         material: Material = .default,
         transform: Matrix = .identity
     ) {
@@ -22,7 +22,7 @@ final class SmoothTriangle: Triangle {
         super.init(point1, point2, point3, material: material, transform: transform)
     }
 
-    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
+    override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         guard let data = additionalData as? TriangleIntersectionAdditionalData else {
             fatalError()
         }
@@ -40,14 +40,14 @@ final class SmoothTriangleTests: XCTestCase {
 
     func test_intersection() {
         let triangle = SmoothTriangle(
-            .point(0, 1, 0),
-            .point(-1, 0, 0),
-            .point(1, 0, 0),
-            .vector(0, 1, 0),
-            .vector(-1, 0, 0),
-            .vector(1, 0, 0)
+            Point(0, 1, 0),
+            Point(-1, 0, 0),
+            Point(1, 0, 0),
+            Vector(0, 1, 0),
+            Vector(-1, 0, 0),
+            Vector(1, 0, 0)
         )
-        let ray = Ray(origin: .point(-0.2, 0.3, -2), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(-0.2, 0.3, -2), direction: Vector(0, 0, 1))
         let intersections = triangle.intersectLocal(with: ray)
 
         guard let additionalData = intersections[0].additionalData as? TriangleIntersectionAdditionalData else {
@@ -60,19 +60,19 @@ final class SmoothTriangleTests: XCTestCase {
 
     func test_normal() {
         let triangle = SmoothTriangle(
-            .point(0, 1, 0),
-            .point(-1, 0, 0),
-            .point(1, 0, 0),
-            .vector(0, 1, 0),
-            .vector(-1, 0, 0),
-            .vector(1, 0, 0)
+            Point(0, 1, 0),
+            Point(-1, 0, 0),
+            Point(1, 0, 0),
+            Vector(0, 1, 0),
+            Vector(-1, 0, 0),
+            Vector(1, 0, 0)
         )
         let normal = triangle.normal(
-            at: .point(0, 0, 0),
+            at: Point(0, 0, 0),
             additionalData: TriangleIntersectionAdditionalData(u: 0.45, v: 0.25)
         )
 
-        XCTAssertEqual(normal, .vector(-0.5547, 0.83205, 0))
+        XCTAssertEqual(normal, Vector(-0.5547, 0.83205, 0))
     }
 }
 #endif

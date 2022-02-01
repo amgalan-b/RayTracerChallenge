@@ -2,7 +2,7 @@ import Foundation
 
 extension Light {
 
-    public static func pointLight(at position: Tuple, intensity: Color) -> Light {
+    public static func pointLight(at position: Point, intensity: Color) -> Light {
         let pointLight = _PointLight(position: position, intensity: intensity, samples: [position])
         return Light(light: pointLight)
     }
@@ -10,11 +10,11 @@ extension Light {
 
 private struct _PointLight: _Light {
 
-    let position: Tuple
+    let position: Point
     let intensity: Color
-    let samples: [Tuple]
+    let samples: [Point]
 
-    func shadowIntensity(at point: Tuple, isShadowed: (Tuple, Tuple) -> Bool) -> Double {
+    func shadowIntensity(at point: Point, isShadowed: (Point, Point) -> Bool) -> Double {
         if isShadowed(point, position) {
             return 1.0
         }

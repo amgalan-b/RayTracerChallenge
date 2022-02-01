@@ -22,7 +22,7 @@ public class Shape: Equatable, Hashable {
         return intersectLocal(with: localRay)
     }
 
-    final func normal(at worldPoint: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
+    final func normal(at worldPoint: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         let objectPoint = _convertWorldToObjectSpace(point: worldPoint)
         let objectNormal = normalLocal(at: objectPoint, additionalData: additionalData)
 
@@ -46,7 +46,7 @@ public class Shape: Equatable, Hashable {
         fatalError()
     }
 
-    func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
+    func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         fatalError()
     }
 
@@ -59,7 +59,7 @@ public class Shape: Equatable, Hashable {
         return self === shape
     }
 
-    fileprivate func _convertWorldToObjectSpace(point worldPoint: Tuple) -> Tuple {
+    fileprivate func _convertWorldToObjectSpace(point worldPoint: Point) -> Point {
         guard let parent = parent else {
             return transform.inversed() * worldPoint
         }
@@ -67,9 +67,9 @@ public class Shape: Equatable, Hashable {
         return transform.inversed() * parent._convertWorldToObjectSpace(point: worldPoint)
     }
 
-    fileprivate func _convertObjectToWorldSpace(normal objectNormal: Tuple) -> Tuple {
+    fileprivate func _convertObjectToWorldSpace(normal objectNormal: Vector) -> Vector {
         let adjusted = transform.inversed().transposed() * objectNormal
-        let normal = Tuple(adjusted.x, adjusted.y, adjusted.z, 0)
+        let normal = Vector(adjusted.x, adjusted.y, adjusted.z)
             .normalized()
 
         guard let parent = parent else {
@@ -96,8 +96,8 @@ private final class _TestShape: Shape {
         return []
     }
 
-    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
-        return Tuple.vector(point.x, point.y, point.z)
+    override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
+        return Vector(point.x, point.y, point.z)
     }
 }
 
@@ -117,33 +117,33 @@ final class ShapeTests: XCTestCase {
     }
 
     func test_intersect_scaledShape() {
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let shape = _TestShape(transform: .scaling(2, 2, 2))
         _ = shape.intersect(with: ray)
 
-        XCTAssertEqual(shape._ray, Ray(origin: .point(0, 0, -2.5), direction: .vector(0, 0, 0.5)))
+        XCTAssertEqual(shape._ray, Ray(origin: Point(0, 0, -2.5), direction: Vector(0, 0, 0.5)))
     }
 
     func test_intersect_translatedShape() {
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let shape = _TestShape(transform: .translation(5, 0, 0))
         _ = shape.intersect(with: ray)
 
-        XCTAssertEqual(shape._ray, Ray(origin: .point(-5, 0, -5), direction: .vector(0, 0, 1)))
+        XCTAssertEqual(shape._ray, Ray(origin: Point(-5, 0, -5), direction: Vector(0, 0, 1)))
     }
 
     func test_normal_translatedShape() {
         let shape = _TestShape(transform: .translation(0, 1, 0))
-        let normal = shape.normal(at: .point(0, 1.70711, -0.70711))
+        let normal = shape.normal(at: Point(0, 1.70711, -0.70711))
 
-        XCTAssertEqual(normal, .vector(0, 0.70711, -0.70711))
+        XCTAssertEqual(normal, Vector(0, 0.70711, -0.70711))
     }
 
     func test_normal_arbitraryTransform() {
         let shape = _TestShape(transform: .scaling(1, 0.5, 1) * .rotationZ(.pi / 5))
-        let normal = shape.normal(at: .point(0, 0.7071, -0.7071))
+        let normal = shape.normal(at: Point(0, 0.7071, -0.7071))
 
-        XCTAssertEqual(normal, .vector(0, 0.97014, -0.24254))
+        XCTAssertEqual(normal, Vector(0, 0.97014, -0.24254))
     }
 
     func test_normal_hasParent() {
@@ -154,8 +154,8 @@ final class ShapeTests: XCTestCase {
         let sphere = Sphere(transform: .translation(5, 0, 0))
         g2.addChild(sphere)
 
-        let result = sphere.normal(at: .point(1.7321, 1.1547, -5.5774))
-        XCTAssertEqual(result, .vector(0.2857, 0.42854, -0.85716))
+        let result = sphere.normal(at: Point(1.7321, 1.1547, -5.5774))
+        XCTAssertEqual(result, Vector(0.2857, 0.42854, -0.85716))
     }
 
     func test_convert_point() {
@@ -165,9 +165,9 @@ final class ShapeTests: XCTestCase {
         let parentGroup = Group(transform: .rotationY(.pi / 2))
         parentGroup.addChild(childGroup)
 
-        let result = sphere._convertWorldToObjectSpace(point: .point(-2, 0, -10))
+        let result = sphere._convertWorldToObjectSpace(point: Point(-2, 0, -10))
 
-        XCTAssertEqual(result, .point(0, 0, -1))
+        XCTAssertEqual(result, Point(0, 0, -1))
     }
 
     func test_convert_normal() {
@@ -178,14 +178,14 @@ final class ShapeTests: XCTestCase {
         let sphere = Sphere(transform: .translation(5, 0, 0))
         g2.addChild(sphere)
 
-        let result = sphere._convertObjectToWorldSpace(normal: .vector(sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3))
-        XCTAssertEqual(result, .vector(0.28571, 0.42857, -0.85714))
+        let result = sphere._convertObjectToWorldSpace(normal: Vector(sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3))
+        XCTAssertEqual(result, Vector(0.28571, 0.42857, -0.85714))
     }
 }
 
 extension Shape {
 
-    func _intersectTimes(origin: Tuple, direction: Tuple) -> [Double] {
+    func _intersectTimes(origin: Point, direction: Vector) -> [Double] {
         return intersectLocal(with: Ray(origin: origin, direction: direction.normalized()))
             .map { $0.time }
     }

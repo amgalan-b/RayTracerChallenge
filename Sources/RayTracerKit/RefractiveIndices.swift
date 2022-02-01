@@ -5,7 +5,7 @@ struct RefractiveIndices {
     let n1: Double
     let n2: Double
 
-    func reflectanceSchlickApproximation(eyeVector: Tuple, normalVector: Tuple) -> Double {
+    func reflectanceSchlickApproximation(eyeVector: Vector, normalVector: Vector) -> Double {
         let cos = eyeVector.dotProduct(with: normalVector)
         let r0 = ((n1 - n2) / (n1 + n2)).pow(2)
 
@@ -46,8 +46,8 @@ final class RefractiveIndicesTests: XCTestCase {
     func test_reflectance() {
         let indices = RefractiveIndices(n1: 1.5, n2: 1)
         let result = indices.reflectanceSchlickApproximation(
-            eyeVector: .vector(0, -1, 0),
-            normalVector: .vector(0, -1, 0)
+            eyeVector: Vector(0, -1, 0),
+            normalVector: Vector(0, -1, 0)
         )
 
         XCTAssertEqual(result, 0.04, accuracy: .tolerance)
@@ -56,8 +56,8 @@ final class RefractiveIndicesTests: XCTestCase {
     func test_reflectance_smallAngle() {
         let indices = RefractiveIndices(n1: 1, n2: 1.5)
         let result = indices.reflectanceSchlickApproximation(
-            eyeVector: .vector(0, 0, -1),
-            normalVector: .vector(0, 0.99, -0.1411)
+            eyeVector: Vector(0, 0, -1),
+            normalVector: Vector(0, 0.99, -0.1411)
         )
 
         XCTAssertEqual(result, 0.48873, accuracy: .tolerance)

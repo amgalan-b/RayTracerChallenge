@@ -4,8 +4,8 @@ import Foundation
 public final class Parser {
 
     fileprivate var _ignoredLineCount = 0
-    fileprivate var _vertices = [Tuple]()
-    fileprivate var _normals = [Tuple]()
+    fileprivate var _vertices = [Point]()
+    fileprivate var _normals = [Vector]()
     fileprivate var _topLevelShapes = [Shape]()
     fileprivate var _topLevelGroups = DefaultDictionary<String, [Shape]>(defaultValue: [])
 
@@ -21,9 +21,9 @@ public final class Parser {
         for line in lines {
             switch Line(line) {
             case let .vertex(x, y, z):
-                _vertices.append(.point(x, y, z))
+                _vertices.append(Point(x, y, z))
             case let .normal(dx, dy, dz):
-                _normals.append(.vector(dx, dy, dz))
+                _normals.append(Vector(dx, dy, dz))
             case let .face(indices):
                 let newTriangles = indices.map { _vertices[$0 - 1] }
                     ._triangulate()
@@ -71,7 +71,7 @@ public final class Parser {
     }
 }
 
-extension Array where Element == Tuple {
+extension Array where Element == Point {
 
     fileprivate func _triangulate() -> [Triangle] {
         var triangles = [Triangle]()
@@ -83,7 +83,7 @@ extension Array where Element == Tuple {
         return triangles
     }
 
-    fileprivate func _smoothTriangulate(normals: [Tuple]) -> [SmoothTriangle] {
+    fileprivate func _smoothTriangulate(normals: [Vector]) -> [SmoothTriangle] {
         var triangles = [SmoothTriangle]()
         for i in 1 ..< count - 1 {
             let triangle = SmoothTriangle(self[0], self[i], self[i + 1], normals[0], normals[i], normals[i + 1])
@@ -125,10 +125,10 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        XCTAssertEqual(parser._vertices[0], .point(-1, 1, 0))
-        XCTAssertEqual(parser._vertices[1], .point(-1, 0.5, 0))
-        XCTAssertEqual(parser._vertices[2], .point(1, 0, 0))
-        XCTAssertEqual(parser._vertices[3], .point(1, 1, 0))
+        XCTAssertEqual(parser._vertices[0], Point(-1, 1, 0))
+        XCTAssertEqual(parser._vertices[1], Point(-1, 0.5, 0))
+        XCTAssertEqual(parser._vertices[2], Point(1, 0, 0))
+        XCTAssertEqual(parser._vertices[3], Point(1, 1, 0))
     }
 
     func test_parse_normal() {
@@ -141,9 +141,9 @@ final class ParserTests: XCTestCase {
         let parser = Parser()
         _ = parser.parse(input)
 
-        XCTAssertEqual(parser._normals[0], .vector(0, 0, 1))
-        XCTAssertEqual(parser._normals[1], .vector(0.707, 0, -0.707))
-        XCTAssertEqual(parser._normals[2], .vector(1, 2, 3))
+        XCTAssertEqual(parser._normals[0], Vector(0, 0, 1))
+        XCTAssertEqual(parser._normals[1], Vector(0.707, 0, -0.707))
+        XCTAssertEqual(parser._normals[2], Vector(1, 2, 3))
     }
 
     func test_parse_face() {
@@ -162,12 +162,12 @@ final class ParserTests: XCTestCase {
         let t1 = parser._topLevelShapes[0] as! Triangle
         let t2 = parser._topLevelShapes[1] as! Triangle
 
-        XCTAssertEqual(t1.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t1.point2, .point(-1, 0, 0))
-        XCTAssertEqual(t1.point3, .point(1, 0, 0))
-        XCTAssertEqual(t2.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t2.point2, .point(1, 0, 0))
-        XCTAssertEqual(t2.point3, .point(1, 1, 0))
+        XCTAssertEqual(t1.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t1.point2, Point(-1, 0, 0))
+        XCTAssertEqual(t1.point3, Point(1, 0, 0))
+        XCTAssertEqual(t2.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t2.point2, Point(1, 0, 0))
+        XCTAssertEqual(t2.point3, Point(1, 1, 0))
     }
 
     func test_parse_faceTriangulate() {
@@ -187,15 +187,15 @@ final class ParserTests: XCTestCase {
         let t2 = parser._topLevelShapes[1] as! Triangle
         let t3 = parser._topLevelShapes[2] as! Triangle
 
-        XCTAssertEqual(t1.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t1.point2, .point(-1, 0, 0))
-        XCTAssertEqual(t1.point3, .point(1, 0, 0))
-        XCTAssertEqual(t2.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t2.point2, .point(1, 0, 0))
-        XCTAssertEqual(t2.point3, .point(1, 1, 0))
-        XCTAssertEqual(t3.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t3.point2, .point(1, 1, 0))
-        XCTAssertEqual(t3.point3, .point(0, 2, 0))
+        XCTAssertEqual(t1.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t1.point2, Point(-1, 0, 0))
+        XCTAssertEqual(t1.point3, Point(1, 0, 0))
+        XCTAssertEqual(t2.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t2.point2, Point(1, 0, 0))
+        XCTAssertEqual(t2.point3, Point(1, 1, 0))
+        XCTAssertEqual(t3.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t3.point2, Point(1, 1, 0))
+        XCTAssertEqual(t3.point3, Point(0, 2, 0))
     }
 
     func test_parse_group() {
@@ -219,12 +219,12 @@ final class ParserTests: XCTestCase {
         let t1 = g1[0] as! Triangle
         let t2 = g2[0] as! Triangle
 
-        XCTAssertEqual(t1.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t1.point2, .point(-1, 0, 0))
-        XCTAssertEqual(t1.point3, .point(1, 0, 0))
-        XCTAssertEqual(t2.point1, .point(-1, 1, 0))
-        XCTAssertEqual(t2.point2, .point(1, 0, 0))
-        XCTAssertEqual(t2.point3, .point(1, 1, 0))
+        XCTAssertEqual(t1.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t1.point2, Point(-1, 0, 0))
+        XCTAssertEqual(t1.point3, Point(1, 0, 0))
+        XCTAssertEqual(t2.point1, Point(-1, 1, 0))
+        XCTAssertEqual(t2.point2, Point(1, 0, 0))
+        XCTAssertEqual(t2.point3, Point(1, 1, 0))
     }
 
     func test_parse() {

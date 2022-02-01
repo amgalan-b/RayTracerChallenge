@@ -2,8 +2,7 @@ import Foundation
 
 extension Matrix {
 
-    public static func viewTransform(origin: Tuple, target: Tuple, orientation upVectorApproximated: Tuple) -> Matrix {
-        assert(origin.isPoint && target.isPoint && upVectorApproximated.isVector)
+    public static func viewTransform(origin: Point, target: Point, orientation upVectorApproximated: Vector) -> Matrix {
         let forward = (target - origin).normalized()
         let upApproximated = upVectorApproximated.normalized()
 
@@ -28,9 +27,9 @@ extension MatrixTests {
 
     func test_viewTransform_defaultOrientation() {
         let transform = Matrix.viewTransform(
-            origin: .point(0, 0, 0),
-            target: .point(0, 0, -1),
-            orientation: .vector(0, 1, 0)
+            origin: Point(0, 0, 0),
+            target: Point(0, 0, -1),
+            orientation: Vector(0, 1, 0)
         )
 
         XCTAssertEqual(transform, .identity)
@@ -38,9 +37,9 @@ extension MatrixTests {
 
     func test_viewTransform_zDirection() {
         let transform = Matrix.viewTransform(
-            origin: .point(0, 0, 8),
-            target: .point(0, 0, 0),
-            orientation: .vector(0, 1, 0)
+            origin: Point(0, 0, 8),
+            target: Point(0, 0, 0),
+            orientation: Vector(0, 1, 0)
         )
 
         XCTAssertEqual(transform, .translation(0, 0, -8))
@@ -48,9 +47,9 @@ extension MatrixTests {
 
     func test_viewTransform_arbitrary() {
         let transform = Matrix.viewTransform(
-            origin: .point(1, 3, 2),
-            target: .point(4, -2, 8),
-            orientation: .vector(1, 1, 0)
+            origin: Point(1, 3, 2),
+            target: Point(4, -2, 8),
+            orientation: Vector(1, 1, 0)
         )
         let expected = Matrix(
             [-0.50709, 0.50709, 0.67612, -2.36643],

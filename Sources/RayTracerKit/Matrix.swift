@@ -5,7 +5,7 @@ typealias Double4 = SIMD4<Double>
 
 public struct Matrix {
 
-    private let _matrix: matrix_double4x4
+    fileprivate let _matrix: matrix_double4x4
 
     init(matrix: matrix_double4x4) {
         _matrix = matrix
@@ -40,9 +40,21 @@ extension Matrix {
     public static func * (lhs: Self, rhs: Self) -> Self {
         return Matrix(matrix: lhs._matrix * rhs._matrix)
     }
+}
 
-    public static func * (lhs: Self, rhs: Tuple) -> Tuple {
-        return Tuple(xyzw: lhs._matrix * rhs.xyzw)
+extension Point {
+
+    public static func * (lhs: Matrix, rhs: Point) -> Point {
+        let xyzw = lhs._matrix * rhs.xyzw
+        return Point(xyzw: xyzw)
+    }
+}
+
+extension Vector {
+
+    public static func * (lhs: Matrix, rhs: Vector) -> Vector {
+        let xyzw = lhs._matrix * rhs.xyzw
+        return Vector(xyzw.x, xyzw.y, xyzw.z)
     }
 }
 
@@ -92,10 +104,10 @@ final class MatrixTests: XCTestCase {
 
     func test_multiply_tuple() {
         let matrix = Matrix([1, 2, 3, 4], [2, 4, 4, 2], [8, 6, 4, 1], [0, 0, 0, 1])
-        let tuple = Tuple(1, 2, 3, 1)
-        let expected = Tuple(18, 24, 33, 1)
+        let point = Point(1, 2, 3, 1)
+        let expected = Point(18, 24, 33, 1)
 
-        XCTAssertEqual(matrix * tuple, expected)
+        XCTAssertEqual(matrix * point, expected)
     }
 
     func test_multiply_identity() {

@@ -95,8 +95,8 @@ public struct Camera {
         let worldX = halfWidth - offsetX
         let worldY = halfHeight - offsetY
 
-        let pixel = transform.inversed() * .point(worldX, worldY, -1)
-        let origin = transform.inversed() * .point(0, 0, 0)
+        let pixel = transform.inversed() * Point(worldX, worldY, -1)
+        let origin = transform.inversed() * Point(0, 0, 0)
         let direction = (pixel - origin).normalized()
 
         return Ray(origin: origin, direction: direction)
@@ -121,7 +121,7 @@ final class CameraTests: XCTestCase {
     func test_ray_canvasCenter() {
         let camera = Camera(width: 201, height: 101, fieldOfView: .pi / 2)
         let ray = camera._ray(forPixelAtX: 100, y: 50)
-        let expected = Ray(origin: .point(0, 0, 0), direction: .vector(0, 0, -1))
+        let expected = Ray(origin: Point(0, 0, 0), direction: Vector(0, 0, -1))
 
         XCTAssertEqual(ray, expected)
     }
@@ -129,7 +129,7 @@ final class CameraTests: XCTestCase {
     func test_ray_canvasCorner() {
         let camera = Camera(width: 201, height: 101, fieldOfView: .pi / 2)
         let ray = camera._ray(forPixelAtX: 0, y: 0)
-        let expected = Ray(origin: .point(0, 0, 0), direction: .vector(0.66519, 0.33259, -0.66851))
+        let expected = Ray(origin: Point(0, 0, 0), direction: Vector(0.66519, 0.33259, -0.66851))
 
         XCTAssertEqual(ray, expected)
     }
@@ -143,7 +143,7 @@ final class CameraTests: XCTestCase {
         )
 
         let ray = camera._ray(forPixelAtX: 100, y: 50)
-        let expected = Ray(origin: .point(0, 2, -5), direction: .vector(1, 0, -1).normalized())
+        let expected = Ray(origin: Point(0, 2, -5), direction: Vector(1, 0, -1).normalized())
 
         XCTAssertEqual(ray, expected)
     }

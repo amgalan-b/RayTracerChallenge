@@ -5,7 +5,7 @@ public final class Group: Shape {
     private var _children = Set<Shape>()
     private var _boundingBoxCache: BoundingBox?
 
-    init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity) {
+    public init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity) {
         _children = children
         super.init(material: .default, transform: transform)
 
@@ -35,8 +35,8 @@ public final class Group: Shape {
             .sorted(by: \.time)
     }
 
-    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
-        return .vector(0, 0, 0)
+    override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
+        return Vector(0, 0, 0)
     }
 
     override func boundingBoxLocal() -> BoundingBox {
@@ -153,7 +153,7 @@ final class GroupTests: XCTestCase {
 
     func test_intersect_empty() {
         let group = Group()
-        let ray = Ray(origin: .point(0, 0, 0), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, 0), direction: Vector(0, 0, 1))
 
         XCTAssertEqual(group.intersectLocal(with: ray), [])
     }
@@ -164,7 +164,7 @@ final class GroupTests: XCTestCase {
         let s3 = Sphere(transform: .translation(5, 0, 0))
         let group = Group(children: [s1, s2, s3])
 
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let objects = group.intersectLocal(with: ray)
             .map { $0.object }
 
@@ -175,7 +175,7 @@ final class GroupTests: XCTestCase {
         let sphere = Sphere(transform: .translation(5, 0, 0))
         let group = Group(children: [sphere], transform: .scaling(2, 2, 2))
 
-        let ray = Ray(origin: .point(10, 0, -10), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(10, 0, -10), direction: Vector(0, 0, 1))
         let intersections = group.intersect(with: ray)
 
         XCTAssertEqual(intersections.count, 2)
@@ -187,8 +187,8 @@ final class GroupTests: XCTestCase {
         let group = Group(children: [sphere, cylinder])
         let box = group.boundingBoxLocal()
 
-        XCTAssertEqual(box.minimum, .point(-4.5, -3, -5))
-        XCTAssertEqual(box.maximum, .point(4, 7, 4.5))
+        XCTAssertEqual(box.minimum, Point(-4.5, -3, -5))
+        XCTAssertEqual(box.maximum, Point(4, 7, 4.5))
     }
 
     func test_partition() {

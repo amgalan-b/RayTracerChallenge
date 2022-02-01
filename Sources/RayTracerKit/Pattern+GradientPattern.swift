@@ -20,7 +20,7 @@ private struct _GradientPattern: _Pattern {
         self.transform = transform
     }
 
-    func color(at localPoint: Tuple) -> Color {
+    func color(at localPoint: Point) -> Color {
         let distance = right - left
         let fraction = localPoint.x - localPoint.x.floor()
 
@@ -35,10 +35,10 @@ extension PatternTests {
 
     func test_gradient_color() {
         let pattern = Pattern.gradient(.white, .black, .identity)
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0.25, 0, 0)), .rgb(0.75, 0.75, 0.75))
-        XCTAssertEqual(pattern.color(at: .point(0.5, 0, 0)), .rgb(0.5, 0.5, 0.5))
-        XCTAssertEqual(pattern.color(at: .point(0.75, 0, 0)), .rgb(0.25, 0.25, 0.25))
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0.25, 0, 0)), .rgb(0.75, 0.75, 0.75))
+        XCTAssertEqual(pattern.color(at: Point(0.5, 0, 0)), .rgb(0.5, 0.5, 0.5))
+        XCTAssertEqual(pattern.color(at: Point(0.75, 0, 0)), .rgb(0.25, 0.25, 0.25))
     }
 }
 #endif

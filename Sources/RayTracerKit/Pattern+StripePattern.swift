@@ -20,7 +20,7 @@ private struct _StripePattern: _Pattern {
         self.transform = transform
     }
 
-    func color(at localPoint: Tuple) -> Color {
+    func color(at localPoint: Point) -> Color {
         if localPoint.x.floor().truncatingRemainder(dividingBy: 2) == 0 {
             return left
         }
@@ -37,28 +37,28 @@ extension PatternTests {
     func test_color_constantInY() {
         let pattern = Pattern.stripe(.white, .black)
 
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0, 1, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0, 2, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 1, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 2, 0)), .white)
     }
 
     func test_color_constantInZ() {
         let pattern = Pattern.stripe(.white, .black)
 
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 1)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 2)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 1)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 2)), .white)
     }
 
     func test_color_alternatesInX() {
         let pattern = Pattern.stripe(.white, .black)
 
-        XCTAssertEqual(pattern.color(at: .point(0, 0, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(0.9, 0, 0)), .white)
-        XCTAssertEqual(pattern.color(at: .point(1, 0, 0)), .black)
-        XCTAssertEqual(pattern.color(at: .point(-0.1, 0, 0)), .black)
-        XCTAssertEqual(pattern.color(at: .point(-1, 0, 0)), .black)
-        XCTAssertEqual(pattern.color(at: .point(-1.1, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(0.9, 0, 0)), .white)
+        XCTAssertEqual(pattern.color(at: Point(1, 0, 0)), .black)
+        XCTAssertEqual(pattern.color(at: Point(-0.1, 0, 0)), .black)
+        XCTAssertEqual(pattern.color(at: Point(-1, 0, 0)), .black)
+        XCTAssertEqual(pattern.color(at: Point(-1.1, 0, 0)), .white)
     }
 }
 #endif

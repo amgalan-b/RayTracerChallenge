@@ -52,21 +52,21 @@ public final class Cylinder: Shape {
         return _intersectCaps(ray: ray) + intersections
     }
 
-    override func normalLocal(at point: Tuple, additionalData: ShapeIntersectionData? = nil) -> Tuple {
+    override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         let dist = point.x.pow(2) + point.z.pow(2)
         if dist < 1, point.y >= maximum - .tolerance {
-            return .vector(0, 1, 0)
+            return Vector(0, 1, 0)
         }
 
         if dist < 1, point.y <= minimum + .tolerance {
-            return .vector(0, -1, 0)
+            return Vector(0, -1, 0)
         }
 
-        return .vector(point.x, 0, point.z)
+        return Vector(point.x, 0, point.z)
     }
 
     override func boundingBoxLocal() -> BoundingBox {
-        return BoundingBox(minimum: .point(-1, minimum, -1), maximum: .point(1, maximum, 1))
+        return BoundingBox(minimum: Point(-1, minimum, -1), maximum: Point(1, maximum, 1))
     }
 
     private func _intersectCaps(ray: Ray) -> [Intersection] {
@@ -108,9 +108,9 @@ final class CylinderTests: XCTestCase {
     func test_intersect() {
         let cylinder = Cylinder()
 
-        let xs1 = cylinder._intersectTimes(origin: .point(1, 0, -5), direction: .vector(0, 0, 1))
-        let xs2 = cylinder._intersectTimes(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let xs3 = cylinder._intersectTimes(origin: .point(0.5, 0, -5), direction: .vector(0.1, 1, 1))
+        let xs1 = cylinder._intersectTimes(origin: Point(1, 0, -5), direction: Vector(0, 0, 1))
+        let xs2 = cylinder._intersectTimes(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
+        let xs3 = cylinder._intersectTimes(origin: Point(0.5, 0, -5), direction: Vector(0.1, 1, 1))
 
         XCTAssertEqual(xs1, [5, 5])
         XCTAssertEqual(xs2, [4, 6])
@@ -120,9 +120,9 @@ final class CylinderTests: XCTestCase {
     func test_intersect_miss() {
         let cylinder = Cylinder()
 
-        let xs1 = cylinder._intersectTimes(origin: .point(1, 0, 0), direction: .vector(0, 1, 0))
-        let xs2 = cylinder._intersectTimes(origin: .point(0, 0, 0), direction: .vector(0, 1, 0))
-        let xs3 = cylinder._intersectTimes(origin: .point(0, 0, -5), direction: .vector(1, 1, 1))
+        let xs1 = cylinder._intersectTimes(origin: Point(1, 0, 0), direction: Vector(0, 1, 0))
+        let xs2 = cylinder._intersectTimes(origin: Point(0, 0, 0), direction: Vector(0, 1, 0))
+        let xs3 = cylinder._intersectTimes(origin: Point(0, 0, -5), direction: Vector(1, 1, 1))
 
         XCTAssertEqual(xs1, [])
         XCTAssertEqual(xs2, [])
@@ -132,11 +132,11 @@ final class CylinderTests: XCTestCase {
     func test_intersect_constrained() {
         let cylinder = Cylinder(minimum: 1, maximum: 2)
 
-        let xs1 = cylinder._intersectTimes(origin: .point(0, 1.5, 0), direction: .vector(0.1, 1, 0))
-        let xs2 = cylinder._intersectTimes(origin: .point(0, 3, -5), direction: .vector(0, 0, 1))
-        let xs3 = cylinder._intersectTimes(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
-        let xs4 = cylinder._intersectTimes(origin: .point(0, 2, -5), direction: .vector(0, 0, 1))
-        let xs5 = cylinder._intersectTimes(origin: .point(0, 1.5, -2), direction: .vector(0, 0, 1))
+        let xs1 = cylinder._intersectTimes(origin: Point(0, 1.5, 0), direction: Vector(0.1, 1, 0))
+        let xs2 = cylinder._intersectTimes(origin: Point(0, 3, -5), direction: Vector(0, 0, 1))
+        let xs3 = cylinder._intersectTimes(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
+        let xs4 = cylinder._intersectTimes(origin: Point(0, 2, -5), direction: Vector(0, 0, 1))
+        let xs5 = cylinder._intersectTimes(origin: Point(0, 1.5, -2), direction: Vector(0, 0, 1))
 
         XCTAssertEqual(xs1, [])
         XCTAssertEqual(xs2, [])
@@ -148,11 +148,11 @@ final class CylinderTests: XCTestCase {
     func test_intersect_capped() {
         let cylinder = Cylinder(minimum: 1, maximum: 2, isCapped: true)
 
-        let xs1 = cylinder._intersectTimes(origin: .point(0, 3, 0), direction: .vector(0, -1, 0))
-        let xs2 = cylinder._intersectTimes(origin: .point(0, 3, -2), direction: .vector(0, -1, 2))
-        let xs3 = cylinder._intersectTimes(origin: .point(0, 4, -2), direction: .vector(0, -1, 1))
-        let xs4 = cylinder._intersectTimes(origin: .point(0, 0, -2), direction: .vector(0, 1, 2))
-        let xs5 = cylinder._intersectTimes(origin: .point(0, -1, -2), direction: .vector(0, 1, 1))
+        let xs1 = cylinder._intersectTimes(origin: Point(0, 3, 0), direction: Vector(0, -1, 0))
+        let xs2 = cylinder._intersectTimes(origin: Point(0, 3, -2), direction: Vector(0, -1, 2))
+        let xs3 = cylinder._intersectTimes(origin: Point(0, 4, -2), direction: Vector(0, -1, 1))
+        let xs4 = cylinder._intersectTimes(origin: Point(0, 0, -2), direction: Vector(0, 1, 2))
+        let xs5 = cylinder._intersectTimes(origin: Point(0, -1, -2), direction: Vector(0, 1, 1))
 
         XCTAssertEqual(xs1.count, 2)
         XCTAssertEqual(xs2.count, 2)
@@ -164,21 +164,21 @@ final class CylinderTests: XCTestCase {
     func test_normal() {
         let cylinder = Cylinder()
 
-        XCTAssertEqual(cylinder.normalLocal(at: .point(1, 0, 0)), .vector(1, 0, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 5, -1)), .vector(0, 0, -1))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, -2, 1)), .vector(0, 0, 1))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(-1, 1, 0)), .vector(-1, 0, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(1, 0, 0)), Vector(1, 0, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, 5, -1)), Vector(0, 0, -1))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, -2, 1)), Vector(0, 0, 1))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(-1, 1, 0)), Vector(-1, 0, 0))
     }
 
     func test_normal_capped() {
         let cylinder = Cylinder(minimum: 1, maximum: 2, isCapped: true)
 
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 1, 0)), .vector(0, -1, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0.5, 1, 0)), .vector(0, -1, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 1, 0.5)), .vector(0, -1, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0)), .vector(0, 1, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0.5, 2, 0)), .vector(0, 1, 0))
-        XCTAssertEqual(cylinder.normalLocal(at: .point(0, 2, 0.5)), .vector(0, 1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, 1, 0)), Vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0.5, 1, 0)), Vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, 1, 0.5)), Vector(0, -1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, 2, 0)), Vector(0, 1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0.5, 2, 0)), Vector(0, 1, 0))
+        XCTAssertEqual(cylinder.normalLocal(at: Point(0, 2, 0.5)), Vector(0, 1, 0))
     }
 
     func test_boundingBox() {
@@ -188,11 +188,11 @@ final class CylinderTests: XCTestCase {
         let c2 = Cylinder(minimum: -5, maximum: 3)
         let b2 = c2.boundingBoxLocal()
 
-        XCTAssertEqual(b1.minimum, .point(-1, -.greatestFiniteMagnitude, -1))
-        XCTAssertEqual(b1.maximum, .point(1, .greatestFiniteMagnitude, 1))
+        XCTAssertEqual(b1.minimum, Point(-1, -.greatestFiniteMagnitude, -1))
+        XCTAssertEqual(b1.maximum, Point(1, .greatestFiniteMagnitude, 1))
 
-        XCTAssertEqual(b2.minimum, .point(-1, -5, -1))
-        XCTAssertEqual(b2.maximum, .point(1, 3, 1))
+        XCTAssertEqual(b2.minimum, Point(-1, -5, -1))
+        XCTAssertEqual(b2.maximum, Point(1, 3, 1))
     }
 }
 #endif

@@ -16,7 +16,7 @@ private struct _TestPattern: _Pattern {
         self.transform = transform
     }
 
-    func color(at localPoint: Tuple) -> Color {
+    func color(at localPoint: Point) -> Color {
         return Color(red: localPoint.x, green: localPoint.y, blue: localPoint.z)
     }
 }
@@ -30,8 +30,8 @@ extension PatternTests {
         let p1 = Pattern.test(transform: .scaling(2, 2, 2))
         let p2 = Pattern.test()
 
-        XCTAssertEqual(p1.color(at: .point(2, 3, 4)), .rgb(1, 1.5, 2))
-        XCTAssertEqual(p2.color(at: .point(3, 2, 1)), .rgb(3, 2, 1))
+        XCTAssertEqual(p1.color(at: Point(2, 3, 4)), .rgb(1, 1.5, 2))
+        XCTAssertEqual(p2.color(at: Point(3, 2, 1)), .rgb(3, 2, 1))
     }
 }
 #endif

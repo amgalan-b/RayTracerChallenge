@@ -119,7 +119,7 @@ final class CSGTests: XCTestCase {
         let s1 = Sphere()
         let s2 = Cube()
         let csg = CSG(s1, s2, operation: .union)
-        let ray = Ray(origin: .point(0, 2, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 2, -5), direction: Vector(0, 0, 1))
 
         XCTAssertEqual(csg.intersectLocal(with: ray), [])
     }
@@ -128,7 +128,7 @@ final class CSGTests: XCTestCase {
         let s1 = Sphere()
         let s2 = Sphere(transform: .translation(0, 0, 0.5))
         let csg = CSG(s1, s2, operation: .union)
-        let ray = Ray(origin: .point(0, 0, -5), direction: .vector(0, 0, 1))
+        let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 0, 1))
         let expected = [Intersection(time: 4, object: s1), Intersection(time: 6.5, object: s2)]
 
         XCTAssertEqual(csg.intersectLocal(with: ray), expected)
