@@ -40,19 +40,13 @@ extension Matrix {
     public static func * (lhs: Self, rhs: Self) -> Self {
         return Matrix(matrix: lhs._matrix * rhs._matrix)
     }
-}
 
-extension Point {
-
-    public static func * (lhs: Matrix, rhs: Point) -> Point {
+    public static func * (lhs: Self, rhs: Point) -> Point {
         let xyzw = lhs._matrix * rhs.xyzw
         return Point(xyzw: xyzw)
     }
-}
 
-extension Vector {
-
-    public static func * (lhs: Matrix, rhs: Vector) -> Vector {
+    public static func * (lhs: Self, rhs: Vector) -> Vector {
         let xyzw = lhs._matrix * rhs.xyzw
         return Vector(xyzw.x, xyzw.y, xyzw.z)
     }
