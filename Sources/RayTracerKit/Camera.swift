@@ -2,7 +2,7 @@ import Babbage
 import Foundation
 
 /// Canvas is always 1-unit away from the camera.
-public struct Camera {
+public struct Camera: Equatable {
 
     let width: Int
     let height: Int
