@@ -106,6 +106,20 @@ public struct Material {
     }
 }
 
+extension Material: Equatable {
+
+    public static func == (lhs: Material, rhs: Material) -> Bool {
+        return lhs.color == rhs.color &&
+            lhs.ambient == rhs.ambient &&
+            lhs.diffuse == rhs.diffuse &&
+            lhs.specular == rhs.specular &&
+            lhs.shininess == rhs.shininess &&
+            lhs.reflective == rhs.reflective &&
+            lhs.transparency == rhs.transparency &&
+            lhs.refractiveIndex == rhs.refractiveIndex
+    }
+}
+
 extension Material {
 
     public static let `default` = Material(
