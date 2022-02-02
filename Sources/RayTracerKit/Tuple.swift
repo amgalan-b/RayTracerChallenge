@@ -6,6 +6,8 @@ protocol Tuple: Equatable {
     var xyzw: SIMD4<Double> { get set }
 
     init(xyzw: SIMD4<Double>)
+
+    init(_ x: Double, _ y: Double, _ z: Double)
 }
 
 extension Tuple {
@@ -54,6 +56,20 @@ extension Tuple {
 
     static prefix func - (lhs: Self) -> Self {
         return Self(xyzw: -lhs.xyzw)
+    }
+}
+
+extension Tuple {
+
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let values = try container.decodeArray(of: Double.self)
+
+        guard values.count == 3 else {
+            fatalError()
+        }
+
+        self.init(values[0], values[1], values[2])
     }
 }
 

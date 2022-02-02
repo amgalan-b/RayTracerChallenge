@@ -28,6 +28,9 @@ public struct Vector: Tuple {
     }
 }
 
+extension Vector: Decodable {
+}
+
 extension Vector {
 
     static func + (lhs: Vector, rhs: Vector) -> Vector {
@@ -41,6 +44,7 @@ extension Vector {
 
 #if TEST
 import XCTest
+import Yams
 
 final class VectorTests: XCTestCase {
 
@@ -102,6 +106,14 @@ final class VectorTests: XCTestCase {
         let v2 = Vector(5, 6, 7)
 
         XCTAssertEqual(v1 - v2, Vector(-2, -4, -6))
+    }
+
+    func test_decode() {
+        let content = "[-2, 1, 0.5]"
+        let decoder = YAMLDecoder()
+        let vector = try? decoder.decode(Vector.self, from: content)
+
+        XCTAssertEqual(vector, Vector(-2, 1, 0.5))
     }
 }
 #endif

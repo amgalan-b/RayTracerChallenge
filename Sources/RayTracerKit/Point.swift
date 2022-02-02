@@ -9,9 +9,16 @@ public struct Point: Tuple {
         self.xyzw = xyzw
     }
 
-    public init(_ x: Double, _ y: Double, _ z: Double, _ w: Double = 1) {
+    public init(_ x: Double, _ y: Double, _ z: Double) {
+        self.xyzw = SIMD4(x: x, y: y, z: z, w: 1)
+    }
+
+    public init(_ x: Double, _ y: Double, _ z: Double, _ w: Double) {
         self.xyzw = SIMD4(x: x, y: y, z: z, w: w)
     }
+}
+
+extension Point: Decodable {
 }
 
 extension Point {
@@ -31,6 +38,7 @@ extension Point {
 
 #if TEST
 import XCTest
+import Yams
 
 final class PointTests: XCTestCase {
 
@@ -53,6 +61,14 @@ final class PointTests: XCTestCase {
         let vector = Vector(5, 6, 7)
 
         XCTAssertEqual(point - vector, Point(-2, -4, -6))
+    }
+
+    func test_decode() {
+        let content = "[0, 1.5, -5]"
+        let decoder = YAMLDecoder()
+        let point = try? decoder.decode(Point.self, from: content)
+
+        XCTAssertEqual(point, Point(0, 1.5, -5))
     }
 }
 #endif
