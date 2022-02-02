@@ -34,6 +34,20 @@ extension Color: Equatable {
     }
 }
 
+extension Color: Decodable {
+
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let values = try container.decodeArray(of: Double.self)
+
+        guard values.count == 3 else {
+            fatalError()
+        }
+
+        self.init(red: values[0], green: values[1], blue: values[2])
+    }
+}
+
 extension Color {
 
     public static let white = Color(red: 1, green: 1, blue: 1)
@@ -69,6 +83,7 @@ extension Color {
 
 #if TEST
 import XCTest
+import Yams
 
 final class ColorTests: XCTestCase {
 
@@ -101,6 +116,14 @@ final class ColorTests: XCTestCase {
     func test_divide_scalar() {
         let color = Color(red: 1, green: 1, blue: 0.5)
         XCTAssertEqual(color / 2, .rgb(0.5, 0.5, 0.25))
+    }
+
+    func test_decode() throws {
+        let content = "[1, 0.5, 0]"
+        let decoder = YAMLDecoder()
+        let color = try decoder.decode(Color.self, from: content)
+
+        XCTAssertEqual(color, .rgb(1, 0.5, 0))
     }
 }
 #endif
