@@ -21,7 +21,7 @@ extension Camera: Decodable {
 
         case width
         case height
-        case fieldOfView = "field_of_view"
+        case fieldOfView = "field-of-view"
         case origin = "from"
         case target = "to"
         case orientation = "up"
@@ -39,7 +39,7 @@ extension CameraTests {
         add: camera
         width: 400
         height: 300
-        field_of_view: 1.047
+        field-of-view: 1.047
         from: [0, 1.5, -5]
         to: [0, 1, 0]
         up: [0, 1, 0]
