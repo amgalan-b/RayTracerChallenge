@@ -21,13 +21,6 @@ public struct Light {
     }
 }
 
-extension Light: Equatable {
-
-    public static func == (lhs: Light, rhs: Light) -> Bool {
-        return lhs.intensity == rhs.intensity && lhs.samples == rhs.samples
-    }
-}
-
 extension Light: Decodable {
 
     public init(from decoder: Decoder) throws {
@@ -70,6 +63,13 @@ final class LightTests: XCTestCase {
         let light = try! decoder.decode(Light.self, from: content)
 
         XCTAssertEqual(light, .pointLight(at: Point(-10, 10, -10), intensity: .white))
+    }
+}
+
+extension Light: Equatable {
+
+    public static func == (lhs: Light, rhs: Light) -> Bool {
+        return lhs.intensity == rhs.intensity && lhs.samples == rhs.samples
     }
 }
 #endif

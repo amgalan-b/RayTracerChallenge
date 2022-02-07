@@ -29,7 +29,7 @@ public final class YAMLParser {
     }
 }
 
-enum Command: Equatable {
+enum Command {
 
     case camera(Camera)
     case light(Light)
@@ -105,5 +105,8 @@ final class YAMLParserTests: XCTestCase {
 
         XCTAssertEqual(commands, [.camera(camera), .light(light)])
     }
+}
+
+extension Command: Equatable {
 }
 #endif
