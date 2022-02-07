@@ -2,16 +2,25 @@ import Foundation
 
 public final class World {
 
-    var objects: [Shape]
-    var light: Light?
+    private var _objects: [Shape]
+    private var _light: Light?
 
     public init(objects: [Shape] = [], light: Light? = nil) {
-        self.objects = objects
-        self.light = light
+        _objects = objects
+        _light = light
+    }
+
+    var light: Light? {
+        get { _light }
+        set { _light = newValue }
+    }
+
+    public func addObject(_ shape: Shape) {
+        _objects.append(shape)
     }
 
     func color(for ray: Ray, recursionDepth: Int = 0) -> Color {
-        guard let light = light else {
+        guard let light = _light else {
             return .black
         }
 
@@ -58,7 +67,7 @@ public final class World {
     }
 
     fileprivate func _intersect(with ray: Ray) -> [Intersection] {
-        return objects.flatMap { $0.intersect(with: ray) }
+        return _objects.flatMap { $0.intersect(with: ray) }
             .sorted(by: \.time)
     }
 

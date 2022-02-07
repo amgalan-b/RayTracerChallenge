@@ -51,7 +51,7 @@ struct RayTracer: ParsableCommand {
             let objParser = OBJParser()
             let objContent = try inputFileLocation._readFileOrStandardInput()
             let object = objParser.parse(objContent, isBoundingVolumeHierarchyEnabled: true)
-            world.objects.append(object)
+            world.addObject(object)
         }
 
         let ppm = await camera.renderParallel(world: world)

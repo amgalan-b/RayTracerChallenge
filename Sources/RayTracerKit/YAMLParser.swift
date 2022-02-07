@@ -21,7 +21,7 @@ public final class YAMLParser {
             case let .light(light):
                 world.light = world.light ?? light
             case let .shape(shape):
-                world.objects.append(shape)
+                world.addObject(shape)
             }
         }
 
