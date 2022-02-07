@@ -22,6 +22,10 @@ final class SmoothTriangle: Triangle {
         super.init(point1, point2, point3, material: material, transform: transform)
     }
 
+    public required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+
     override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         guard let data = additionalData as? TriangleIntersectionAdditionalData else {
             fatalError()

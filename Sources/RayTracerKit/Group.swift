@@ -14,6 +14,10 @@ public final class Group: Shape {
         }
     }
 
+    public required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+    
     var children: Set<Shape> {
         return _children
     }
@@ -183,7 +187,7 @@ final class GroupTests: XCTestCase {
 
     func test_boundingBox() {
         let sphere = Sphere(transform: .translation(2, 5, -3) * .scaling(2, 2, 2))
-        let cylinder = Cylinder(transform: .translation(-4, -1, 4) * .scaling(0.5, 1, 0.5), minimum: -2, maximum: 2)
+        let cylinder = Cylinder(minimum: -2, maximum: 2, transform: .translation(-4, -1, 4) * .scaling(0.5, 1, 0.5))
         let group = Group(children: [sphere, cylinder])
         let box = group.boundingBoxLocal()
 

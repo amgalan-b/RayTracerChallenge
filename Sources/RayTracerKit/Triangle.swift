@@ -19,6 +19,10 @@ public class Triangle: Shape {
         super.init(material: material, transform: transform)
     }
 
+    public required init(from decoder: Decoder) throws {
+        fatalError()
+    }
+
     override func intersectLocal(with ray: Ray) -> [Intersection] {
         let directionCrossEdge2 = ray.direction.crossProduct(with: edge2)
         let determinant = edge1.dotProduct(with: directionCrossEdge2)

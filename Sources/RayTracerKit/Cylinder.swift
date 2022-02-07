@@ -8,16 +8,24 @@ public final class Cylinder: Shape {
     public var isCapped = false
 
     public init(
-        material: Material = .default,
-        transform: Matrix = .identity,
         minimum: Double = -.greatestFiniteMagnitude,
         maximum: Double = .greatestFiniteMagnitude,
-        isCapped: Bool = false
+        isCapped: Bool = false,
+        material: Material = .default,
+        transform: Matrix = .identity
     ) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped
         super.init(material: material, transform: transform)
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        self.minimum = try container.decode(Double.self, forKey: .min)
+        self.maximum = try container.decode(Double.self, forKey: .max)
+        self.isCapped = try container.decode(Bool.self, forKey: .closed)
+        try super.init(from: decoder)
     }
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
@@ -90,6 +98,16 @@ public final class Cylinder: Shape {
     }
 }
 
+extension Cylinder {
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case min
+        case max
+        case closed
+    }
+}
+
 extension Ray {
 
     fileprivate func _checkCap(time: Double) -> Bool {
@@ -102,6 +120,7 @@ extension Ray {
 
 #if TEST
 import XCTest
+import Yams
 
 final class CylinderTests: XCTestCase {
 
@@ -193,6 +212,25 @@ final class CylinderTests: XCTestCase {
 
         XCTAssertEqual(b2.minimum, Point(-1, -5, -1))
         XCTAssertEqual(b2.maximum, Point(1, 3, 1))
+    }
+
+    func test_decode() throws {
+        let content = """
+        min: 0
+        max: 0.75
+        closed: true
+        transform:
+          - [scale, 0.5, 1, 0.5]
+          - [translate, -1, 0, 1]
+        """
+
+        let decoder = YAMLDecoder()
+        let cylinder = try decoder.decode(Cylinder.self, from: content)
+
+        XCTAssertEqual(cylinder.minimum, 0)
+        XCTAssertEqual(cylinder.maximum, 0.75)
+        XCTAssertEqual(cylinder.isCapped, true)
+        XCTAssertEqual(cylinder.transform, .translation(-1, 0, 1) * .scaling(0.5, 1, 0.5))
     }
 }
 #endif

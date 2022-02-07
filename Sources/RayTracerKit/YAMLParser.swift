@@ -20,12 +20,8 @@ public final class YAMLParser {
                 camera = c
             case let .light(light):
                 world.light = world.light ?? light
-            case let .plane(plane):
-                world.objects.append(plane)
-            case let .sphere(sphere):
-                world.objects.append(sphere)
-            case let .cube(cube):
-                world.objects.append(cube)
+            case let .shape(shape):
+                world.objects.append(shape)
             }
         }
 
@@ -37,9 +33,7 @@ enum Command: Equatable {
 
     case camera(Camera)
     case light(Light)
-    case plane(Plane)
-    case cube(Cube)
-    case sphere(Sphere)
+    case shape(Shape)
 }
 
 extension Command: Decodable {
@@ -56,11 +50,15 @@ extension Command: Decodable {
         case "light":
             self = .light(try Light(from: decoder))
         case "plane":
-            self = .plane(try Plane(from: decoder))
+            self = .shape(try Plane(from: decoder))
         case "cube":
-            self = .cube(try Cube(from: decoder))
+            self = .shape(try Cube(from: decoder))
         case "sphere":
-            self = .sphere(try Sphere(from: decoder))
+            self = .shape(try Sphere(from: decoder))
+        case "cylinder":
+            self = .shape(try Cylinder(from: decoder))
+        case "cone":
+            self = .shape(try Cone(from: decoder))
         default:
             fatalError()
         }

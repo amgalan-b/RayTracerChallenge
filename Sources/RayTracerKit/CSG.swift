@@ -10,8 +10,13 @@ final class CSG: Shape {
         self.left = left
         self.right = right
         self.operation = operation
+        super.init()
     }
 
+    public required init(from decoder: Decoder) throws {
+        fatalError("init(from:) has not been implemented")
+    }
+    
     override func intersectLocal(with ray: Ray) -> [Intersection] {
         let intersections = left.intersect(with: ray) + right.intersect(with: ray)
         return _filter(intersections: intersections.sorted(by: \.time))

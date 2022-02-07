@@ -8,16 +8,24 @@ public final class Cone: Shape {
     public var isCapped = false
 
     public init(
-        material: Material = .default,
-        transform: Matrix = .identity,
         minimum: Double = -.infinity,
         maximum: Double = .infinity,
-        isCapped: Bool = false
+        isCapped: Bool = false,
+        material: Material = .default,
+        transform: Matrix = .identity
     ) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped
         super.init(material: material, transform: transform)
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        self.minimum = try container.decode(Double.self, forKey: .min)
+        self.maximum = try container.decode(Double.self, forKey: .max)
+        self.isCapped = try container.decode(Bool.self, forKey: .closed)
+        try super.init(from: decoder)
     }
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
@@ -104,6 +112,16 @@ public final class Cone: Shape {
         }
 
         return intersections
+    }
+}
+
+extension Cone {
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case min
+        case max
+        case closed
     }
 }
 

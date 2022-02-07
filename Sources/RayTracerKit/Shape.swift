@@ -1,6 +1,6 @@
 import Foundation
 
-public class Shape: Equatable, Hashable {
+public class Shape: Equatable, Hashable, Decodable {
 
     public var material: Material
     public var transform: Matrix
@@ -10,6 +10,13 @@ public class Shape: Equatable, Hashable {
     public init(material: Material = .default, transform: Matrix = .identity) {
         self.material = material
         self.transform = transform
+    }
+
+    public required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        self.material = try container.decodeIfPresent(Material.self, forKey: .material) ?? .default
+        self.transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?.reversed().reduce1(*)
+            ?? .identity
     }
 
     /// - Note: Not declared in an extension, so it can be overridden by a subclass.
@@ -87,6 +94,15 @@ extension Shape {
     }
 }
 
+extension Shape {
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case material
+        case transform
+    }
+}
+
 private final class _TestShape: Shape {
 
     fileprivate var _ray: Ray?
@@ -103,6 +119,7 @@ private final class _TestShape: Shape {
 
 #if TEST
 import XCTest
+import Yams
 
 final class ShapeTests: XCTestCase {
 
@@ -180,6 +197,59 @@ final class ShapeTests: XCTestCase {
 
         let result = sphere._convertObjectToWorldSpace(normal: Vector(sqrt(3) / 3, sqrt(3) / 3, sqrt(3) / 3))
         XCTAssertEqual(result, Vector(0.28571, 0.42857, -0.85714))
+    }
+
+    func test_decode() throws {
+        let content = """
+        add: sphere
+        material:
+          color: [0.373, 0.404, 0.550]
+          diffuse: 0.2
+          ambient: 0.0
+          specular: 1.0
+          shininess: 200
+          reflective: 0.7
+          transparency: 0.7
+          refractive_index: 1.5
+        transform:
+          - [translate, 4, 0, 0]
+        """
+
+        let decoder = YAMLDecoder()
+        let sphere = try decoder.decode(Sphere.self, from: content)
+        let material = Material.default(
+            color: .rgb(0.373, 0.404, 0.550),
+            ambient: 0,
+            diffuse: 0.2,
+            specular: 1,
+            shininess: 200,
+            reflective: 0.7,
+            transparency: 0.7,
+            refractiveIndex: 1.5
+        )
+
+        XCTAssertEqual(sphere.material, material)
+        XCTAssertEqual(sphere.transform, .translation(4, 0, 0))
+    }
+
+    func test_decode_transform() throws {
+        let content = """
+        add: plane
+        material:
+          color: [1, 1, 1]
+          ambient: 1
+          diffuse: 0
+          specular: 0
+        transform:
+          - [rotate-x, 1.5707963267948966] # pi/2
+          - [translate, 0, 0, 500]
+        """
+
+        let decoder = YAMLDecoder()
+        let plane = try decoder.decode(Plane.self, from: content)
+
+        XCTAssertEqual(plane.material, .default(color: .white, ambient: 1, diffuse: 0, specular: 0))
+        XCTAssertEqual(plane.transform, .translation(0, 0, 500) * .rotationX(.pi / 2))
     }
 }
 

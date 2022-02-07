@@ -124,7 +124,7 @@ extension YAMLParserTests {
         let decoder = YAMLDecoder()
         let commands = try decoder.decode([Command].self, from: result)
 
-        guard case let .cube(cube) = commands[0] else {
+        guard case let .shape(cube) = commands[0] else {
             return XCTFail()
         }
 
@@ -151,7 +151,7 @@ extension YAMLParserTests {
         let decoder = YAMLDecoder()
         let commands = try decoder.decode([Command].self, from: result)
 
-        guard case let .cube(cube) = commands[0] else {
+        guard case let .shape(cube) = commands[0] else {
             return XCTFail()
         }
 
@@ -183,7 +183,7 @@ extension YAMLParserTests {
         let decoder = YAMLDecoder()
         let commands = try decoder.decode([Command].self, from: result)
 
-        guard case let .cube(cube) = commands[0] else {
+        guard case let .shape(cube) = commands[0] else {
             return XCTFail()
         }
 
@@ -216,7 +216,7 @@ extension YAMLParserTests {
         let decoder = YAMLDecoder()
         let commands = try decoder.decode([Command].self, from: result)
 
-        guard case let .cube(cube) = commands[0] else {
+        guard case let .shape(cube) = commands[0] else {
             return XCTFail()
         }
 
