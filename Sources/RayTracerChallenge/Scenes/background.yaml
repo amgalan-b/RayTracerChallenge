@@ -1,0 +1,49 @@
+# ======================================================
+# the camera
+# ======================================================
+
+- add: camera
+  width: 400
+  height: 300
+  field-of-view: 1.047
+  from: [5, 5, -5]
+  to: [0, 1, 0]
+  up: [0, 1, 0]
+
+# ======================================================
+# the light
+# ======================================================
+
+- add: light
+  at: [-9, 9, -9]
+  intensity: [1, 1, 1]
+
+# ======================================================
+# the scene
+# ======================================================
+
+# the floor
+- add: plane
+  material:
+    pattern:
+      typed: checkers
+      colors:
+        - [0.7, 0.7, 0.7]
+        - [0.3, 0.3, 0.3]
+      transform:
+        - [scale, 0.6, 0.6, 0.6]
+    ambient: 0.02
+    diffuse: 0.7
+    specular: 0
+    reflective: 0.05
+
+# the room
+- add: cube
+  material:
+    color: [0.7, 0.7, 0.7]
+    diffuse: 0.8
+    ambient: 0.1
+    specular: 0
+  transform:
+    - [translate, 0, 0.99, 0]
+    - [scale, 10, 10, 10]
