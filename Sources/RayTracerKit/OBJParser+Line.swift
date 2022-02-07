@@ -1,6 +1,6 @@
 import Foundation
 
-extension Parser {
+extension OBJParser {
 
     enum Line: Equatable {
 
@@ -31,7 +31,7 @@ extension Parser {
 
 extension Array where Element == Substring {
 
-    fileprivate func _parseVertex() -> Parser.Line {
+    fileprivate func _parseVertex() -> OBJParser.Line {
         let values = compactMap { Double($0) }
         guard values.count == 3 else {
             return .ignore
@@ -40,7 +40,7 @@ extension Array where Element == Substring {
         return .vertex(values[0], values[1], values[2])
     }
 
-    fileprivate func _parseNormal() -> Parser.Line {
+    fileprivate func _parseNormal() -> OBJParser.Line {
         let values = compactMap { Double($0) }
         guard values.count == 3 else {
             return .ignore
@@ -49,7 +49,7 @@ extension Array where Element == Substring {
         return .normal(values[0], values[1], values[2])
     }
 
-    fileprivate func _parseGroup() -> Parser.Line {
+    fileprivate func _parseGroup() -> OBJParser.Line {
         guard count == 1 else {
             return .ignore
         }
@@ -57,7 +57,7 @@ extension Array where Element == Substring {
         return .group(String(first!))
     }
 
-    fileprivate func _parseFace() -> Parser.Line {
+    fileprivate func _parseFace() -> OBJParser.Line {
         guard let firstPart = first else {
             return .ignore
         }
@@ -74,7 +74,7 @@ extension Array where Element == Substring {
         return .face(values)
     }
 
-    fileprivate func _parseSmoothFace() -> Parser.Line {
+    fileprivate func _parseSmoothFace() -> OBJParser.Line {
         let values = map { $0.split(separator: "/", omittingEmptySubsequences: false)
             .map { Int($0) } }
 
@@ -94,7 +94,7 @@ import XCTest
 
 final class LineTests: XCTestCase {
 
-    private typealias Line = Parser.Line
+    private typealias Line = OBJParser.Line
 
     func test_ignore() {
         let result = Line("hello world")

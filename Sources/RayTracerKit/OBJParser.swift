@@ -1,7 +1,7 @@
 import Babbage
 import Foundation
 
-public final class Parser {
+public final class OBJParser {
 
     fileprivate var _ignoredLineCount = 0
     fileprivate var _vertices = [Point]()
@@ -108,7 +108,7 @@ final class ParserTests: XCTestCase {
         and came back the previous night.
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         XCTAssertEqual(parser._ignoredLineCount, 5)
@@ -122,7 +122,7 @@ final class ParserTests: XCTestCase {
         v 1 1 0
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         XCTAssertEqual(parser._vertices[0], Point(-1, 1, 0))
@@ -138,7 +138,7 @@ final class ParserTests: XCTestCase {
         vn 1 2 3
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         XCTAssertEqual(parser._normals[0], Vector(0, 0, 1))
@@ -156,7 +156,7 @@ final class ParserTests: XCTestCase {
         f 1 3 4
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         let t1 = parser._topLevelShapes[0] as! Triangle
@@ -180,7 +180,7 @@ final class ParserTests: XCTestCase {
         f 1 2 3 4 5
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         let t1 = parser._topLevelShapes[0] as! Triangle
@@ -210,7 +210,7 @@ final class ParserTests: XCTestCase {
         f 1 3 4
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         _ = parser.parse(input)
 
         let g1 = parser._topLevelGroups["FirstGroup"]
@@ -239,7 +239,7 @@ final class ParserTests: XCTestCase {
         f 1 3 4
         """
 
-        let parser = Parser()
+        let parser = OBJParser()
         let group = parser.parse(input)
 
         XCTAssertEqual(group.children.count, 2)

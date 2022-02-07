@@ -48,7 +48,7 @@ struct RayTracer: ParsableCommand {
         )
 
         if case .obj = inputFileType {
-            let objParser = Parser()
+            let objParser = OBJParser()
             let objContent = try inputFileLocation._readFileOrStandardInput()
             let object = objParser.parse(objContent, isBoundingVolumeHierarchyEnabled: true)
             world.objects.append(object)
