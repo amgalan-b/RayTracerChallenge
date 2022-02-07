@@ -14,7 +14,7 @@ extension Material: Decodable {
             reflective: try container.decodeIfPresent(Double.self, forKey: .reflective) ?? 0,
             transparency: try container.decodeIfPresent(Double.self, forKey: .transparency) ?? 0,
             refractiveIndex: try container.decodeIfPresent(Double.self, forKey: .refractiveIndex) ?? 1,
-            pattern: nil
+            pattern: try container.decodeIfPresent(Pattern.self, forKey: .pattern)
         )
     }
 
@@ -28,6 +28,7 @@ extension Material: Decodable {
         case reflective
         case transparency
         case refractiveIndex = "refractive_index"
+        case pattern
     }
 }
 
