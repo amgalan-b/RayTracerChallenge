@@ -19,36 +19,40 @@ enum Main {
 
 struct RayTracer: ParsableCommand {
 
-    @Argument(help: ArgumentHelp("OBJ file location. Use - to read from stdin.", valueName: "input"))
+    @Argument(help: ArgumentHelp("OBJ file or YAML scene location. Use - to read from stdin.", valueName: "input"))
     var inputFileLocation: String
 
-    @Option(name: [.short, .customLong("output")], help: "Output PPM file location.")
+    @Option(name: .customLong("type"), help: "Input file type.")
+    var inputFileType: InputType = .obj
+
+    @Option(name: [.short, .customLong("output")], help: "Output PPM file location. Prints to stdout by default.")
     var outputFileLocation: String?
 
     @Option(name: .long, help: "Image width.")
-    var width: Int = 800
+    var width: Int?
 
     @Option(name: .long, help: "Image height.")
-    var height: Int = 800
-
-    @Flag(name: .shortAndLong, help: "Show debug messages.")
-    var debug = false
+    var height: Int?
 
     private var _startTime = CFAbsoluteTimeGetCurrent()
 
     mutating func runAsync() async throws {
-        let input = try _readInput()
-        let world = try _makeWorld(content: input)
+        let sceneDescription = try _readSceneDescription()
+        let parser = YAMLParser()
+        let (presetCamera, world) = try parser.parse(sceneDescription)
         let camera = Camera(
-            width: width,
-            height: height,
-            fieldOfView: .pi / 3,
-            transform: .viewTransform(
-                origin: .point(0, 4, -7),
-                target: .point(0, 1, 0),
-                orientation: .vector(0, 1, 0)
-            )
+            width: width ?? presetCamera.width,
+            height: height ?? presetCamera.height,
+            fieldOfView: presetCamera.fieldOfView,
+            transform: presetCamera.transform
         )
+
+        if case .obj = inputFileType {
+            let objParser = Parser()
+            let objContent = try inputFileLocation._readFileOrStandardInput()
+            let object = objParser.parse(objContent, isBoundingVolumeHierarchyEnabled: true)
+            world.objects.append(object)
+        }
 
         let ppm = await camera.renderParallel(world: world)
             .ppm()
@@ -57,28 +61,19 @@ struct RayTracer: ParsableCommand {
         _printTimeElapsed()
     }
 
-    private func _readInput() throws -> String {
-        if inputFileLocation == "-" {
-            var result = ""
-            while let line = readLine(strippingNewline: false) {
-                result.append(line)
-            }
+    private func _readSceneDescription() throws -> String {
+        switch inputFileType {
+        case .scene:
+            return try inputFileLocation._readFileOrStandardInput()
+        case .obj:
+            let objBackgroundSceneLocation = Bundle.module.url(
+                forResource: "background",
+                withExtension: "yaml",
+                subdirectory: "Scenes"
+            )!
 
-            return result
+            return try String(contentsOf: objBackgroundSceneLocation)
         }
-
-        let url = URL(fileURLWithPath: inputFileLocation)
-        return try String(contentsOf: url)
-    }
-
-    private func _makeWorld(content: String) throws -> World {
-        let parser = Parser()
-        let object = parser.parse(content, isBoundingVolumeHierarchyEnabled: true)
-
-        return World(
-            objects: [object],
-            light: .pointLight(at: .point(0, 10, -10), intensity: .white)
-        )
     }
 
     fileprivate func _write(content: String) {
@@ -95,5 +90,31 @@ struct RayTracer: ParsableCommand {
         let diff = CFAbsoluteTimeGetCurrent() - _startTime
         let formatted = String(format: "%.3f seconds", diff)
         print(formatted, to: &standardError)
+    }
+}
+
+enum InputType: String, ExpressibleByArgument {
+
+    case obj
+    case scene
+
+    init?(argument: String) {
+        self.init(rawValue: argument)
+    }
+}
+
+extension String {
+
+    fileprivate func _readFileOrStandardInput() throws -> String {
+        guard self == "-" else {
+            return try String(contentsOfFile: self)
+        }
+
+        var result = ""
+        while let line = readLine(strippingNewline: false) {
+            result.append(line)
+        }
+
+        return result
     }
 }
