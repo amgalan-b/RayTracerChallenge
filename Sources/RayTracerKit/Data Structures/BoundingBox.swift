@@ -2,8 +2,8 @@ import Foundation
 
 struct BoundingBox {
 
-    var minimum: Point
-    var maximum: Point
+    private(set) var minimum: Point
+    private(set) var maximum: Point
 
     init(
         minimum: Point = Point(.greatestFiniteMagnitude, .greatestFiniteMagnitude, .greatestFiniteMagnitude),

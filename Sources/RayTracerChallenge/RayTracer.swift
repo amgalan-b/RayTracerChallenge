@@ -50,7 +50,8 @@ struct RayTracer: ParsableCommand {
         if case .obj = inputFileType {
             let objParser = OBJParser()
             let objContent = try inputFileLocation._readFileOrStandardInput()
-            let object = objParser.parse(objContent, isBoundingVolumeHierarchyEnabled: true)
+            let object = objParser.parse(objContent, isBoundingVolumeHierarchyEnabled: true, isAutoScalingEnabled: true)
+
             world.addObject(object)
         }
 

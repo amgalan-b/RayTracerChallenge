@@ -14,7 +14,11 @@ public final class OBJParser {
     public init() {
     }
 
-    public func parse(_ input: String, isBoundingVolumeHierarchyEnabled: Bool = false) -> Group {
+    public func parse(
+        _ input: String,
+        isBoundingVolumeHierarchyEnabled: Bool = false,
+        isAutoScalingEnabled: Bool = false
+    ) -> Group {
         let lines = input.split(whereSeparator: \.isNewline)
             .map { String($0) }
 
@@ -65,6 +69,23 @@ public final class OBJParser {
 
         if isBoundingVolumeHierarchyEnabled {
             result.constructBoundingVolumeHierarchy(threshold: 1)
+        }
+
+        if isAutoScalingEnabled {
+            result.transform = .translation(0, -result.boundingBoxLocal().minimum.y, 0)
+
+            let box = result.boundingBox()
+            let maxDimension = max(
+                box.minimum.x.absoluteValue,
+                box.minimum.y.absoluteValue,
+                box.minimum.z.absoluteValue,
+                box.maximum.x.absoluteValue,
+                box.maximum.y.absoluteValue,
+                box.maximum.z.absoluteValue
+            )
+
+            let factor = 1.0 / maxDimension
+            result.transform = .scaling(factor, factor, factor) * result.transform
         }
 
         return result
