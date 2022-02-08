@@ -15,15 +15,17 @@ let package = Package(
         .package(name: "Babbage", path: "~/Projects/Babbage"),
         .package(url: "https://github.com/apple/swift-collections", .exact("1.0.2")),
         .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.0.2")),
+        .package(url: "https://github.com/jpsim/Yams", .exact("4.0.6")),
     ],
     targets: [
         .executableTarget(
             name: "RayTracerChallenge",
-            dependencies: ["RayTracerKit", .product(name: "ArgumentParser", package: "swift-argument-parser")]
+            dependencies: ["RayTracerKit", .product(name: "ArgumentParser", package: "swift-argument-parser")],
+            resources: [.copy("Scenes")]
         ),
         .target(
             name: "RayTracerKit",
-            dependencies: ["Babbage", .product(name: "Collections", package: "swift-collections")]
+            dependencies: ["Babbage", "Yams", .product(name: "Collections", package: "swift-collections")]
         ),
         .testTarget(
             name: "RayTracerTests",
