@@ -15,7 +15,7 @@
 - add: camera
   width: 400
   height: 200
-  field_of_view: 0.314
+  field-of-view: 0.314
   from: [8, 3.5, -9]
   to: [0, 0.3, 0]
   up: [0, 1, 0]
