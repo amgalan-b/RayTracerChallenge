@@ -4,10 +4,10 @@ import Foundation
 /// Canvas is always 1-unit away from the camera.
 public struct Camera: Equatable {
 
-    let width: Int
-    let height: Int
-    let fieldOfView: Double
-    let transform: Matrix
+    public let width: Int
+    public let height: Int
+    public let fieldOfView: Double
+    public let transform: Matrix
 
     let halfWidth: Double
     let halfHeight: Double
