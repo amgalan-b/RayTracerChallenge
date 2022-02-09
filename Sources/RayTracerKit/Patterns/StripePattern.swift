@@ -3,12 +3,11 @@ import Foundation
 extension Pattern {
 
     public static func stripe(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
-        let pattern = _StripePattern(left, right, transform: transform)
-        return Pattern(pattern: pattern)
+        return .stripe(StripePattern(left, right, transform: transform))
     }
 }
 
-private struct _StripePattern: _Pattern {
+struct StripePattern: PatternProtocol, Equatable {
 
     let left: Color
     let right: Color

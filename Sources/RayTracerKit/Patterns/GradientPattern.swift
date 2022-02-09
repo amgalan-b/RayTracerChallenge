@@ -3,12 +3,11 @@ import Foundation
 extension Pattern {
 
     public static func gradient(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
-        let pattern = _GradientPattern(left, right, transform)
-        return Pattern(pattern: pattern)
+        return .gradient(GradientPattern(left, right, transform))
     }
 }
 
-private struct _GradientPattern: _Pattern {
+struct GradientPattern: PatternProtocol, Equatable {
 
     let left: Color
     let right: Color

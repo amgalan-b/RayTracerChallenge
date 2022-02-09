@@ -1,18 +1,27 @@
 import Foundation
 
-public struct Pattern {
+enum Pattern {
 
-    private let _pattern: _Pattern
-
-    init(pattern: _Pattern) {
-        _pattern = pattern
-    }
+    case checker(CheckerPattern)
+    case gradient(GradientPattern)
+    case stripe(StripePattern)
 
     func color(at worldPoint: Point, objectTransform: Matrix = .identity) -> Color {
         let objectPoint = objectTransform.inversed() * worldPoint
         let patternPoint = _pattern.transform.inversed() * objectPoint
 
         return _pattern.color(at: patternPoint)
+    }
+
+    private var _pattern: PatternProtocol {
+        switch self {
+        case let .checker(pattern):
+            return pattern
+        case let .gradient(pattern):
+            return pattern
+        case let .stripe(pattern):
+            return pattern
+        }
     }
 }
 
@@ -44,7 +53,7 @@ extension Pattern: Decodable {
     }
 }
 
-protocol _Pattern {
+protocol PatternProtocol {
 
     var transform: Matrix { get }
 
@@ -97,9 +106,5 @@ final class PatternTests: XCTestCase {
 }
 
 extension Pattern: Equatable {
-
-    public static func == (lhs: Pattern, rhs: Pattern) -> Bool {
-        return lhs._pattern.transform == rhs._pattern.transform
-    }
 }
 #endif

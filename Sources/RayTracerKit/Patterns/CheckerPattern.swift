@@ -3,12 +3,11 @@ import Foundation
 extension Pattern {
 
     public static func checker(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
-        let pattern = _CheckerPattern(left, right, transform)
-        return Pattern(pattern: pattern)
+        return .checker(CheckerPattern(left, right, transform))
     }
 }
 
-private struct _CheckerPattern: _Pattern {
+struct CheckerPattern: PatternProtocol, Equatable {
 
     let left: Color
     let right: Color
