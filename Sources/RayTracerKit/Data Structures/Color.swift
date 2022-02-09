@@ -1,6 +1,6 @@
 import simd
 
-public struct Color {
+struct Color {
 
     private let _rgb: SIMD3<Double>
 
@@ -27,7 +27,7 @@ public struct Color {
 
 extension Color: Equatable {
 
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs._rgb.x.isAlmostEqual(to: rhs._rgb.x, tolerance: .tolerance)
             && lhs._rgb.y.isAlmostEqual(to: rhs._rgb.y, tolerance: .tolerance)
             && lhs._rgb.z.isAlmostEqual(to: rhs._rgb.z, tolerance: .tolerance)
@@ -36,7 +36,7 @@ extension Color: Equatable {
 
 extension Color: Decodable {
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
         let values = try container.decodeArray(of: Double.self)
 
@@ -50,10 +50,10 @@ extension Color: Decodable {
 
 extension Color {
 
-    public static let white = Color(red: 1, green: 1, blue: 1)
-    public static let black = Color(red: 0, green: 0, blue: 0)
+    static let white = Color(red: 1, green: 1, blue: 1)
+    static let black = Color(red: 0, green: 0, blue: 0)
 
-    public static func rgb(_ red: Double, _ green: Double, _ blue: Double) -> Self {
+    static func rgb(_ red: Double, _ green: Double, _ blue: Double) -> Self {
         return Color(red: red, green: green, blue: blue)
     }
 }

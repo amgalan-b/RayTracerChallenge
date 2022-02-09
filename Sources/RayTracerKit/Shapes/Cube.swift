@@ -1,6 +1,6 @@
 import Foundation
 
-public final class Cube: Shape {
+final class Cube: Shape {
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
         return Self.intersectionTimes(for: ray, minimum: Point(-1, -1, -1), maximum: Point(1, 1, 1))

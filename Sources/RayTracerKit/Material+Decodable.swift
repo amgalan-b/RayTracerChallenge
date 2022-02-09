@@ -2,7 +2,7 @@ import Foundation
 
 extension Material: Decodable {
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
 
         self.init(

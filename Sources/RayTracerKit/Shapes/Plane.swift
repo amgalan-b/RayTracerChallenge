@@ -1,6 +1,6 @@
 import Foundation
 
-public final class Plane: Shape {
+final class Plane: Shape {
 
     override func normalLocal(at point: Point, additionalData: ShapeIntersectionData? = nil) -> Vector {
         return Vector(0, 1, 0)

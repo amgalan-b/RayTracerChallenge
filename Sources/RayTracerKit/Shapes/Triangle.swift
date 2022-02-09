@@ -1,6 +1,6 @@
 import Foundation
 
-public class Triangle: Shape {
+class Triangle: Shape {
 
     let point1: Point
     let point2: Point
@@ -9,7 +9,7 @@ public class Triangle: Shape {
     let edge2: Vector
     let normal: Vector
 
-    public init(
+    init(
         _ p1: Point,
         _ p2: Point,
         _ p3: Point,
@@ -26,7 +26,7 @@ public class Triangle: Shape {
         super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         fatalError()
     }
 

@@ -1,12 +1,12 @@
 import Foundation
 
-public final class Cone: Shape {
+final class Cone: Shape {
 
-    public var minimum = -Double.infinity
-    public var maximum = Double.infinity
-    public var isCapped = false
+    var minimum = -Double.infinity
+    var maximum = Double.infinity
+    var isCapped = false
 
-    public init(
+    init(
         minimum: Double = -.infinity,
         maximum: Double = .infinity,
         isCapped: Bool = false,
@@ -20,7 +20,7 @@ public final class Cone: Shape {
         super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         self.minimum = try container.decode(Double.self, forKey: .min)
         self.maximum = try container.decode(Double.self, forKey: .max)

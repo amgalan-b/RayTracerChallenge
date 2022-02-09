@@ -2,7 +2,7 @@ import Foundation
 
 extension Pattern {
 
-    public static func checker(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
+    static func checker(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
         return .checker(CheckerPattern(left, right, transform))
     }
 }

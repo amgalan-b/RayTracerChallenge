@@ -2,7 +2,7 @@ import Foundation
 
 extension Pattern {
 
-    public static func gradient(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
+    static func gradient(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
         return .gradient(GradientPattern(left, right, transform))
     }
 }

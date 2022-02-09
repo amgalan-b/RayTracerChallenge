@@ -2,7 +2,7 @@ import Foundation
 
 extension Light {
 
-    public static func pointLight(at position: Point, intensity: Color) -> Light {
+    static func pointLight(at position: Point, intensity: Color) -> Light {
         return .pointLight(PointLight(at: position, intensity: intensity))
     }
 }

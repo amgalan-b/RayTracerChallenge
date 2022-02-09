@@ -1,13 +1,12 @@
 import Foundation
 
-public final class Cylinder: Shape {
+final class Cylinder: Shape {
 
-    public var minimum = -Double.greatestFiniteMagnitude
-    public var maximum = Double.greatestFiniteMagnitude
+    var minimum = -Double.greatestFiniteMagnitude
+    var maximum = Double.greatestFiniteMagnitude
+    var isCapped = false
 
-    public var isCapped = false
-
-    public init(
+    init(
         minimum: Double = -.greatestFiniteMagnitude,
         maximum: Double = .greatestFiniteMagnitude,
         isCapped: Bool = false,
@@ -21,7 +20,7 @@ public final class Cylinder: Shape {
         super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         self.minimum = try container.decode(Double.self, forKey: .min)
         self.maximum = try container.decode(Double.self, forKey: .max)

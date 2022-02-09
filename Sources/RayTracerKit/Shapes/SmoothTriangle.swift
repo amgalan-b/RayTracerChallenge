@@ -23,7 +23,7 @@ final class SmoothTriangle: Triangle {
         super.init(point1, point2, point3, material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         fatalError("init(from:) has not been implemented")
     }
 

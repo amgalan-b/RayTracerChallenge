@@ -1,11 +1,11 @@
 import Foundation
 
-public final class Group: Shape {
+final class Group: Shape {
 
     private var _children = Set<Shape>()
     private var _boundingBoxCache: BoundingBox?
 
-    public init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity, isShadowCasting: Bool = true) {
+    init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity, isShadowCasting: Bool = true) {
         _children = children
         super.init(material: .default, transform: transform, isShadowCasting: isShadowCasting)
 
@@ -14,7 +14,7 @@ public final class Group: Shape {
         }
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         fatalError("init(from:) has not been implemented")
     }
     
@@ -22,7 +22,7 @@ public final class Group: Shape {
         return _children
     }
 
-    public override func hash(into hasher: inout Hasher) {
+    override func hash(into hasher: inout Hasher) {
         hasher.combine(_children)
     }
 

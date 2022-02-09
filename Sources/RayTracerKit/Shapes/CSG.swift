@@ -13,7 +13,7 @@ final class CSG: Shape {
         super.init()
     }
 
-    public required init(from decoder: Decoder) throws {
+    required init(from decoder: Decoder) throws {
         fatalError("init(from:) has not been implemented")
     }
     

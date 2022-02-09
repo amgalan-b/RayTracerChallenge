@@ -2,7 +2,7 @@ import Foundation
 
 extension Pattern {
 
-    public static func stripe(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
+    static func stripe(_ left: Color, _ right: Color, _ transform: Matrix = .identity) -> Pattern {
         return .stripe(StripePattern(left, right, transform: transform))
     }
 }

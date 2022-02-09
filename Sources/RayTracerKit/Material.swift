@@ -1,18 +1,18 @@
 import Foundation
 
-public struct Material {
+struct Material {
 
-    public var color: Color
-    public var ambient: Double
-    public var diffuse: Double
-    public var specular: Double
-    public var shininess: Double
-    public var reflective: Double
-    public var transparency: Double
-    public var refractiveIndex: Double
-    public var pattern: Pattern?
+    var color: Color
+    var ambient: Double
+    var diffuse: Double
+    var specular: Double
+    var shininess: Double
+    var reflective: Double
+    var transparency: Double
+    var refractiveIndex: Double
+    var pattern: Pattern?
 
-    public init(
+    init(
         color: Color,
         ambient: Double,
         diffuse: Double,
@@ -108,7 +108,7 @@ public struct Material {
 
 extension Material: Equatable {
 
-    public static func == (lhs: Material, rhs: Material) -> Bool {
+    static func == (lhs: Material, rhs: Material) -> Bool {
         return lhs.color == rhs.color &&
             lhs.ambient == rhs.ambient &&
             lhs.diffuse == rhs.diffuse &&
@@ -122,7 +122,7 @@ extension Material: Equatable {
 
 extension Material {
 
-    public static let `default` = Material(
+    static let `default` = Material(
         color: .white,
         ambient: 0.1,
         diffuse: 0.9,
@@ -133,7 +133,7 @@ extension Material {
         refractiveIndex: 1
     )
 
-    public static func `default`(
+    static func `default`(
         color: Color = .white,
         ambient: Double = 0.1,
         diffuse: Double = 0.9,

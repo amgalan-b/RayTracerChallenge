@@ -2,7 +2,7 @@ import Foundation
 
 extension Light {
 
-    public static func areaLight(
+    static func areaLight(
         origin: Point,
         width: Double,
         height: Double,

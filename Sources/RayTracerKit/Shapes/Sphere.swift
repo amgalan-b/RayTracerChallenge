@@ -1,6 +1,6 @@
 import Foundation
 
-public final class Sphere: Shape {
+final class Sphere: Shape {
 
     override func intersectLocal(with ray: Ray) -> [Intersection] {
         let distance = ray.origin - Point(0, 0, 0)

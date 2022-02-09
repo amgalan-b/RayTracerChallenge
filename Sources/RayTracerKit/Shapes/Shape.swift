@@ -2,13 +2,13 @@ import Foundation
 
 public class Shape: Equatable, Hashable, Decodable {
 
-    public var material: Material
-    public var transform: Matrix
-    public var isShadowCasting: Bool
+    var material: Material
+    var transform: Matrix
+    var isShadowCasting: Bool
 
-    public var parent: Group?
+    var parent: Group?
 
-    public init(material: Material = .default, transform: Matrix = .identity, isShadowCasting: Bool = true) {
+    init(material: Material = .default, transform: Matrix = .identity, isShadowCasting: Bool = true) {
         self.material = material
         self.transform = transform
         self.isShadowCasting = isShadowCasting

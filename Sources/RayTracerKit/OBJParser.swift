@@ -18,7 +18,7 @@ public final class OBJParser {
         _ input: String,
         isBoundingVolumeHierarchyEnabled: Bool = false,
         isAutoScalingEnabled: Bool = false
-    ) -> Group {
+    ) -> Shape {
         let lines = input.split(whereSeparator: \.isNewline)
             .map { String($0) }
 
@@ -261,7 +261,7 @@ final class ParserTests: XCTestCase {
         """
 
         let parser = OBJParser()
-        let group = parser.parse(input)
+        let group = parser.parse(input) as! Group
 
         XCTAssertEqual(group.children.count, 2)
     }

@@ -27,7 +27,7 @@ enum Pattern {
 
 extension Pattern: Decodable {
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         let type = try container.decode(String.self, forKey: .typed)
         let colors = try container.decode([Color].self, forKey: .colors)
