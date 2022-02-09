@@ -10,7 +10,7 @@ extension Light {
         intensity: Color,
         transform: Matrix = .identity
     ) -> Light {
-        let areaLight = _AreaLight(
+        let areaLight = AreaLight(
             origin: origin,
             fullUvec: transform * Vector(width, 0, 0),
             usteps: density,
@@ -19,11 +19,11 @@ extension Light {
             intensity: intensity
         )
 
-        return Light(light: areaLight)
+        return .areaLight(areaLight)
     }
 }
 
-private struct _AreaLight: _Light {
+struct AreaLight: Equatable {
 
     let origin: Point
     let uvector: Vector
@@ -71,9 +71,6 @@ private struct _AreaLight: _Light {
 
         return origin + uOffset + vOffset
     }
-}
-
-extension _AreaLight {
 
     fileprivate static func _samples(
         origin: Point,
@@ -99,13 +96,39 @@ extension _AreaLight {
     }
 }
 
+extension AreaLight: Decodable {
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        self.init(
+            origin: try container.decode(Point.self, forKey: .corner),
+            fullUvec: try container.decode(Vector.self, forKey: .uvec),
+            usteps: try container.decode(Int.self, forKey: .usteps),
+            fullVvec: try container.decode(Vector.self, forKey: .vvec),
+            vsteps: try container.decode(Int.self, forKey: .vsteps),
+            intensity: try container.decode(Color.self, forKey: .intensity)
+        )
+    }
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case corner
+        case uvec
+        case vvec
+        case usteps
+        case vsteps
+        case intensity
+    }
+}
+
 #if TEST
 import XCTest
+import Yams
 
 extension LightTests {
 
     func test_areaLight() {
-        let light = _AreaLight(
+        let light = AreaLight(
             origin: Point(0, 0, 0),
             fullUvec: Vector(2, 0, 0),
             usteps: 4,
@@ -123,7 +146,7 @@ extension LightTests {
     }
 
     func test_areaLight_point() {
-        let light = _AreaLight(
+        let light = AreaLight(
             origin: Point(0, 0, 0),
             fullUvec: Vector(2, 0, 0),
             usteps: 4,
@@ -140,7 +163,7 @@ extension LightTests {
     }
 
     func test_areaLight_intensity() {
-        let light = _AreaLight(
+        let light = AreaLight(
             origin: Point(-0.5, -0.5, -5),
             fullUvec: Vector(1, 0, 0),
             usteps: 2,
@@ -154,6 +177,31 @@ extension LightTests {
 
         XCTAssertEqual(c1, 1)
         XCTAssertEqual(c2, 0)
+    }
+
+    func test_areaLight_decode() throws {
+        let content = """
+        corner: [-1, 2, 4]
+        uvec: [2, 0, 0]
+        vvec: [0, 2, 0]
+        usteps: 10
+        vsteps: 10
+        jitter: true
+        intensity: [1.5, 1.5, 1.5]
+        """
+
+        let decoder = YAMLDecoder()
+        let light = try decoder.decode(Light.self, from: content)
+        let expected = AreaLight(
+            origin: Point(-1, 2, 4),
+            fullUvec: Vector(2, 0, 0),
+            usteps: 10,
+            fullVvec: Vector(0, 2, 0),
+            vsteps: 10,
+            intensity: .rgb(1.5, 1.5, 1.5)
+        )
+
+        XCTAssertEqual(light, .areaLight(expected))
     }
 }
 #endif
