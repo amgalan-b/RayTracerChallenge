@@ -5,7 +5,7 @@ public final class World {
     private var _objects: [Shape]
     private var _light: Light?
 
-    public init(objects: [Shape] = [], light: Light? = nil) {
+    init(objects: [Shape] = [], light: Light? = nil) {
         _objects = objects
         _light = light
     }
@@ -77,6 +77,7 @@ public final class World {
         let direction = lightVector.normalized()
         let ray = Ray(origin: point, direction: direction)
         let intersections = _intersect(with: ray)
+            .filter { $0.object.isShadowCasting }
 
         guard let hit = intersections.hit() else {
             return false

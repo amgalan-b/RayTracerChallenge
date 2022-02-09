@@ -9,14 +9,21 @@ public class Triangle: Shape {
     let edge2: Vector
     let normal: Vector
 
-    public init(_ p1: Point, _ p2: Point, _ p3: Point, material: Material = .default, transform: Matrix = .identity) {
+    public init(
+        _ p1: Point,
+        _ p2: Point,
+        _ p3: Point,
+        material: Material = .default,
+        transform: Matrix = .identity,
+        isShadowCasting: Bool = true
+    ) {
         self.point1 = p1
         self.point2 = p2
         self.point3 = p3
         self.edge1 = p2 - p1
         self.edge2 = p3 - p1
         self.normal = edge2.crossProduct(with: edge1).normalized()
-        super.init(material: material, transform: transform)
+        super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
     public required init(from decoder: Decoder) throws {

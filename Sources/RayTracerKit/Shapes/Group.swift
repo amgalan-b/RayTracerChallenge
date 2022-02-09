@@ -5,9 +5,9 @@ public final class Group: Shape {
     private var _children = Set<Shape>()
     private var _boundingBoxCache: BoundingBox?
 
-    public init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity) {
+    public init(children: Set<Shape> = Set<Shape>(), transform: Matrix = .identity, isShadowCasting: Bool = true) {
         _children = children
-        super.init(material: .default, transform: transform)
+        super.init(material: .default, transform: transform, isShadowCasting: isShadowCasting)
 
         for child in children {
             child.parent = self

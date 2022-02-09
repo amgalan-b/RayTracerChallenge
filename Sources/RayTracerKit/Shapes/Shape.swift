@@ -4,19 +4,23 @@ public class Shape: Equatable, Hashable, Decodable {
 
     public var material: Material
     public var transform: Matrix
+    public var isShadowCasting: Bool
 
     public var parent: Group?
 
-    public init(material: Material = .default, transform: Matrix = .identity) {
+    public init(material: Material = .default, transform: Matrix = .identity, isShadowCasting: Bool = true) {
         self.material = material
         self.transform = transform
+        self.isShadowCasting = isShadowCasting
     }
 
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         self.material = try container.decodeIfPresent(Material.self, forKey: .material) ?? .default
-        self.transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?.reversed().reduce1(*)
-            ?? .identity
+        self.transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?
+            .reversed()
+            .reduce1(*) ?? .identity
+        self.isShadowCasting = try container.decodeIfPresent(Bool.self, forKey: .shadow) ?? true
     }
 
     /// - Note: Not declared in an extension, so it can be overridden by a subclass.
@@ -99,6 +103,7 @@ extension Shape {
     private enum _CodingKeys: String, CodingKey {
 
         case material
+        case shadow
         case transform
     }
 }

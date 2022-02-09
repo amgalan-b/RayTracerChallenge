@@ -4,7 +4,6 @@ public final class Cone: Shape {
 
     public var minimum = -Double.infinity
     public var maximum = Double.infinity
-
     public var isCapped = false
 
     public init(
@@ -12,12 +11,13 @@ public final class Cone: Shape {
         maximum: Double = .infinity,
         isCapped: Bool = false,
         material: Material = .default,
-        transform: Matrix = .identity
+        transform: Matrix = .identity,
+        isShadowCasting: Bool = true
     ) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped
-        super.init(material: material, transform: transform)
+        super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
     public required init(from decoder: Decoder) throws {

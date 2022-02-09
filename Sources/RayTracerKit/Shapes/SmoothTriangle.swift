@@ -14,12 +14,13 @@ final class SmoothTriangle: Triangle {
         _ normal2: Vector,
         _ normal3: Vector,
         material: Material = .default,
-        transform: Matrix = .identity
+        transform: Matrix = .identity,
+        isShadowCasting: Bool = true
     ) {
         self.normal1 = normal1
         self.normal2 = normal2
         self.normal3 = normal3
-        super.init(point1, point2, point3, material: material, transform: transform)
+        super.init(point1, point2, point3, material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
     public required init(from decoder: Decoder) throws {

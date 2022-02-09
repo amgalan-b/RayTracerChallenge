@@ -12,12 +12,13 @@ public final class Cylinder: Shape {
         maximum: Double = .greatestFiniteMagnitude,
         isCapped: Bool = false,
         material: Material = .default,
-        transform: Matrix = .identity
+        transform: Matrix = .identity,
+        isShadowCasting: Bool = true
     ) {
         self.minimum = minimum
         self.maximum = maximum
         self.isCapped = isCapped
-        super.init(material: material, transform: transform)
+        super.init(material: material, transform: transform, isShadowCasting: isShadowCasting)
     }
 
     public required init(from decoder: Decoder) throws {
