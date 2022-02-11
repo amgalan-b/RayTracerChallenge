@@ -24,7 +24,7 @@
     add: cube
     material:
       pattern:
-        typed: map
+        type: map
         mapping: cube
         left:
           type: align_check

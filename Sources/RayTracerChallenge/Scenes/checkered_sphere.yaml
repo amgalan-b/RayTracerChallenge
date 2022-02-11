@@ -13,7 +13,7 @@
 - add: sphere
   material:
     pattern:
-      typed: map
+      type: map
       mapping: spherical
       uv_pattern:
         type: checkers

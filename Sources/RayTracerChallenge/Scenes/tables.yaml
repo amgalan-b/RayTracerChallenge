@@ -38,7 +38,7 @@
     - [scale, 20, 7, 20]
   material:
     pattern:
-      typed: checkers
+      type: checkers
       colors:
         - [0, 0, 0]
         - [0.25, 0.25, 0.25]
@@ -56,7 +56,7 @@
     - [scale, 10, 10, 10]
   material:
     pattern:
-      typed: checkers
+      type: checkers
       colors:
         - [0.4863, 0.3765, 0.2941]
         - [0.3725, 0.2902, 0.2275]
@@ -75,7 +75,7 @@
     - [translate, 0, 3.1, 0]
   material:
     pattern:
-      typed: stripes
+      type: stripes
       colors:
         - [0.5529, 0.4235, 0.3255]
         - [0.6588, 0.5098, 0.4000]

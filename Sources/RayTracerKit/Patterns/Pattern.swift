@@ -32,7 +32,7 @@ extension Pattern: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .typed)
+        let type = try container.decode(String.self, forKey: .type)
         let colors = try container.decodeIfPresent([Color].self, forKey: .colors) ?? []
         let transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?
             .reversed()
@@ -55,7 +55,7 @@ extension Pattern: Decodable {
 
     private enum _CodingKeys: String, CodingKey {
 
-        case typed
+        case type
         case colors
         case transform
         case mapping
@@ -93,7 +93,7 @@ final class PatternTests: XCTestCase {
 
     func test_decode_stripe() throws {
         let content = """
-        typed: stripes
+        type: stripes
         colors:
           - [0.45, 0.45, 0.45]
           - [0.55, 0.55, 0.55]
@@ -116,7 +116,7 @@ final class PatternTests: XCTestCase {
 
     func test_decode_texture() throws {
         let content = """
-        typed: map
+        type: map
         mapping: spherical
         uv_pattern:
           type: checkers
