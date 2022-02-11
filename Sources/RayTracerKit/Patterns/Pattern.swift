@@ -5,6 +5,7 @@ enum Pattern {
     case checker(CheckerPattern)
     case gradient(GradientPattern)
     case stripe(StripePattern)
+    case texture(TexturePattern)
 
     func color(at worldPoint: Point, objectTransform: Matrix = .identity) -> Color {
         let objectPoint = objectTransform.inversed() * worldPoint
@@ -21,6 +22,8 @@ enum Pattern {
             return pattern
         case let .stripe(pattern):
             return pattern
+        case let .texture(pattern):
+            return pattern
         }
     }
 }
@@ -30,7 +33,7 @@ extension Pattern: Decodable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         let type = try container.decode(String.self, forKey: .typed)
-        let colors = try container.decode([Color].self, forKey: .colors)
+        let colors = try container.decodeIfPresent([Color].self, forKey: .colors) ?? []
         let transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?
             .reversed()
             .reduce1(*)!
@@ -40,6 +43,11 @@ extension Pattern: Decodable {
             self = .stripe(colors[0], colors[1], transform ?? .identity)
         case "checkers":
             self = .checker(colors[0], colors[1], transform ?? .identity)
+        case "map":
+            self = .texture(
+                .alignChecker(.white, .rgb(1, 0, 0), .rgb(1, 1, 0), .rgb(0, 1, 0), .rgb(0, 1, 1)),
+                map: .cubic
+            )
         default:
             fatalError()
         }
