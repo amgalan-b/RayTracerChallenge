@@ -47,10 +47,8 @@ extension YAMLParser {
                 continue
             }
 
-            var definition = definitions[extendLabel] as! [String: Any]
-            definition.merge(value) { $1 }
-
-            definitions[label] = definition
+            let definition = definitions[extendLabel] as! [String: Any]
+            definitions[label] = definition.merging(value) { $1 }
         }
 
         return try Yams.dump(object: result)
@@ -69,7 +67,14 @@ extension Dictionary where Key == String, Value == Any {
                 array._forEachLeafNode(body: body)
                 self[key] = array
             default:
-                self[key] = body(value)
+                let expanded = body(value)
+                guard key == "add", let replacedValue = expanded as? [String: Any] else {
+                    self[key] = expanded
+                    continue
+                }
+
+                self = filter { $0.key != key }
+                    .merging(replacedValue) { $1 }
             }
         }
     }
@@ -222,6 +227,37 @@ extension YAMLParserTests {
 
         XCTAssertEqual(cube.material, .default(color: .rgb(1, 0.5, 0)))
         XCTAssertEqual(cube.transform, .translation(4, 0, 0) * .scaling(3, 3, 3) * .translation(1, -1, 1))
+    }
+
+    func test_expand_add() throws {
+        let content = """
+        - define: MappedCube
+          value:
+            add: cube
+            material:
+              color: [1, 1, 1]
+        - add: MappedCube
+          transform:
+            - [translate, 0, 1, 0]
+            - [rotate-y, 0.7854]
+        - add: MappedCube
+          transform:
+            - [translate, 0, 2, 0]
+        """
+
+        let parser = YAMLParser()
+        let result = try parser.expandDefinitions(content)
+        let decoder = YAMLDecoder()
+        let commands = try decoder.decode([Command].self, from: result)
+
+        guard case let .shape(r1) = commands[0], case let .shape(r2) = commands[1] else {
+            return XCTFail()
+        }
+
+        XCTAssertEqual(r1.material, .default(color: .white))
+        XCTAssertEqual(r1.transform, .rotationY(0.7854) * .translation(0, 1, 0))
+        XCTAssertEqual(r2.material, .default(color: .white))
+        XCTAssertEqual(r2.transform, .translation(0, 2, 0))
     }
 }
 #endif
