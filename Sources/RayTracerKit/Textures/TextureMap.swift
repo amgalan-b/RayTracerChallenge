@@ -1,6 +1,6 @@
 import Foundation
 
-enum TextureMap {
+enum TextureMap: String {
 
     case spherical
     case planar
@@ -18,6 +18,19 @@ enum TextureMap {
         case .cubic:
             return point._mapCubic()
         }
+    }
+}
+
+extension TextureMap: Decodable {
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let value = try container.decode(String.self)
+        guard let map = TextureMap(rawValue: value) else {
+            fatalError()
+        }
+
+        self = map
     }
 }
 

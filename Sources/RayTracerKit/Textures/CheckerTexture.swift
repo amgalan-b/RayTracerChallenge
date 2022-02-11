@@ -34,8 +34,30 @@ struct CheckerTexture: TextureProtocol, Equatable {
     }
 }
 
+extension CheckerTexture: Decodable {
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        let colors = try container.decode([Color].self, forKey: .colors)
+        self.init(
+            colors[0],
+            colors[1],
+            width: try container.decode(Int.self, forKey: .width),
+            height: try container.decode(Int.self, forKey: .height)
+        )
+    }
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case width
+        case height
+        case colors
+    }
+}
+
 #if TEST
 import XCTest
+import Yams
 
 final class UVPatternTests: XCTestCase {
 
@@ -47,6 +69,23 @@ final class UVPatternTests: XCTestCase {
         XCTAssertEqual(texture.color(at: Point2D(0, 0.5)), .white)
         XCTAssertEqual(texture.color(at: Point2D(0.5, 0.5)), .black)
         XCTAssertEqual(texture.color(at: Point2D(1, 1)), .black)
+    }
+
+    func test_checker_decode() throws {
+        let content = """
+        type: checkers
+        width: 20
+        height: 10
+        colors:
+          - [0, 0.5, 0]
+          - [1, 1, 1]
+        """
+
+        let decoder = YAMLDecoder()
+        let texture = try decoder.decode(CheckerTexture.self, from: content)
+        let expected = CheckerTexture(.rgb(0, 0.5, 0), .rgb(1, 1, 1), width: 20, height: 10)
+
+        XCTAssertEqual(texture, expected)
     }
 }
 #endif

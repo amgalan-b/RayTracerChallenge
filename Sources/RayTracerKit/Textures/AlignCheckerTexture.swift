@@ -8,7 +8,7 @@ extension Texture {
     }
 }
 
-struct AlignCheckerTexture: TextureProtocol {
+struct AlignCheckerTexture: TextureProtocol, Equatable {
 
     fileprivate let _main: Color
     fileprivate let _ul: Color

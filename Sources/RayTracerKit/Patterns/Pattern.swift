@@ -44,10 +44,10 @@ extension Pattern: Decodable {
         case "checkers":
             self = .checker(colors[0], colors[1], transform ?? .identity)
         case "map":
-            self = .texture(
-                .alignChecker(.white, .rgb(1, 0, 0), .rgb(1, 1, 0), .rgb(0, 1, 0), .rgb(0, 1, 1)),
-                map: .cubic
-            )
+            let mapping = try container.decode(TextureMap.self, forKey: .mapping)
+            let texture = try container.decode(Texture.self, forKey: .texture)
+
+            self = .texture(texture, map: mapping)
         default:
             fatalError()
         }
@@ -58,6 +58,8 @@ extension Pattern: Decodable {
         case typed
         case colors
         case transform
+        case mapping
+        case texture = "uv_pattern"
     }
 }
 
@@ -108,6 +110,26 @@ final class PatternTests: XCTestCase {
             .rgb(0.55, 0.55, 0.55),
             .rotationY(1.5708) * .scaling(0.25, 0.25, 0.25)
         )
+
+        XCTAssertEqual(pattern, expected)
+    }
+
+    func test_decode_texture() throws {
+        let content = """
+        typed: map
+        mapping: spherical
+        uv_pattern:
+          type: checkers
+          width: 20
+          height: 10
+          colors:
+            - [0, 0.5, 0]
+            - [1, 1, 1]
+        """
+
+        let decoder = YAMLDecoder()
+        let pattern = try decoder.decode(Pattern.self, from: content)
+        let expected = Pattern.texture(.checker(.rgb(0, 0.5, 0), .rgb(1, 1, 1), width: 20, height: 10), map: .spherical)
 
         XCTAssertEqual(pattern, expected)
     }
