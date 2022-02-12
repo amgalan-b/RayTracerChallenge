@@ -24,7 +24,7 @@ final class Cylinder: Shape {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         self.minimum = try container.decode(Double.self, forKey: .min)
         self.maximum = try container.decode(Double.self, forKey: .max)
-        self.isCapped = try container.decode(Bool.self, forKey: .closed)
+        self.isCapped = try container.decodeIfPresent(Bool.self, forKey: .closed) ?? true
         try super.init(from: decoder)
     }
 
