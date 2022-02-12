@@ -40,6 +40,20 @@ struct AlignCheckerTexture: TextureProtocol, Equatable {
     }
 }
 
+extension AlignCheckerTexture: Decodable {
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        let colors = try container.decode([String: Color].self, forKey: .colors)
+        self.init(colors["main"]!, colors["ul"]!, colors["ur"]!, colors["bl"]!, colors["br"]!)
+    }
+
+    private enum _CodingKeys: String, CodingKey {
+
+        case colors
+    }
+}
+
 #if TEST
 import XCTest
 

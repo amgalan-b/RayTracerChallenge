@@ -29,6 +29,9 @@ extension Texture: Decodable {
         case "checkers":
             let texture = try CheckerTexture(from: decoder)
             self = .checker(texture)
+        case "align_check":
+            let texture = try AlignCheckerTexture(from: decoder)
+            self = .alignChecker(texture)
         default:
             fatalError()
         }
