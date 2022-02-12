@@ -1,22 +1,37 @@
 import Foundation
 
-enum TextureMap: String {
+enum TextureMap: Equatable {
 
-    case spherical
-    case planar
-    case cylindrical
-    case cubic
+    case spherical(Texture)
+    case planar(Texture)
+    case cylindrical(Texture)
+    case cubic(Texture, Texture, Texture, Texture, Texture, Texture)
 
-    func map(point: Point) -> Point2D {
+    func color(at localPoint: Point) -> Color {
         switch self {
-        case .spherical:
-            return point._mapSpherical()
-        case .planar:
-            return point._mapPlanar()
-        case .cylindrical:
-            return point._mapCylindrical()
-        case .cubic:
-            return point._mapCubic()
+        case let .spherical(texture):
+            return texture.color(at: localPoint._mapSpherical())
+        case let .planar(texture):
+            return texture.color(at: localPoint._mapPlanar())
+        case let .cylindrical(texture):
+            return texture.color(at: localPoint._mapCylindrical())
+        case let .cubic(left, right, front, back, up, down):
+            let face = _CubeFace(point: localPoint)!
+            let point = face.map(point: localPoint)
+            switch face {
+            case .left:
+                return left.color(at: point)
+            case .right:
+                return right.color(at: point)
+            case .front:
+                return front.color(at: point)
+            case .back:
+                return back.color(at: point)
+            case .up:
+                return up.color(at: point)
+            case .down:
+                return down.color(at: point)
+            }
         }
     }
 }
@@ -24,13 +39,40 @@ enum TextureMap: String {
 extension TextureMap: Decodable {
 
     init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        let value = try container.decode(String.self)
-        guard let map = TextureMap(rawValue: value) else {
+        let container = try decoder.container(keyedBy: _CodingKeys.self)
+        let mapping = try container.decode(String.self, forKey: .mapping)
+        switch mapping {
+        case "spherical":
+            self = .spherical(try container.decode(Texture.self, forKey: .texture))
+        case "planar":
+            self = .planar(try container.decode(Texture.self, forKey: .texture))
+        case "cylindrical":
+            self = .cylindrical(try container.decode(Texture.self, forKey: .texture))
+        case "cube":
+            let left = try container.decode(Texture.self, forKey: .left)
+            let right = try container.decode(Texture.self, forKey: .right)
+            let front = try container.decode(Texture.self, forKey: .front)
+            let back = try container.decode(Texture.self, forKey: .back)
+            let up = try container.decode(Texture.self, forKey: .up)
+            let down = try container.decode(Texture.self, forKey: .down)
+
+            self = .cubic(left, right, front, back, up, down)
+        default:
             fatalError()
         }
+    }
 
-        self = map
+    private enum _CodingKeys: String, CodingKey {
+
+        case mapping
+        case texture = "uv_pattern"
+
+        case left
+        case right
+        case front
+        case back
+        case up
+        case down
     }
 }
 
@@ -62,14 +104,6 @@ extension Point {
         let v = y.modulo(dividingBy: 1)
 
         return Point2D(u, v)
-    }
-
-    fileprivate func _mapCubic() -> Point2D {
-        guard let face = _CubeFace(point: self) else {
-            fatalError()
-        }
-
-        return face.map(point: self)
     }
 }
 

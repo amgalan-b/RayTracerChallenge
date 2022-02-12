@@ -36,18 +36,16 @@ extension Pattern: Decodable {
         let colors = try container.decodeIfPresent([Color].self, forKey: .colors) ?? []
         let transform = try container.decodeIfPresent([Matrix].self, forKey: .transform)?
             .reversed()
-            .reduce1(*)!
+            .reduce1(*) ?? .identity
 
         switch type {
         case "stripes":
-            self = .stripe(colors[0], colors[1], transform ?? .identity)
+            self = .stripe(colors[0], colors[1], transform)
         case "checkers":
-            self = .checker(colors[0], colors[1], transform ?? .identity)
+            self = .checker(colors[0], colors[1], transform)
         case "map":
-            let mapping = try container.decode(TextureMap.self, forKey: .mapping)
-            let texture = try container.decode(Texture.self, forKey: .texture)
-
-            self = .texture(texture, map: mapping)
+            let mapping = try TextureMap(from: decoder)
+            self = .texture(map: mapping, transform: transform)
         default:
             fatalError()
         }
@@ -58,8 +56,6 @@ extension Pattern: Decodable {
         case type
         case colors
         case transform
-        case mapping
-        case texture = "uv_pattern"
     }
 }
 
@@ -129,7 +125,69 @@ final class PatternTests: XCTestCase {
 
         let decoder = YAMLDecoder()
         let pattern = try decoder.decode(Pattern.self, from: content)
-        let expected = Pattern.texture(.checker(.rgb(0, 0.5, 0), .rgb(1, 1, 1), width: 20, height: 10), map: .spherical)
+        let expected = Pattern.texture(map: .spherical(.checker(.rgb(0, 0.5, 0), .rgb(1, 1, 1), width: 20, height: 10)))
+
+        XCTAssertEqual(pattern, expected)
+    }
+
+    func test_decode_textureCubic() throws {
+        let content = """
+        type: map
+        mapping: cube
+        left:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        front:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        right:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        back:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        up:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        down:
+          type: align_check
+          colors:
+            main: [1, 0, 0] # red
+            ul: [1, 1, 0]   # yellow
+            ur: [1, 0, 1]   # purple
+            bl: [0, 1, 0]   # green
+            br: [1, 1, 1]   # white
+        """
+
+        let decoder = YAMLDecoder()
+        let pattern = try decoder.decode(Pattern.self, from: content)
+        let texture = Texture.alignChecker(.rgb(1, 0, 0), .rgb(1, 1, 0), .rgb(1, 0, 1), .rgb(0, 1, 0), .rgb(1, 1, 1))
+        let expected = Pattern.texture(map: .cubic(texture, texture, texture, texture, texture, texture))
 
         XCTAssertEqual(pattern, expected)
     }
