@@ -38,6 +38,9 @@ public struct Canvas {
     }
 }
 
+extension Canvas: Equatable {
+}
+
 #if TEST
 import XCTest
 
