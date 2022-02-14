@@ -4,12 +4,15 @@ enum Texture: Equatable {
 
     case checker(CheckerTexture)
     case alignChecker(AlignCheckerTexture)
+    case image(ImageTexture)
 
     private var _texture: TextureProtocol {
         switch self {
         case let .checker(texture):
             return texture
         case let .alignChecker(texture):
+            return texture
+        case let .image(texture):
             return texture
         }
     }
@@ -32,6 +35,9 @@ extension Texture: Decodable {
         case "align_check":
             let texture = try AlignCheckerTexture(from: decoder)
             self = .alignChecker(texture)
+        case "image":
+            let texture = try ImageTexture(from: decoder)
+            self = .image(texture)
         default:
             fatalError()
         }
