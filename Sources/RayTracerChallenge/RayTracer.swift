@@ -63,6 +63,9 @@ struct RayTracer: ParsableCommand {
     }
 
     private func _readSceneDescription() throws -> String {
+        Globals.readDirectoryURL = URL(fileURLWithPath: inputFileLocation)
+            .deletingLastPathComponent()
+
         switch inputFileType {
         case .scene:
             return try inputFileLocation._readFileOrStandardInput()

@@ -25,8 +25,8 @@ extension ImageTexture: Decodable {
         let container = try decoder.container(keyedBy: _CodingKeys.self)
         let fileName = try container.decode(String.self, forKey: .file)
 
-        let url = Bundle.module.url(forResource: fileName, withExtension: nil, subdirectory: "Assets")
-        let content = try String(contentsOf: url!)
+        let url = URL(fileURLWithPath: fileName, isDirectory: false, relativeTo: Globals.readDirectoryURL)
+        let content = try String(contentsOf: url)
         let canvas = Canvas(ppm: content)!
 
         self.init(canvas: canvas)
