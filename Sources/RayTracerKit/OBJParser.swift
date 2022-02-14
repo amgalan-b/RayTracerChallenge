@@ -3,6 +3,8 @@ import Foundation
 
 public final class OBJParser {
 
+    fileprivate static let _material = Material.default(ambient: 0.7, diffuse: 0.3, specular: 0.05)
+
     fileprivate var _ignoredLineCount = 0
     fileprivate var _vertices = [Point]()
     fileprivate var _normals = [Vector]()
@@ -97,7 +99,13 @@ extension Array where Element == Point {
     fileprivate func _triangulate() -> [Triangle] {
         var triangles = [Triangle]()
         for i in 1 ..< count - 1 {
-            let triangle = Triangle(self[0], self[i], self[i + 1])
+            let triangle = Triangle(
+                self[0],
+                self[i],
+                self[i + 1],
+                material: OBJParser._material,
+                isShadowCasting: false
+            )
             triangles.append(triangle)
         }
 
@@ -107,7 +115,16 @@ extension Array where Element == Point {
     fileprivate func _smoothTriangulate(normals: [Vector]) -> [SmoothTriangle] {
         var triangles = [SmoothTriangle]()
         for i in 1 ..< count - 1 {
-            let triangle = SmoothTriangle(self[0], self[i], self[i + 1], normals[0], normals[i], normals[i + 1])
+            let triangle = SmoothTriangle(
+                self[0],
+                self[i],
+                self[i + 1],
+                normals[0],
+                normals[i],
+                normals[i + 1],
+                material: OBJParser._material,
+                isShadowCasting: false
+            )
             triangles.append(triangle)
         }
 
