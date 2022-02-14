@@ -19,7 +19,7 @@ extension Canvas {
 
         let scale = Double(lines[2])!
         let colors = lines[3...]
-            .reduce1 { $0 + " " + $1 }!
+            .reduce("") { $0 + " " + $1 }
             .split(whereSeparator: \.isWhitespace)
             .map { Double($0)! / scale }
             ._parseColors()
@@ -35,32 +35,19 @@ extension Canvas {
 
 extension Array where Element == Double {
 
-    fileprivate func _parseColors() -> [Color] {
+    /// - Note: Instead of using a stack, we are reversing the array and popping last elements.
+    fileprivate func _parseColors() -> ReversedCollection<[Color]> {
         var colors = self
         var result = [Color]()
         while !colors.isEmpty {
-            let r = colors.removeFirst()
-            let g = colors.removeFirst()
-            let b = colors.removeFirst()
+            let b = colors.popLast()!
+            let g = colors.popLast()!
+            let r = colors.popLast()!
 
             result.append(.rgb(r, g, b))
         }
 
-        return result
-    }
-}
-
-extension String {
-
-    mutating func popLine() -> String? {
-        guard let index = firstIndex(where: \.isNewline) else {
-            return self
-        }
-
-        let substring = self[startIndex ..< index]
-        removeSubrange(startIndex ... index)
-
-        return String(substring)
+        return result.reversed()
     }
 }
 
