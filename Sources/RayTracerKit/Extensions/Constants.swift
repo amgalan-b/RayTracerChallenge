@@ -9,4 +9,5 @@ public enum Globals {
 enum Constants {
 
     static let maxRecursionDepth = 5
+    static let defaultBackgroundColor = Color.white
 }

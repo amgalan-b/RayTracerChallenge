@@ -26,7 +26,7 @@ public final class World {
 
         let intersections = _intersect(with: ray)
         guard let hit = intersections.hit() else {
-            return .black
+            return Constants.defaultBackgroundColor
         }
 
         let computations = Computations(intersection: hit, ray: ray)
@@ -150,7 +150,7 @@ final class WorldTests: XCTestCase {
         let world = World.makeDefault()
         let ray = Ray(origin: Point(0, 0, -5), direction: Vector(0, 1, 0))
 
-        XCTAssertEqual(world.color(for: ray), .black)
+        XCTAssertEqual(world.color(for: ray), Constants.defaultBackgroundColor)
     }
 
     func test_color_rayHit() {
