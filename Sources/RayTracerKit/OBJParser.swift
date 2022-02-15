@@ -3,7 +3,7 @@ import Foundation
 
 public final class OBJParser {
 
-    fileprivate static let _material = Material.default(ambient: 0.7, diffuse: 0.3, specular: 0.05)
+    fileprivate static let _material = Material.default(ambient: 0.65, diffuse: 0.35, specular: 0.05)
 
     fileprivate var _ignoredLineCount = 0
     fileprivate var _vertices = [Point]()
