@@ -1,28 +1,48 @@
+import Babbage
 import Foundation
 
 extension Canvas {
 
     init?(ppm: String) {
-        let lines = ppm.split(whereSeparator: \.isNewline)
-            .filter { $0.count > 1 && !$0.hasPrefix("#") }
-
-        guard lines[0] == "P3" else {
+        var ppm = ppm
+        guard ppm._popLine() == "P3" else {
             return nil
         }
 
-        let (width, height) = lines[1]
+        let (width, height) = ppm._popLine()!
             .split(whereSeparator: \.isWhitespace)
             .map { Int($0)! }
             .run { ($0[0], $0[1]) }
 
         self.init(width: width, height: height)
 
-        let scale = Double(lines[2])!
-        let colors = lines[3...]
-            .reduce("") { $0 + " " + $1 }
-            .split(whereSeparator: \.isWhitespace)
-            .map { Double($0)! / scale }
-            ._parseColors()
+        print("reading ppm", to: &standardError)
+        let scale = Double(ppm._popLine()!)!
+
+        var colors = [Color]()
+        var double = ""
+        var numbers = [Double]()
+        for character in ppm {
+            guard !character.isWhitespace else {
+                guard !double.isEmpty else {
+                    continue
+                }
+
+                numbers.append(Double(double)! / scale)
+                double = ""
+                continue
+            }
+
+            double.append(character)
+
+            guard numbers.count == 3 else {
+                continue
+            }
+
+            colors.append(.rgb(numbers[0], numbers[1], numbers[2]))
+            numbers = []
+        }
+        print("reading line", to: &standardError)
 
         for (index, color) in colors.enumerated() {
             let x = index % width
@@ -30,6 +50,20 @@ extension Canvas {
 
             self[x, y] = color
         }
+        print("done ppm", to: &standardError)
+    }
+}
+
+extension String {
+
+    fileprivate mutating func _popLine() -> Substring? {
+        while let line = popLine() {
+            if line.count > 1, !line.hasPrefix("#") {
+                return line
+            }
+        }
+
+        return nil
     }
 }
 
