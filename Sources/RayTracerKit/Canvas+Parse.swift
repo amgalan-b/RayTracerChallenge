@@ -16,14 +16,13 @@ extension Canvas {
 
         self.init(width: width, height: height)
 
-        print("reading ppm", to: &standardError)
         let scale = Double(ppm._popLine()!)!
-
-        var colors = [Color]()
-        var double = ""
-        var numbers = [Double]()
+        var totalColors = [Color]()
+        var currentRawColorValues = ""
+        var currentColorValues = [Double]()
         var isComment = false
-        for character in ppm {
+        for index in ppm.indices {
+            let character = ppm[index]
             guard !isComment else {
                 isComment = !character.isNewline
                 continue
@@ -34,34 +33,33 @@ extension Canvas {
                 continue
             }
 
-            guard character.isWhitespace else {
-                double.append(character)
+            guard !character.isWhitespace else {
                 continue
             }
 
-            guard !double.isEmpty else {
+            currentRawColorValues.append(character)
+            let nextIndex = ppm.index(after: index)
+            guard nextIndex == ppm.endIndex || ppm[nextIndex].isWhitespace else {
                 continue
             }
 
-            numbers.append(Double(double)! / scale)
-            double = ""
+            currentColorValues.append(Double(currentRawColorValues)! / scale)
+            currentRawColorValues = ""
 
-            guard numbers.count == 3 else {
+            guard currentColorValues.count == 3 else {
                 continue
             }
 
-            colors.append(.rgb(numbers[0], numbers[1], numbers[2]))
-            numbers = []
+            totalColors.append(.rgb(currentColorValues[0], currentColorValues[1], currentColorValues[2]))
+            currentColorValues = []
         }
-        print("reading line", to: &standardError)
 
-        for (index, color) in colors.enumerated() {
+        for (index, color) in totalColors.enumerated() {
             let x = index % width
             let y = index / width
 
             self[x, y] = color
         }
-        print("done ppm", to: &standardError)
     }
 }
 
@@ -162,7 +160,6 @@ extension CanvasTests {
         255 255 255
         # oh, no, comments in the pixel data!
         255 0 255
-
         """
 
         let canvas = Canvas(ppm: content)
@@ -172,12 +169,6 @@ extension CanvasTests {
         ])
 
         XCTAssertEqual(canvas, expected)
-    }
-
-    func test_parsePPM_performance() throws {
-        let fileLocation = "/Users/amgalan/Projects/RayTracerChallenge/Sources/RayTracerChallenge/Scenes/negx.ppm"
-        let content = try String(contentsOfFile: fileLocation)
-        let canvas = Canvas(ppm: content)
     }
 }
 #endif
