@@ -1,3 +1,4 @@
+import Babbage
 import Foundation
 
 struct ImageTexture: Equatable, TextureProtocol {
@@ -26,6 +27,11 @@ extension ImageTexture: Decodable {
         let fileName = try container.decode(String.self, forKey: .file)
 
         let url = URL(fileURLWithPath: fileName, isDirectory: false, relativeTo: Globals.readDirectoryURL)
+        let resources = try url.resourceValues(forKeys: [.fileSizeKey])
+        let formatter = ByteCountFormatter()
+        let formatted = formatter.string(from: Measurement(value: Double(resources.fileSize!), unit: .bytes))
+
+        print("Loading texture: \(fileName) (\(formatted))", to: &standardError)
         let content = try String(contentsOf: url)
         let canvas = Canvas(ppm: content)!
 
