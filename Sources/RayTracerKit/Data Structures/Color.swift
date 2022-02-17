@@ -58,6 +58,13 @@ extension Color {
     }
 }
 
+extension Color: CustomDebugStringConvertible {
+
+    var debugDescription: String {
+        return "[\(_rgb[0]), \(_rgb[1]), \(_rgb[2])]"
+    }
+}
+
 extension Color {
 
     static func + (lhs: Self, rhs: Self) -> Self {
