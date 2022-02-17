@@ -22,18 +22,29 @@ extension Canvas {
         var colors = [Color]()
         var double = ""
         var numbers = [Double]()
+        var isComment = false
         for character in ppm {
-            guard !character.isWhitespace else {
-                guard !double.isEmpty else {
-                    continue
-                }
-
-                numbers.append(Double(double)! / scale)
-                double = ""
+            guard !isComment else {
+                isComment = !character.isNewline
                 continue
             }
 
-            double.append(character)
+            guard character != "#" else {
+                isComment = true
+                continue
+            }
+
+            guard character.isWhitespace else {
+                double.append(character)
+                continue
+            }
+
+            guard !double.isEmpty else {
+                continue
+            }
+
+            numbers.append(Double(double)! / scale)
+            double = ""
 
             guard numbers.count == 3 else {
                 continue
@@ -151,6 +162,7 @@ extension CanvasTests {
         255 255 255
         # oh, no, comments in the pixel data!
         255 0 255
+
         """
 
         let canvas = Canvas(ppm: content)
@@ -160,6 +172,12 @@ extension CanvasTests {
         ])
 
         XCTAssertEqual(canvas, expected)
+    }
+
+    func test_parsePPM_performance() throws {
+        let fileLocation = "/Users/amgalan/Projects/RayTracerChallenge/Sources/RayTracerChallenge/Scenes/negx.ppm"
+        let content = try String(contentsOfFile: fileLocation)
+        let canvas = Canvas(ppm: content)
     }
 }
 #endif
