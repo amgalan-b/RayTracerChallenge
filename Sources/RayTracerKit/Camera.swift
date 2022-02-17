@@ -70,11 +70,10 @@ public struct Camera: Equatable {
 
                     let diff = CFAbsoluteTimeGetCurrent() - start
                     let output = String(format: "%.3f seconds", diff)
-                    print("Column: \(x) \(output)", terminator: "\r", to: &standardError)
+                    print("Rendering: \(x) \(output)", terminator: "\r", to: &standardError)
                     return (x, column)
                 }
             }
-
 
             var matrix = [[Color]](repeating: [], count: width)
             for await taskResult in group {
