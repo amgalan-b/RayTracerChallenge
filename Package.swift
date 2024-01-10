@@ -20,7 +20,7 @@ let package = Package(
         .executableTarget(
             name: "RayTracerChallenge",
             dependencies: ["RayTracerKit", .product(name: "ArgumentParser", package: "swift-argument-parser")],
-            resources: [.copy("Scenes")]
+            resources: [.copy("background.yaml")]
         ),
         .target(
             name: "RayTracerKit",

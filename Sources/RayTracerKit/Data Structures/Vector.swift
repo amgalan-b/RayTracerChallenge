@@ -6,7 +6,6 @@ public struct Vector: Tuple {
     var xyzw: SIMD4<Double>
 
     init(xyzw: SIMD4<Double>) {
-        assert(xyzw.w == 0)
         self.xyzw = xyzw
     }
 

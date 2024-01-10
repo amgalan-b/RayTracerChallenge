@@ -69,12 +69,7 @@ struct RayTracer: ParsableCommand {
         case .scene:
             return try inputFileLocation._readFileOrStandardInput()
         case .obj:
-            let objBackgroundSceneLocation = Bundle.module.url(
-                forResource: "background",
-                withExtension: "yaml",
-                subdirectory: "Scenes"
-            )!
-
+            let objBackgroundSceneLocation = Bundle.module.url(forResource: "background", withExtension: "yaml")!
             return try String(contentsOf: objBackgroundSceneLocation)
         }
     }
