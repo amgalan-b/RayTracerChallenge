@@ -9,7 +9,7 @@ let package = Package(
         .macOS(.v12),
     ],
     products: [
-        .executable(name: "RayTracerChallenge", targets: ["RayTracerChallenge"]),
+        .executable(name: "ray-tracer", targets: ["RayTracerChallenge"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections", .exact("1.0.2")),
