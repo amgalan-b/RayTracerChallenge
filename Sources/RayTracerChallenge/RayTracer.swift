@@ -22,7 +22,7 @@ struct RayTracer: ParsableCommand {
     var inputFileLocation: String
 
     @Option(name: .customLong("type"), help: "Input file type.")
-    var inputFileType: InputType = .obj
+    var inputFileType: InputType = .scene
 
     @Option(name: [.short, .customLong("output")], help: "Output PPM file location. Prints to stdout by default.")
     var outputFileLocation: String?
