@@ -1,4 +1,3 @@
-import Babbage
 import Collections
 
 extension Array where Element == Intersection {

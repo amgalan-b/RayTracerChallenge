@@ -12,7 +12,6 @@ let package = Package(
         .executable(name: "RayTracerChallenge", targets: ["RayTracerChallenge"]),
     ],
     dependencies: [
-        .package(name: "Babbage", path: "~/Projects/Babbage"),
         .package(url: "https://github.com/apple/swift-collections", .exact("1.0.2")),
         .package(url: "https://github.com/apple/swift-argument-parser", .exact("1.0.2")),
         .package(url: "https://github.com/jpsim/Yams", .exact("4.0.6")),
@@ -25,7 +24,7 @@ let package = Package(
         ),
         .target(
             name: "RayTracerKit",
-            dependencies: ["Babbage", "Yams", .product(name: "Collections", package: "swift-collections")]
+            dependencies: ["Yams", .product(name: "Collections", package: "swift-collections")]
         ),
         .testTarget(
             name: "RayTracerTests",

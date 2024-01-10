@@ -1,4 +1,3 @@
-import Babbage
 import Foundation
 
 public struct Canvas {

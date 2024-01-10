@@ -1,4 +1,3 @@
-import Babbage
 import Foundation
 
 /// Canvas is always 1-unit away from the camera.
@@ -46,7 +45,7 @@ public struct Camera: Equatable {
             }
             let diff = CFAbsoluteTimeGetCurrent() - start
             let output = String(format: "%.3f seconds", diff)
-            print("Column: \(x) \(output)", to: &standardError)
+            printError("Column: \(x) \(output)")
         }
 
         return canvas
@@ -70,7 +69,7 @@ public struct Camera: Equatable {
 
                     let diff = CFAbsoluteTimeGetCurrent() - start
                     let output = String(format: "%.3f seconds", diff)
-                    print("Rendering: \(x) \(output)", terminator: "\r", to: &standardError)
+                    printError("Rendering: \(x) \(output)", terminator: "\r")
                     return (x, column)
                 }
             }
@@ -79,7 +78,7 @@ public struct Camera: Equatable {
             for await taskResult in group {
                 matrix[taskResult.column] = taskResult.colors
             }
-            print("", to: &standardError)
+            printError("")
 
             return matrix
         }

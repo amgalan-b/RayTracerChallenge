@@ -1,5 +1,23 @@
-import Babbage
 import Foundation
+
+private struct _DefaultDictionary<Key: Hashable, Value> {
+
+    private let _defaultValue: Value
+    private var _dictionary = [Key: Value]()
+
+    init(defaultValue: Value) {
+        _defaultValue = defaultValue
+    }
+
+    subscript(key: Key) -> Value {
+        get { _dictionary[key] ?? _defaultValue }
+        set { _dictionary[key] = newValue }
+    }
+
+    var dictionary: [Key: Value] {
+        return _dictionary
+    }
+}
 
 public final class OBJParser {
 
@@ -9,7 +27,7 @@ public final class OBJParser {
     fileprivate var _vertices = [Point]()
     fileprivate var _normals = [Vector]()
     fileprivate var _topLevelShapes = [Shape]()
-    fileprivate var _topLevelGroups = DefaultDictionary<String, [Shape]>(defaultValue: [])
+    fileprivate var _topLevelGroups = _DefaultDictionary<String, [Shape]>(defaultValue: [])
 
     private var _recentGroup: String?
 
@@ -57,7 +75,7 @@ public final class OBJParser {
             }
         }
 
-        print("Ignored: \(_ignoredLineCount)", to: &standardError)
+        printError("Ignored: \(_ignoredLineCount)")
 
         let result = Group()
         result.addChildren(_topLevelShapes)

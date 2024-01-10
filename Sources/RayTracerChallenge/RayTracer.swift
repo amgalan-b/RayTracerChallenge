@@ -1,5 +1,4 @@
 import ArgumentParser
-import Babbage
 import Foundation
 import RayTracerKit
 
@@ -93,7 +92,7 @@ struct RayTracer: ParsableCommand {
     private func _printTimeElapsed() {
         let diff = CFAbsoluteTimeGetCurrent() - _startTime
         let formatted = String(format: "%.3f seconds", diff)
-        print(formatted, to: &standardError)
+        printError(formatted)
     }
 }
 
